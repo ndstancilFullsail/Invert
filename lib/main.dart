@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:invert/signup_page.dart';
 
 void main() {
   runApp(const InVertApp());
 }
 
 class InVertApp extends StatelessWidget {
-  const InVertApp({Key? key}) : super(key: key);
+  const InVertApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class InVertApp extends StatelessWidget {
 }
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +101,10 @@ class LoginPage extends StatelessWidget {
                     // Sign-Up Text
                     TextButton(
                       onPressed: () {
-                        // Add navigation to sign-up screen here
+                        Navigator.push(
+                           context,
+                           MaterialPageRoute(builder: (context) => SignUpScreen()),
+                           );
                       },
                       child: const Text("Don't have an account? Sign Up"),
                     ),
