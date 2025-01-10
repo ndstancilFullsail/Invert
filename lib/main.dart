@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:invert/signuppage.dart';
+import 'package:invert/utils.dart';
 
-void main() {
+
+void main() async {
+
+  await setup();
   runApp(const InVertApp());
 }
 
+Future<void> setup() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupFirebase(); 
+}
+
 class InVertApp extends StatelessWidget {
-  const InVertApp({Key? key}) : super(key: key);
+  const InVertApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'InVert',
       theme: ThemeData(
-        primaryColor: Colors.blue[700],
+        primaryColor: Colors.cyan[800],
       ),
       home: const LoginPage(),
     );
@@ -20,7 +30,7 @@ class InVertApp extends StatelessWidget {
 }
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +41,7 @@ class LoginPage extends StatelessWidget {
           Expanded(
             flex: 2,
             child: Container(
-              color: Colors.blue[700],
+              color:  Color.fromARGB(255,20,107,148),
               child: const Center(
                 child: Text(
                   'nVert is your place to learn to connect.\nJoin a community that understands you.',
@@ -85,7 +95,7 @@ class LoginPage extends StatelessWidget {
                         // Add login functionality here
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[700],
+                        backgroundColor:Color.fromARGB(255,20,107,148),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 15,
@@ -100,7 +110,10 @@ class LoginPage extends StatelessWidget {
                     // Sign-Up Text
                     TextButton(
                       onPressed: () {
-                        // Add navigation to sign-up screen here
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context)=> SignUpPage(),
+                          ),
+                        );
                       },
                       child: const Text("Don't have an account? Sign Up"),
                     ),
