@@ -10,6 +10,13 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+
+  final TextEditingController _fullnamecontroller = TextEditingController();
+  final TextEditingController _usernamecontroller = TextEditingController();
+  final TextEditingController _emailcontroller = TextEditingController();
+  final TextEditingController _passwordcontroller = TextEditingController();
+  final TextEditingController _confirmpasswordcontroller = TextEditingController();
+
     @override
   Widget build(BuildContext context) {
 
@@ -30,9 +37,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,),
                   ),
-                  )
-              )
-            )
+                  ),
+              ),
+            ),
 
             Expanded(
               flex: 3,
@@ -53,7 +60,61 @@ class _SignUpPageState extends State<SignUpPage> {
                           labelText: 'Full Name',
                           border: OutlineInputBorder(),
                           ),
-                      )
+                      ),
+                      const SizedBox(height: 10),
+                      // Username Input
+                      TextField(
+                        controller: _usernamecontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Username',
+                          border: OutlineInputBorder(),
+                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Email Input
+                      TextField(
+                        controller: _emailcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      // Password Input
+                      TextField(
+                        controller: _passwordcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(),
+                          ), 
+                      ),
+                      const SizedBox(height: 20),
+                      // Confirm Password Input
+                      TextField(
+                        controller: _confirmpasswordcontroller,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          border: OutlineInputBorder(),
+                          ),
+                      ),
+                      // Sign Up Button
+                      ElevatedButton(
+                        onPressed: () {
+                          // Add sign up functionality here
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 20, 107, 148),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 50,
+                            vertical: 15,
+                          ),
+                        ),
+                        child: const Text(
+                          'Sign Up',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+
                     ],
                   )
                 ),
