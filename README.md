@@ -1,16 +1,13 @@
 # invert
 
-A new Flutter project.
+InVert is a Windows-based social platform focused on helping introverts build communication skills. The application combines real-time messaging, progress tracking, and feedback systems to create a supportive environment for personal growth.
 
-## Getting Started
+# Features
 
-This project is a starting point for a Flutter application.
+User Profiles: Customize and manage your personal profile.
 
-A few resources to get you started if this is your first Flutter project:
+Real-Time Messaging: Communicate with others in a safe and supportive space.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Progress Tracking: Monitor improvements in your communication skills over time.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Guided Feedback: Receive prompts and tips to enhance your interactions.
