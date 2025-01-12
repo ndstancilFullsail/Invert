@@ -11,3 +11,15 @@ Real-Time Messaging: Communicate with others in a safe and supportive space.
 Progress Tracking: Monitor improvements in your communication skills over time.
 
 Guided Feedback: Receive prompts and tips to enhance your interactions.
+
+# How to run
+
+Clone this repository
+
+Navigate to the project directory
+
+Install dependencies
+
+Run the application
+
+
