@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invert/forgotpassword.dart';
 import 'package:invert/signuppage.dart';
 import 'package:invert/utils.dart';
 
@@ -72,10 +73,10 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Username Input
+                    // Email Input
                     TextField(
                       decoration: InputDecoration(
-                        labelText: 'Username',
+                        labelText: 'Email',
                         border: OutlineInputBorder(),
                       ),
                     ),
@@ -88,7 +89,18 @@ class LoginPage extends StatelessWidget {
                       ),
                       obscureText: true,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(
+                          builder: (context)=> ForgotPassword(),
+                          ),
+                        );
+                      },
+                      child: const Text("Forgot Password?"),
+                    ),
+                   
+
                     // Login Button
                     ElevatedButton(
                       onPressed: () {

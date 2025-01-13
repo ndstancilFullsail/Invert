@@ -38,6 +38,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     fontWeight: FontWeight.bold,),
                   ),
                   ),
+                  
               ),
             ),
 
@@ -50,7 +51,11 @@ class _SignUpPageState extends State<SignUpPage> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
-                        'Sign Up'
+                        'Sign Up',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       // Full Name Input
@@ -97,6 +102,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           border: OutlineInputBorder(),
                           ),
                       ),
+                       const SizedBox(height: 20),
                       // Sign Up Button
                       ElevatedButton(
                         onPressed: () {
