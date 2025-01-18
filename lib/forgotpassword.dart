@@ -15,28 +15,45 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+     
+      
       body: Row(
         children: [
-          
+          // Left Branding Section
           Expanded(
             flex: 2,
             child: Container(
-              color: const Color.fromARGB(255, 20, 107, 148),
-              child: Center(
-                child: Text(
-                  'nVert is your place to learn to connect. \nJoin a community that understands you.',
+              color:  Color.fromARGB(255,20,107,148),
+            child: Column(
+              children: [
+                Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png',),
+                const SizedBox(height: 20),
+                 Text(
+                  'nVert is your place to learn to connect.',
                   textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                  style: GoogleFonts.inter(
                     color: Colors.white,
+                    fontSize: 46,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+                const SizedBox(height: 20),
+                Text(
+                  'Join a community that understands you.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    
+                  ),
+                ),
+              ],
               ),
             ),
-          ),
-
-        Expanded(
+        ),
+          // Right Login Section
+          Expanded(
           flex:3,
           child: Center(
             child: SizedBox(
@@ -83,23 +100,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               ),
             ),
           ],
-        ),
-      );
+
+      ),
+);
   }
 }
 
-class ImageSection extends StatelessWidget {
-  const ImageSection({super.key, required this.image});
-
-  final String image;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      image,
-      width: 600,
-      height: 240,
-      fit: BoxFit.cover,
-    );
-  }
-}

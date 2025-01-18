@@ -1,7 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:invert/forgotpassword.dart';
 import 'package:invert/signuppage.dart';
 import 'package:invert/utils.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:invert/signuputils.dart';
+
 
 
 void main() async {
@@ -15,9 +19,14 @@ Future<void> setup() async{
   await setupFirebase(); 
 }
 
-class InVertApp extends StatelessWidget {
+class InVertApp extends StatefulWidget {
   const InVertApp({super.key});
 
+  @override
+  State<InVertApp> createState() => _InVertAppState();
+}
+
+class _InVertAppState extends State<InVertApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,8 +39,27 @@ class InVertApp extends StatelessWidget {
   }
 }
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+
+
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailcontroller = TextEditingController();
+  final TextEditingController _passwordcontroller = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -40,28 +68,43 @@ class LoginPage extends StatelessWidget {
         children: [
           // Left Branding Section
           Expanded(
-            flex: 2,
+           flex: 2,
             child: Container(
               color:  Color.fromARGB(255,20,107,148),
-              child: const Center(
-                child: Text(
-                  'nVert is your place to learn to connect.\nJoin a community that understands you.',
+            child: Column(
+              children: [
+                Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png',),
+                const SizedBox(height: 20),
+                 Text(
+                  'nVert is your place to learn to connect.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: 34,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const SizedBox(height: 20),
+                Text(
+                  'Join a community that understands you.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    
+                  ),
+                ),
+              ],
               ),
             ),
-          ),
+        ),
           // Right Login Section
           Expanded(
             flex: 3,
             child: Center(
               child: SizedBox(
-                width: 300,
+                width: 400,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -73,8 +116,15 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
+                    const Text(
+                      'Connect with other introverts.',
+                      style: TextStyle(
+                        fontSize: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     // Email Input
-                    TextField(
+                    TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Email',
                         border: OutlineInputBorder(),
@@ -82,7 +132,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     // Password Input
-                    TextField(
+                    TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Password',
                         border: OutlineInputBorder(),
@@ -97,17 +147,20 @@ class LoginPage extends StatelessWidget {
                           ),
                         );
                       },
-                      child: const Text("Forgot Password?"),
+                      child: const Text("Forgot Password?", 
+                      style: TextStyle(
+                        color: Color.fromARGB(255,20, 108, 148),
+                      ),
+                      ),
                     ),
+                    const SizedBox(height: 15),
                    
 
                     // Login Button
                     ElevatedButton(
-                      onPressed: () {
-                        // Add login functionality here
-                      },
+                      onPressed: _signIn,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:Color.fromARGB(255,20,107,148),
+                        backgroundColor:Color.fromARGB(128,20, 108, 148),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 15,
@@ -118,7 +171,7 @@ class LoginPage extends StatelessWidget {
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
                     // Sign-Up Text
                     TextButton(
                       onPressed: () {
@@ -127,7 +180,12 @@ class LoginPage extends StatelessWidget {
                           ),
                         );
                       },
-                      child: const Text("Don't have an account? Sign Up"),
+                      child: const Text("Don't have an account? Sign Up",
+                      style: TextStyle(
+                        color: Color.fromARGB(255,20, 108, 148),
+                      ),
+                      ),
+
                     ),
                   ],
                 ),
@@ -137,5 +195,30 @@ class LoginPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+   void _signIn() async{
+  
+  String email = _emailcontroller.text.trim();
+  String password = _passwordcontroller.text.trim();
+
+  User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
+if(user != null){
+
+  SnackBar(
+    content: Text('Sign In Successful'),
+  );  
+        Navigator.pushReplacement(context, MaterialPageRoute(
+               builder: (context) => LoginPage(),
+          ),
+        );
+    }
+    else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+           content: Text('Sign Up Failed'),
+          ),
+       );
+      }
   }
 }

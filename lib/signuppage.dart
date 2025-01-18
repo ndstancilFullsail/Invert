@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:invert/main.dart';
+import 'package:invert/signuputils.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -16,6 +19,19 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _emailcontroller = TextEditingController();
   final TextEditingController _passwordcontroller = TextEditingController();
   final TextEditingController _confirmpasswordcontroller = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+   void dispose() {
+    _fullnamecontroller.dispose();
+    _usernamecontroller.dispose();
+    _emailcontroller.dispose();
+    _passwordcontroller.dispose();
+    _confirmpasswordcontroller.dispose();
+    super.dispose();
+
+  }
+  
 
     @override
   Widget build(BuildContext context) {
@@ -24,31 +40,49 @@ class _SignUpPageState extends State<SignUpPage> {
     return Scaffold(
 
       body: Row(
-        children: [
+       
+          children: [
+          // Left Branding Section
           Expanded(
-            flex: 2,
+           flex: 2,
             child: Container(
-              color: Color.fromARGB(255, 20, 107, 148),
-              child: Center(
-                child: Text(
-                  'nVert is your place to learn to connect. \nJoin a community that understands you.',
+              color:  Color.fromARGB(255,20,107,148),
+            child: Column(
+              children: [
+                Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png',),
+                const SizedBox(height: 20),
+                 Text(
+                  'nVert is your place to learn to connect.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,),
+                    color: Colors.white,
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Join a community that understands you.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    
                   ),
-                  
+                ),
+              ],
               ),
             ),
-
+        ),
+            
             Expanded(
               flex: 3,
               child:Center(
                 child: SizedBox(
-                  width: 300,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  width: 400,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text(
                         'Sign Up',
@@ -59,7 +93,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       const SizedBox(height: 20),
                       // Full Name Input
-                      TextField(
+                      TextFormField(
                         controller: _fullnamecontroller,
                         decoration: InputDecoration(
                           labelText: 'Full Name',
@@ -105,9 +139,7 @@ class _SignUpPageState extends State<SignUpPage> {
                        const SizedBox(height: 20),
                       // Sign Up Button
                       ElevatedButton(
-                        onPressed: () {
-                          // Add sign up functionality here
-                        },
+                        onPressed: _signUp,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromARGB(255, 20, 107, 148),
                           padding: const EdgeInsets.symmetric(
@@ -122,7 +154,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                     ],
-                  )
+                    ),
                 ),
               )
               
@@ -132,4 +164,29 @@ class _SignUpPageState extends State<SignUpPage> {
       )
     );
   }
+  void _signUp() async{
+  String username = _usernamecontroller.text.trim();
+  String email = _emailcontroller.text.trim();
+  String password = _passwordcontroller.text.trim();
+
+  User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
+if(user != null){
+
+  SnackBar(
+    content: Text('Sign Up Successful'),
+  );  
+        Navigator.pushReplacement(context, MaterialPageRoute(
+               builder: (context) => LoginPage(),
+          ),
+        );
+    }
+    else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+           content: Text('Sign Up Failed'),
+          ),
+       );
+      }
+  }
+    
 }
