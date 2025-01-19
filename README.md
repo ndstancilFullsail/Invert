@@ -22,4 +22,22 @@ Install dependencies
 
 Run the application
 
+# Technologies
+
+Firebase for login Authenication
+
+WebRTC and IRC for chat functionality
+
+# Developmeny Setup
+
+# Contributors
+
+Nick Stancil
+jianzhao Su
+Spencer Jones
+Dominique Burns
+
+# Status 
+
+In Development
 
