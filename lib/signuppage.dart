@@ -1,8 +1,10 @@
+import 'package:delightful_toast/toast/components/toast_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/main.dart';
 import 'package:invert/signuputils.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 class SignUpPage extends StatefulWidget {
@@ -102,7 +104,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       const SizedBox(height: 10),
                       // Username Input
-                      TextField(
+                      TextFormField(
                         controller: _usernamecontroller,
                         decoration: InputDecoration(
                           labelText: 'Username',
@@ -111,7 +113,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       const SizedBox(height: 10),
                       // Email Input
-                      TextField(
+                      TextFormField(
                         controller: _emailcontroller,
                         decoration: InputDecoration(
                           labelText: 'Email',
@@ -120,7 +122,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       const SizedBox(height: 10),
                       // Password Input
-                      TextField(
+                      TextFormField(
                         controller: _passwordcontroller,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -129,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       const SizedBox(height: 20),
                       // Confirm Password Input
-                      TextField(
+                      TextFormField(
                         controller: _confirmpasswordcontroller,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
@@ -170,23 +172,32 @@ class _SignUpPageState extends State<SignUpPage> {
   String password = _passwordcontroller.text.trim();
 
   User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
-if(user != null){
+  if(user != null){
 
-  SnackBar(
-    content: Text('Sign Up Successful'),
-  );  
-        Navigator.pushReplacement(context, MaterialPageRoute(
-               builder: (context) => LoginPage(),
-          ),
-        );
+     Fluttertoast.showToast(
+      msg: 'Account created successfully',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+    Navigator.push(context, MaterialPageRoute
+    ( builder:(context) => const LoginPage()
+    )
+    ); 
+    }else{
+       Fluttertoast.showToast(
+      msg: 'Account creation failed',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+     );
     }
-    else{
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-           content: Text('Sign Up Failed'),
-          ),
-       );
-      }
   }
     
 }

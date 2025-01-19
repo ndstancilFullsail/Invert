@@ -5,6 +5,7 @@ import 'package:invert/signuppage.dart';
 import 'package:invert/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 
 
@@ -55,6 +56,14 @@ class _LoginPageState extends State<LoginPage> {
 
 
 
+@override
+   void dispose() {
+   
+    _emailcontroller.dispose();
+    _passwordcontroller.dispose();
+   
+    super.dispose();
+   }
 
 
 
@@ -125,6 +134,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 20),
                     // Email Input
                     TextFormField(
+                      controller: _emailcontroller,
                       decoration: InputDecoration(
                         labelText: 'Email',
                         border: OutlineInputBorder(),
@@ -133,6 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 10),
                     // Password Input
                     TextFormField(
+                      controller: _passwordcontroller,
                       decoration: InputDecoration(
                         labelText: 'Password',
                         border: OutlineInputBorder(),
@@ -202,23 +213,31 @@ class _LoginPageState extends State<LoginPage> {
   String email = _emailcontroller.text.trim();
   String password = _passwordcontroller.text.trim();
 
-  User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
+  User? user = await FirebaseSignUp().signInWithEmailandPassword(email, password);
 if(user != null){
 
-  SnackBar(
-    content: Text('Sign In Successful'),
-  );  
-        Navigator.pushReplacement(context, MaterialPageRoute(
-               builder: (context) => LoginPage(),
-          ),
-        );
-    }
-    else{
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-           content: Text('Sign Up Failed'),
-          ),
-       );
+  if(user != null){
+
+     Fluttertoast.showToast(
+      msg: 'Login successfully',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    ); 
+      }else{
+       Fluttertoast.showToast(
+      msg: 'Login failed',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 16.0,
+      );
       }
+    }
   }
 }
