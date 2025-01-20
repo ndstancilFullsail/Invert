@@ -28,7 +28,15 @@ Firebase for login Authenication
 
 WebRTC and IRC for chat functionality
 
-# Developmeny Setup
+# Development Setup
+
+Will need to install both Flutter and Dart
+
+Clone this repository
+
+Install dependencies
+
+Build the application
 
 # Contributors
 
