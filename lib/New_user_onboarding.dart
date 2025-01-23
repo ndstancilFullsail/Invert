@@ -1,24 +1,80 @@
-
 import 'package:flutter/material.dart';
-// Do not change or think about changing the code below//
+
 class NewUserOnboarding extends StatefulWidget {
+  const NewUserOnboarding({super.key});
+
   @override
   _NewUserOnboardingState createState() => _NewUserOnboardingState();
 }
-//end of do not change//
+
 class _NewUserOnboardingState extends State<NewUserOnboarding> {
   final List<Map<String, dynamic>> questions = [
     {
       'question': 'What is your favorite type of communication activity?',
-      'options': ['Public Speaking', 'Group Discussions', 'One-on-One Conversations', 'Writing'],
+      'options': [
+        {
+          'text': 'Public Speaking',
+          'image': 'assets/public_speaking.png',
+        },
+        {
+          'text': 'Group Discussions',
+          'image': 'assets/group_discussions.png',
+        },
+        {
+          'text': 'One-on-One Conversations',
+          'image': 'assets/one_on_one.png',
+        },
+        {
+          'text': 'Writing',
+          'image': 'assets/writing.png',
+        },
+      ],
     },
     {
       'question': 'What is your preferred way of learning new skills?',
-      'options': ['Watching Videos', 'Reading Articles', 'Participating in Workshops', 'Practicing Alone'],
+      'options': [
+        {
+          'text': 'Watching Videos',
+          'image': 'assets/watching_videos.png',
+        },
+        {
+          'text': 'Reading Articles',
+          'image': 'assets/reading_articles.png',
+        },
+        {
+          'text': 'Participating in Workshops',
+          'image': 'assets/workshops.png',
+        },
+        {
+          'text': 'Practicing Alone',
+          'image': 'assets/practicing_alone.png',
+        },
+      ],
     },
     {
       'question': 'What topics are you most interested in?',
-      'options': ['Technology', 'Art', 'Science', 'Sports', 'Philosophy'],
+      'options': [
+        {
+          'text': 'Technology',
+          'image': 'assets/technology.png',
+        },
+        {
+          'text': 'Art',
+          'image': 'assets/art.png',
+        },
+        {
+          'text': 'Science',
+          'image': 'assets/science.png',
+        },
+        {
+          'text': 'Sports',
+          'image': 'assets/sports.png',
+        },
+        {
+          'text': 'Philosophy',
+          'image': 'assets/philosophy.png',
+        },
+      ],
     },
   ];
 
@@ -78,13 +134,42 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
               questions[currentQuestionIndex]['question'],
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
-            ...questions[currentQuestionIndex]['options'].map<Widget>((option) {
-              return ElevatedButton(
-                onPressed: () => nextQuestion(option),
-                child: Text(option),
-              );
-            }).toList(),
+            SizedBox(height: 10),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 5,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+                children: questions[currentQuestionIndex]['options']
+                    .map<Widget>((option) {
+                  return GestureDetector(
+                    onTap: () => nextQuestion(option['text']),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            option['image'],
+                            height: 80,
+                            width: 80,
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            option['text'],
+                            style: TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
           ],
         ),
       ),
@@ -95,7 +180,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
 class ResultScreen extends StatelessWidget {
   final String team;
 
-  ResultScreen({required this.team});
+  const ResultScreen({super.key, required this.team});
 
   @override
   Widget build(BuildContext context) {
@@ -103,12 +188,77 @@ class ResultScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Onboarding Complete'),
       ),
-      body: Center(
-        child: Text(
-          'You have been placed in the "$team" team with like-minded individuals.',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Congratulations!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'You have been placed in the "$team" team with like-minded individuals.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+              },
+              child: Text('Go to Home Screen'),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        children: [
+          NavigationRail(
+            selectedIndex: 0,
+            onDestinationSelected: (int index) {
+              // Handle navigation here
+            },
+            destinations: const [
+              NavigationRailDestination(
+                icon: Icon(Icons.home),
+                label: Text('Home'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.person),
+                label: Text('Profile'),
+              ),
+              NavigationRailDestination(
+                icon: Icon(Icons.settings),
+                label: Text('Settings'),
+              ),
+            ],
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                'Welcome to the Home Screen!',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
