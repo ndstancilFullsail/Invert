@@ -5,7 +5,7 @@ import 'package:invert/signuppage.dart';
 import 'package:invert/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 
 
 
@@ -218,25 +218,9 @@ if(user != null){
 
   if(user != null){
 
-     Fluttertoast.showToast(
-      msg: 'Login successfully',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
-    ); 
+     
       }else{
-       Fluttertoast.showToast(
-      msg: 'Login failed',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
-      );
+     
       }
     }
   }

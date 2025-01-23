@@ -1,10 +1,10 @@
-import 'package:delightful_toast/toast/components/toast_card.dart';
+import 'package:toastification/toastification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/main.dart';
 import 'package:invert/signuputils.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 
 
 class SignUpPage extends StatefulWidget {
@@ -173,30 +173,31 @@ class _SignUpPageState extends State<SignUpPage> {
 
   User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
   if(user != null){
-
-     Fluttertoast.showToast(
-      msg: 'Account created successfully',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
+    toastification.show(
+      context: context,
+      type: ToastificationType.success,
+      style: ToastificationStyle.flat,
+      autoCloseDuration: const Duration(seconds: 5),
+      title: Text('Account created Successfully'),
+      alignment: Alignment.center,
+      
     );
+
+     
     Navigator.push(context, MaterialPageRoute
     ( builder:(context) => const LoginPage()
     )
     ); 
     }else{
-       Fluttertoast.showToast(
-      msg: 'Account creation failed',
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-      fontSize: 16.0,
-     );
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: Text('Account creation failed\nPlease try again'),
+        alignment: Alignment.center,
+      );
+       
     }
   }
     

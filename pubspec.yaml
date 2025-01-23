@@ -53,6 +53,7 @@ dependencies:
   firebase_database: ^11.3.0
   firebase_analytics: ^11.4.0
   google_fonts: ^6.2.1
+  
 
 dependency_overrides:
   path: ^1.9.1
@@ -64,7 +65,8 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  fluttertoast: ^8.0.8
+  toastification: ^2.3.0
+  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
