@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invert/join.dart';
 import 'package:invert/signup_page.dart';
 
 //Do Not change//
@@ -20,7 +21,7 @@ class InVertApp extends StatelessWidget
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LoginPage(),
+      home: JoinScreen(),
     );
   }
 }
