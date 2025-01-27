@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:toastification/toastification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -167,10 +168,10 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
   void _signUp() async{
-  String username = _usernamecontroller.text.trim();
   String email = _emailcontroller.text.trim();
   String password = _passwordcontroller.text.trim();
-
+if (!_isPasswordMatch(_passwordcontroller.text.trim(), _confirmpasswordcontroller.text.trim())) {
+      
   User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
   if(user != null){
     toastification.show(
@@ -182,6 +183,9 @@ class _SignUpPageState extends State<SignUpPage> {
       alignment: Alignment.center,
       
     );
+    addUserDetails(_fullnamecontroller.text.trim(),
+     _usernamecontroller.text.trim(), 
+     _emailcontroller.text.trim());
 
      
     Navigator.push(context, MaterialPageRoute
@@ -195,10 +199,34 @@ class _SignUpPageState extends State<SignUpPage> {
         style: ToastificationStyle.flat,
         autoCloseDuration: const Duration(seconds: 5),
         title: Text('Account creation failed\nPlease try again'),
-        alignment: Alignment.center,
+        alignment: Alignment.centerRight,
       );
        
     }
+}
   }
+  void addUserDetails(String fullname, String username, String email) async {
+   await FirebaseFirestore.instance.collection('users').add({
+      'Full Name': fullname,
+      'Username': username,
+      'Email': email,
+      
+   });
     
+  }
+    bool _isPasswordMatch(String password, String confirmpassword) {
+    if (_passwordcontroller.text.trim() == _confirmpasswordcontroller.text.trim()) {
+      return true;
+    } else {
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: Text('Passwords do not match'),
+        alignment: Alignment.center,
+      );
+      return false;
+    }
+  }
 }

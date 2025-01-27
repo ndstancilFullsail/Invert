@@ -5,6 +5,8 @@ import 'package:invert/signuppage.dart';
 import 'package:invert/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
+import 'package:toastification/toastification.dart';
+import 'package:invert/homepage.dart';
 
 
 
@@ -214,14 +216,29 @@ class _LoginPageState extends State<LoginPage> {
   String password = _passwordcontroller.text.trim();
 
   User? user = await FirebaseSignUp().signInWithEmailandPassword(email, password);
-if(user != null){
-
   if(user != null){
+    toastification.show(
+      context: context,
+      type: ToastificationType.success,
+      style: ToastificationStyle.flat,
+      autoCloseDuration: const Duration(seconds: 5),
+      title: Text('Login Successfully'),
+      alignment: Alignment.centerRight,
+      );
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context)=> const Homepage(),
+        ),
+      );
+    }else{
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: Text('Invalid Email or Password'),
+        alignment: Alignment.centerRight,
+        );
 
-     
-      }else{
-     
-      }
     }
   }
 }
