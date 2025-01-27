@@ -170,7 +170,7 @@ class _SignUpPageState extends State<SignUpPage> {
   void _signUp() async{
   String email = _emailcontroller.text.trim();
   String password = _passwordcontroller.text.trim();
-if (!_isPasswordMatch(_passwordcontroller.text.trim(), _confirmpasswordcontroller.text.trim())) {
+
       
   User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
   if(user != null){
@@ -180,7 +180,7 @@ if (!_isPasswordMatch(_passwordcontroller.text.trim(), _confirmpasswordcontrolle
       style: ToastificationStyle.flat,
       autoCloseDuration: const Duration(seconds: 5),
       title: Text('Account created Successfully'),
-      alignment: Alignment.center,
+      alignment: Alignment.bottomRight,
       
     );
     addUserDetails(_fullnamecontroller.text.trim(),
@@ -214,19 +214,4 @@ if (!_isPasswordMatch(_passwordcontroller.text.trim(), _confirmpasswordcontrolle
    });
     
   }
-    bool _isPasswordMatch(String password, String confirmpassword) {
-    if (_passwordcontroller.text.trim() == _confirmpasswordcontroller.text.trim()) {
-      return true;
-    } else {
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Passwords do not match'),
-        alignment: Alignment.center,
-      );
-      return false;
-    }
-  }
-}
+
