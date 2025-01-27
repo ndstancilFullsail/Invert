@@ -16,6 +16,7 @@ void main() async {
   await setup();
   runApp(const InVertApp());
 }
+//Do Not change//
 
 Future<void> setup() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +32,8 @@ class InVertApp extends StatefulWidget {
 
 class _InVertAppState extends State<InVertApp> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)
+   {
     return MaterialApp(
       title: 'InVert',
       theme: ThemeData(
@@ -78,6 +80,8 @@ class _LoginPageState extends State<LoginPage> {
       body: Row(
         children: [
           // Left Branding Section
+          const BrandingSection(),
+          // Right Login Section
           Expanded(
            flex: 2,
             child: Container(
