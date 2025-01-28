@@ -93,7 +93,7 @@ class HomeScreen extends StatelessWidget {
                       // Box for Personal Challenges
                       Expanded(
                         child: Card(
-                          elevation: 4, // spooky shadow
+                          elevation: 4, // spooky shadows
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
