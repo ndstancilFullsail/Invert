@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'home.dart'; // Import the home screen
+
+void main() {
+  runApp(MaterialApp(
+    home: NewUserOnboarding(),
+  ));
+}
 
 class NewUserOnboarding extends StatefulWidget {
   const NewUserOnboarding({super.key});
@@ -12,68 +19,29 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     {
       'question': 'What is your favorite type of communication activity?',
       'options': [
-        {
-          'text': 'Public Speaking',
-          'image': 'assets/public_speaking.png',
-        },
-        {
-          'text': 'Group Discussions',
-          'image': 'assets/group_discussions.png',
-        },
-        {
-          'text': 'One-on-One Conversations',
-          'image': 'assets/one_on_one.png',
-        },
-        {
-          'text': 'Writing',
-          'image': 'assets/writing.png',
-        },
+        {'text': 'Public Speaking'},
+        {'text': 'Group Discussions'},
+        {'text': 'One-on-One Conversations'},
+        {'text': 'Writing'},
       ],
     },
     {
       'question': 'What is your preferred way of learning new skills?',
       'options': [
-        {
-          'text': 'Watching Videos',
-          'image': 'assets/watching_videos.png',
-        },
-        {
-          'text': 'Reading Articles',
-          'image': 'assets/reading_articles.png',
-        },
-        {
-          'text': 'Participating in Workshops',
-          'image': 'assets/workshops.png',
-        },
-        {
-          'text': 'Practicing Alone',
-          'image': 'assets/practicing_alone.png',
-        },
+        {'text': 'Watching Videos'},
+        {'text': 'Reading Articles'},
+        {'text': 'Participating in Workshops'},
+        {'text': 'Practicing Alone'},
       ],
     },
     {
       'question': 'What topics are you most interested in?',
       'options': [
-        {
-          'text': 'Technology',
-          'image': 'assets/technology.png',
-        },
-        {
-          'text': 'Art',
-          'image': 'assets/art.png',
-        },
-        {
-          'text': 'Science',
-          'image': 'assets/science.png',
-        },
-        {
-          'text': 'Sports',
-          'image': 'assets/sports.png',
-        },
-        {
-          'text': 'Philosophy',
-          'image': 'assets/philosophy.png',
-        },
+        {'text': 'Technology'},
+        {'text': 'Art'},
+        {'text': 'Science'},
+        {'text': 'Sports'},
+        {'text': 'Philosophy'},
       ],
     },
   ];
@@ -87,36 +55,15 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
       if (currentQuestionIndex < questions.length - 1) {
         currentQuestionIndex++;
       } else {
-        String team = categorizeUser(userAnswers);
-        Navigator.push(
+        // After answering all questions, go to HomeScreen
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ResultScreen(team: team),
+            builder: (context) => const HomeScreen(),
           ),
         );
       }
     });
-  }
-
-  String categorizeUser(List<String> answers) {
-    Map<String, String> teams = {
-      'Public Speaking': 'Leaders',
-      'Group Discussions': 'Collaborators',
-      'One-on-One Conversations': 'Connectors',
-      'Writing': 'Thinkers',
-      'Technology': 'Innovators',
-      'Art': 'Creators',
-      'Science': 'Researchers',
-      'Sports': 'Achievers',
-      'Philosophy': 'Philosophers',
-    };
-
-    for (String answer in answers) {
-      if (teams.containsKey(answer)) {
-        return teams[answer]!;
-      }
-    }
-    return 'Explorers';
   }
 
   @override
@@ -136,10 +83,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
             ),
             SizedBox(height: 10),
             Expanded(
-              child: GridView.count(
-                crossAxisCount: 5,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
+              child: Column(
                 children: questions[currentQuestionIndex]['options']
                     .map<Widget>((option) {
                   return GestureDetector(
@@ -149,21 +93,15 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            option['image'],
-                            height: 80,
-                            width: 80,
-                          ),
-                          SizedBox(height: 5),
-                          Text(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Text(
                             option['text'],
                             style: TextStyle(fontSize: 16),
                             textAlign: TextAlign.center,
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   );
@@ -175,97 +113,4 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
       ),
     );
   }
-}
-
-class ResultScreen extends StatelessWidget {
-  final String team;
-
-  const ResultScreen({super.key, required this.team});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Onboarding Complete'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Congratulations!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'You have been placed in the "$team" team with like-minded individuals.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
-                  ),
-                );
-              },
-              child: Text('Go to Home Screen'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Row(
-        children: [
-          NavigationRail(
-            selectedIndex: 0,
-            onDestinationSelected: (int index) {
-              // Handle navigation here
-            },
-            destinations: const [
-              NavigationRailDestination(
-                icon: Icon(Icons.home),
-                label: Text('Home'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.person),
-                label: Text('Profile'),
-              ),
-              NavigationRailDestination(
-                icon: Icon(Icons.settings),
-                label: Text('Settings'),
-              ),
-            ],
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                'Welcome to the Home Screen!',
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: NewUserOnboarding(),
-  ));
 }
