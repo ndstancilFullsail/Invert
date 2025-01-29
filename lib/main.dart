@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:invert/signup_page.dart';
+import 'settings.dart';
+
 
 //Do Not change//
 void main()
