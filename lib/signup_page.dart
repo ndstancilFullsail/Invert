@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'New_user_onboarding.dart';
 
 class SignUpScreen extends StatelessWidget {
+  const SignUpScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +97,13 @@ class SignUpScreen extends StatelessWidget {
                     SizedBox(height: 30),
                     ElevatedButton(
                       onPressed: () {
-                        // Add Sign-Up Logic
+                        // Navigate to the User Onboarding Page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewUserOnboarding(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF1E88E5),
@@ -131,4 +140,10 @@ class SignUpScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: SignUpScreen(),
+  ));
 }
