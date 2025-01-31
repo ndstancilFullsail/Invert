@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1079483507451",
+    "firebase_url": "https://nvert-1ec6c-default-rtdb.firebaseio.com",
+    "project_id": "nvert-1ec6c",
+    "storage_bucket": "nvert-1ec6c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1079483507451:android:b3d67058209630bae5c65e",
+        "android_client_info": {
+          "package_name": "com.example.invert"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCi-VvMQyTS0hJq1Fpmj7ImP_Pvlqe4gkw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
