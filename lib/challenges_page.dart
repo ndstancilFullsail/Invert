@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-
-class challenges_page extends StatelessWidget {
+class ChallengesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,7 +131,6 @@ class challenges_page extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            // Icon(Icons.star, color: Colors.amber),
                           ],
                         ),
                       );
