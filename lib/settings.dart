@@ -15,12 +15,6 @@ class SettingsPage extends StatefulWidget{
 
 class _SettingsPageState extends State<SettingsPage> {
   
-  
-  
-  
-  
-  
-  
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,7 +25,6 @@ class _SettingsPageState extends State<SettingsPage> {
             SafeArea(
             child: Container(
               height: 56,
-              padding: EdgeInsets.all(8),
               margin: EdgeInsets.symmetric(horizontal: 24),
               decoration: BoxDecoration(
                 color: NavbgColoor.withValues(alpha: 0.8),
@@ -46,18 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    NavigationRail(
-                      extended: false,
-                      destinations: [
-                        NavigationRailDestination(
-                        icon: NewText(texts: 'home',),
-                        label: Text('Home'),
-                        ),
-
-                      ], 
-                      selectedIndex: 0,
-                      
-                      ),
+                   
                     
                   ],
                 ),
@@ -82,9 +64,6 @@ class NewText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(texts,style: TextStyle(color: Colors.white),),
-    );
+    return Text(texts);
   }
 }
