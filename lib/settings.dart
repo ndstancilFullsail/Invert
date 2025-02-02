@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'base_layout.dart';
 
 
 const Color NavbgColoor = Color(0xFF17203A);
@@ -14,18 +14,39 @@ class SettingsPage extends StatefulWidget{
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  
+  int selectedIndex = 0;
+
+
+    final List<String> labels = [
+    "Notifications",
+    "Privacy",
+    "Chat",
+    "Sync",
+    "Advance"
+  ];
+    
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: background,
-      child: Scaffold( 
-        body: Column(
+
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = Placeholder();
+        break;
+      case 1:
+        page = Placeholder();
+      break;
+      default:
+        page = Placeholder();
+    }
+
+    return BaseLayout(body: 
+    Column(
           children: [SizedBox(height: 10,),
             SafeArea(
             child: Container(
               height: 56,
-              margin: EdgeInsets.symmetric(horizontal: 24),
+              margin: EdgeInsets.symmetric(horizontal: 100),
               decoration: BoxDecoration(
                 color: NavbgColoor.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.all(Radius.circular(24)),
@@ -39,31 +60,66 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                   
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(labels.length, (index) {
+                    bool isSelected = index == selectedIndex;
+                      return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                          selectedIndex = index;
+                        });
+                      },
+                    child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white.withValues(alpha: 0.2) : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        NewText(labels: labels, isSelected: isSelected,tindex: index,),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
                     
                   ],
                 ),
             ),
           ),
-          Expanded(child: Container())
+          Expanded(
+            child: Container(
+                child: page,
+          )
+          )
           ]
         ),
-      ),
     );
   }
+
 }
 
 class NewText extends StatelessWidget {
-  
-  final String texts;
   const NewText({
-    super.key,required this.texts
+    super.key,
+    required this.labels,
+    required this.isSelected,
+    required this.tindex,
   });
+
+  final List<String> labels;
+  final bool isSelected;  
+  final int tindex;
 
 
 
   @override
   Widget build(BuildContext context) {
-    return Text(texts);
+    return Text(labels[tindex], style: TextStyle(color: isSelected ? Colors.white : Colors.grey,));
   }
 }

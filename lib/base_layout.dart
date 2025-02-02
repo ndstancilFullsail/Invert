@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:invert/home.dart';
+import 'package:invert/settings.dart';
 
 class BaseLayout extends StatelessWidget {
   final Widget body;
@@ -8,9 +10,9 @@ class BaseLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Home'),
+      // ),
       body: Row(
         children: [
           // Sidebar Navigation
@@ -28,7 +30,7 @@ class BaseLayout extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: Colors.white, // Background color for the logo circle
                     image: DecorationImage(
-                      image: AssetImage('assets/image.png'), // Logo image
+                      image: AssetImage('assets/public_speaking.png'), // Logo image
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -59,7 +61,7 @@ class BaseLayout extends StatelessWidget {
                   leading: Icon(Icons.settings_outlined, color: Colors.white),
                   title: Text("Settings", style: TextStyle(color: Colors.white)),
                   onTap: () {
-                    Navigator.pushNamed(context, '/settings');
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsPage()),);
                   },
                 ),
                 Spacer(),
@@ -72,7 +74,7 @@ class BaseLayout extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: Colors.white, // Background color for the profile circle
                     image: DecorationImage(
-                      image: AssetImage('assets/image.png'), // User profile image
+                      image: AssetImage('assets/public_speaking.png'), // User profile image (Public speaking is placeholder so the error doesn't show)
                       fit: BoxFit.cover,
                     ),
                   ),

@@ -1,13 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:invert/forgotpassword.dart';
+import 'package:invert/home.dart';
 import 'package:invert/signuppage.dart';
 import 'package:invert/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
 import 'package:toastification/toastification.dart';
 import 'package:invert/homepage.dart';
-
+import 'settings.dart';
 
 
 
@@ -39,7 +40,7 @@ class _InVertAppState extends State<InVertApp> {
       theme: ThemeData(
         primaryColor: Colors.cyan[800],
       ),
-      home: const LoginPage(),
+      home: const HomeScreen(),
     );
   }
 }
@@ -80,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Row(
         children: [
           // Left Branding Section
-          const BrandingSection(),
+          // const BrandingSection(),
           // Right Login Section
           Expanded(
            flex: 2,
