@@ -4,7 +4,8 @@ import 'package:invert/home.dart';
 import 'package:invert/main.dart';
 import 'package:toastification/toastification.dart';
 
-class Homepage extends StatefulWidget {
+
+class Homepage  extends StatefulWidget{
   const Homepage({super.key});
 
   @override
@@ -12,6 +13,17 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final String uid = FirebaseAuth.instance.currentUser!.uid;
+    final String email = FirebaseAuth.instance.currentUser!.email.toString();
+    final String name = FirebaseAuth.instance.currentUser!.displayName.toString();
+    final String  invalidUser = 'No user is currently signed in';
+
+6
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,6 +38,15 @@ class _HomepageState extends State<Homepage> {
               'Welcome to InVert',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+              const SizedBox(height: 20),
+              Text(
+                'Email: $email\t',
+              ),
+              Text(
+                'User ID: $uid\t',
+              ),
+              Text('Username: $name\t'),
+
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
@@ -39,15 +60,27 @@ class _HomepageState extends State<Homepage> {
                   type: ToastificationType.success,
                   style: ToastificationStyle.flat,
                   autoCloseDuration: const Duration(seconds: 5),
-                  title: Text('Logged out successfully'),
+                  title: Text('Logout Successfully'),
                   alignment: Alignment.bottomRight,
-                );
-              },
-              child: const Text('Logout'),
-            ),
-          ],
+                    );
+
+
+                },
+                child: const Text('Logout'),
+
+              ),
+              
+              
+            ],
+
+    
+          ),
         ),
-      ),
-    );
+      );
+    }
+
+
+
+    
   }
-}
+

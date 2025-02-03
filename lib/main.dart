@@ -37,7 +37,7 @@ class _InVertAppState extends State<InVertApp> {
     return MaterialApp(
       title: 'InVert',
       theme: ThemeData(
-        primaryColor: Colors.cyan[800],
+        primaryColor: Color.fromARGB(255,20,107,148),
       ),
       home: const HomeScreen(),
     );
@@ -68,6 +68,8 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Row(
         children: [
+          // Left Branding Section
+          
           // Right Login Section
           Expanded(
             flex: 2,
@@ -236,5 +238,8 @@ class _LoginPageState extends State<LoginPage> {
         alignment: Alignment.centerRight,
       );
     }
+
+
   }
 }
+
