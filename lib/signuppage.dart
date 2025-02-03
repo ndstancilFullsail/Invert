@@ -170,6 +170,7 @@ class _SignUpPageState extends State<SignUpPage> {
   void _signUp() async{
   String email = _emailcontroller.text.trim();
   String password = _passwordcontroller.text.trim();
+  String username = _usernamecontroller.text.trim();
 
       
   User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
@@ -187,6 +188,7 @@ class _SignUpPageState extends State<SignUpPage> {
      _usernamecontroller.text.trim(), 
      _emailcontroller.text.trim());
 
+    await user!.updateDisplayName(username);
      
     Navigator.push(context, MaterialPageRoute
     ( builder:(context) => const LoginPage()
