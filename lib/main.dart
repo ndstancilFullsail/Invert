@@ -8,12 +8,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
 import 'package:toastification/toastification.dart';
 import 'package:invert/homepage.dart';
-import 'settings.dart';
 
 
 
 void main() async {
-
   await setup();
   runApp(const InVertApp());
 }
@@ -59,8 +57,6 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordcontroller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-
-
 @override
    void dispose() {
    
@@ -69,11 +65,6 @@ class _LoginPageState extends State<LoginPage> {
    
     super.dispose();
    }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
