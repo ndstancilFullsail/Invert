@@ -1,8 +1,60 @@
 import 'package:flutter/material.dart';
 import 'base_layout.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:videosdk/videosdk.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  late String token;
+  late String meetingIds;
+  late Room _channel;
+
+  var datebase = FirebaseFirestore.instance;
+
+
+  void getMeetingInfo() async {
+
+    var db = FirebaseFirestore.instance.collection('VoiceInfo').doc('Info');
+        await db.get().then(
+            (DocumentSnapshot doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            token = data['token'];
+            meetingIds = data['meetingId'];
+          },
+          onError: (e) =>  print("Error completing: $e"),
+        );
+  }
+
+void onJoinButtonPressed(String nameofChannel) {
+
+      _channel = VideoSDK.createRoom(
+        roomId: meetingIds, 
+        displayName: nameofChannel, 
+        token: token,
+        camEnabled: false,
+        micEnabled: true);
+
+      _channel.join();
+
+
+}
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    getMeetingInfo();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +115,9 @@ class HomeScreen extends StatelessWidget {
                       ListTile(
                         title: Text('Voice Channel 1'),
                         leading: Icon(Icons.mic),
+                        onTap: () {
+                            onJoinButtonPressed('Voice Channel 1');
+                        },
                       ),
                       ListTile(
                         title: Text('Voice Channel 2'),
