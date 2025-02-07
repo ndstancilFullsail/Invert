@@ -18,7 +18,7 @@ class Homepage  extends StatefulWidget{
     final String name = FirebaseAuth.instance.currentUser!.displayName.toString();
     final String  invalidUser = 'No user is currently signed in';
 
-6
+
 
 
 
