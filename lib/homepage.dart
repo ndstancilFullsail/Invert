@@ -20,7 +20,7 @@ class _HomepageState extends State<Homepage> {
     final String name = FirebaseAuth.instance.currentUser!.displayName.toString();
     final String  invalidUser = 'No user is currently signed in';
 
-6
+
 
 
 
