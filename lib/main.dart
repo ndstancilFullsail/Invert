@@ -8,18 +8,19 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
 import 'package:toastification/toastification.dart';
 import 'package:invert/homepage.dart';
-
-
+import 'firebase_options.dart'; // Importing the Firebase options
 
 void main() async {
-  await setup();
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupFirebase();
   runApp(const InVertApp());
 }
-//Do Not change//
 
-Future<void> setup() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await setupFirebase(); 
+// Function to initialize Firebase
+Future<void> setupFirebase() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
 
 class InVertApp extends StatefulWidget {
@@ -31,8 +32,7 @@ class InVertApp extends StatefulWidget {
 
 class _InVertAppState extends State<InVertApp> {
   @override
-  Widget build(BuildContext context)
-   {
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'InVert',
       theme: ThemeData(
@@ -48,8 +48,6 @@ class LoginPage extends StatefulWidget {
 
   @override
   State<LoginPage> createState() => _LoginPageState();
-
-
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -57,55 +55,50 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordcontroller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-@override
-   void dispose() {
-   
+  @override
+  void dispose() {
     _emailcontroller.dispose();
     _passwordcontroller.dispose();
-   
     super.dispose();
-   }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          // Left Branding Section
-          // const BrandingSection(),
           // Right Login Section
           Expanded(
-           flex: 2,
+            flex: 2,
             child: Container(
-              color:  Color.fromARGB(255,20,107,148),
-            child: Column(
-              children: [
-                Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png',),
-                const SizedBox(height: 20),
-                 Text(
-                  'nVert is your place to learn to connect.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 34,
-                    fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 20, 107, 148),
+              child: Column(
+                children: [
+                  Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png',),
+                  const SizedBox(height: 20),
+                  Text(
+                    'nVert is your place to learn to connect.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 34,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Join a community that understands you.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontStyle: FontStyle.italic,
-                    
+                  const SizedBox(height: 20),
+                  Text(
+                    'Join a community that understands you.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
-                ),
-              ],
+                ],
               ),
             ),
-        ),
+          ),
           // Right Login Section
           Expanded(
             flex: 3,
@@ -152,24 +145,20 @@ class _LoginPageState extends State<LoginPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(
-                          builder: (context)=> ForgotPassword(),
-                          ),
-                        );
+                          builder: (context) => ForgotPassword(),
+                        ));
                       },
                       child: const Text("Forgot Password?", 
                       style: TextStyle(
-                        color: Color.fromARGB(255,20, 108, 148),
-                      ),
-                      ),
+                        color: Color.fromARGB(255, 20, 108, 148),
+                      )),
                     ),
                     const SizedBox(height: 15),
-                   
-
                     // Login Button
                     ElevatedButton(
                       onPressed: _signIn,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:Color.fromARGB(128,20, 108, 148),
+                        backgroundColor: Color.fromARGB(128, 20, 108, 148),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 15,
@@ -185,16 +174,13 @@ class _LoginPageState extends State<LoginPage> {
                     TextButton(
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(
-                          builder: (context)=> SignUpPage(),
-                          ),
-                        );
+                          builder: (context) => SignUpPage(),
+                        ));
                       },
                       child: const Text("Don't have an account? Sign Up",
                       style: TextStyle(
-                        color: Color.fromARGB(255,20, 108, 148),
-                      ),
-                      ),
-
+                        color: Color.fromARGB(255, 20, 108, 148),
+                      )),
                     ),
                   ],
                 ),
@@ -206,35 +192,48 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-   void _signIn() async{
-  
-  String email = _emailcontroller.text.trim();
-  String password = _passwordcontroller.text.trim();
+  void _signIn() async {
+    String email = _emailcontroller.text.trim();
+    String password = _passwordcontroller.text.trim();
 
-  User? user = await FirebaseSignUp().signInWithEmailandPassword(email, password);
-  if(user != null){
-    toastification.show(
-      context: context,
-      type: ToastificationType.success,
-      style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 5),
-      title: Text('Login Successfully'),
-      alignment: Alignment.centerRight,
-      );
-      Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context)=> const Homepage(),
-        ),
-      );
-    }else{
+    try {
+      print("Attempting to sign in with email: $email"); // Logging the email
+      User? user = await FirebaseSignUp().signInWithEmailandPassword(email, password);
+      if (user != null) {
+        print("Login successful for user: $email"); // Logging success
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 5),
+          title: Text('Login Successfully'),
+          alignment: Alignment.centerRight,
+        );
+        print("Navigating to Homepage..."); // Logging navigation
+        Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ));
+      } else {
+        print("Login failed for user: $email"); // Logging failure
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 5),
+          title: Text('Invalid Email or Password'),
+          alignment: Alignment.centerRight,
+        );
+      }
+    } catch (e) {
+      print("Error during login: ${e.toString()}"); // Logging error
       toastification.show(
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.flat,
         autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Invalid Email or Password'),
+        title: Text('Error: ${e.toString()}'),
         alignment: Alignment.centerRight,
-        );
-
+      );
     }
   }
 }
