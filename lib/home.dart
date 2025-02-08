@@ -44,8 +44,6 @@ void onJoinButtonPressed(String nameofChannel) {
         micEnabled: true);
 
       _channel.join();
-
-
 }
 
 
