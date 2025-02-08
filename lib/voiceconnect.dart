@@ -38,7 +38,7 @@ void setInfo() async{
     }
 
   }
-w
+
 }
 
 
