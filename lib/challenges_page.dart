@@ -1,6 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ChallengesPage extends StatelessWidget {
+class ChallengesPage extends StatefulWidget {
+  @override
+  _ChallengesPageState createState() => _ChallengesPageState();
+}
+
+class _ChallengesPageState extends State<ChallengesPage> {
+  List<Challenge> challenges = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadChallenges();
+  }
+
+  void loadChallenges() async {
+    // Load challenges from Firestore
+    QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('challenges').get();
+    setState(() {
+      challenges = snapshot.docs.map((doc) => Challenge.fromFirestore(doc)).toList();
+    });
+  }
+
+  void completeChallenge(int index) {
+    setState(() {
+      challenges[index].isComplete = true;
+      challenges[index].progress = 1.0;
+    });
+    // Save progress to Firestore
+    FirebaseFirestore.instance.collection('challenges').doc(challenges[index].id).update({
+      'isComplete': true,
+      'progress': 1.0,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,12 +97,13 @@ class ChallengesPage extends StatelessWidget {
                       crossAxisCount: 3,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      children: List.generate(9, (index) {
+                      children: List.generate(challenges.length, (index) {
                         return ChallengeCard(
-                          title: "Challenge ${index + 1}",
-                          progress: (index % 4) * 0.25,
-                          isComplete: index % 2 == 0,
+                          title: challenges[index].title,
+                          progress: challenges[index].progress,
+                          isComplete: challenges[index].isComplete,
                           imagePlaceholder: Icons.image, // Placeholder for images
+                          onComplete: () => completeChallenge(index),
                         );
                       }),
                     ),
@@ -176,12 +211,14 @@ class ChallengeCard extends StatelessWidget {
   final double progress;
   final bool isComplete;
   final IconData imagePlaceholder;
+  final VoidCallback onComplete;
 
   const ChallengeCard({
     required this.title,
     required this.progress,
     required this.isComplete,
     required this.imagePlaceholder,
+    required this.onComplete,
   });
 
   @override
@@ -212,9 +249,34 @@ class ChallengeCard extends StatelessWidget {
               isComplete ? "Complete" : "${(progress * 100).toInt()}%",
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
+            SizedBox(height: 8),
+            if (!isComplete)
+              ElevatedButton(
+                onPressed: onComplete,
+                child: Text("Complete Challenge"),
+              ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class Challenge {
+  String id;
+  String title;
+  double progress;
+  bool isComplete;
+
+  Challenge({required this.id, required this.title, required this.progress, required this.isComplete});
+
+  factory Challenge.fromFirestore(DocumentSnapshot doc) {
+    Map data = doc.data() as Map;
+    return Challenge(
+      id: doc.id,
+      title: data['title'] ?? '',
+      progress: data['progress'] ?? 0.0,
+      isComplete: data['isComplete'] ?? false,
     );
   }
 }
