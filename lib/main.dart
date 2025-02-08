@@ -1,22 +1,27 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:invert/forgotpassword.dart';
+import 'package:invert/home.dart';
 import 'package:invert/signuppage.dart';
 import 'package:invert/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
 import 'package:toastification/toastification.dart';
 import 'package:invert/homepage.dart';
+import 'firebase_options.dart'; // Importing the Firebase options
 
 void main() async {
-  await setup();
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupFirebase();
   runApp(const InVertApp());
 }
 
-// Do Not change//
-Future<void> setup() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await setupFirebase(); 
+// Function to initialize Firebase
+Future<void> setupFirebase() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
 
 class InVertApp extends StatefulWidget {
@@ -192,26 +197,42 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailcontroller.text.trim();
     String password = _passwordcontroller.text.trim();
 
-    User? user = await FirebaseSignUp().signInWithEmailandPassword(email, password);
-    if (user != null) {
-      toastification.show(
-        context: context,
-        type: ToastificationType.success,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Login Successfully'),
-        alignment: Alignment.centerRight,
-      );
-      Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) => const Homepage(),
-      ));
-    } else {
+    try {
+      print("Attempting to sign in with email: $email"); // Logging the email
+      User? user = await FirebaseSignUp().signInWithEmailandPassword(email, password);
+      if (user != null) {
+        print("Login successful for user: $email"); // Logging success
+        toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 5),
+          title: Text('Login Successfully'),
+          alignment: Alignment.centerRight,
+        );
+        print("Navigating to Homepage..."); // Logging navigation
+        Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ));
+      } else {
+        print("Login failed for user: $email"); // Logging failure
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 5),
+          title: Text('Invalid Email or Password'),
+          alignment: Alignment.centerRight,
+        );
+      }
+    } catch (e) {
+      print("Error during login: ${e.toString()}"); // Logging error
       toastification.show(
         context: context,
         type: ToastificationType.error,
         style: ToastificationStyle.flat,
         autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Invalid Email or Password'),
+        title: Text('Error: ${e.toString()}'),
         alignment: Alignment.centerRight,
       );
     }
