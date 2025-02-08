@@ -1,24 +1,24 @@
 name: invert
-description: "A new Flutter project."
+description: A new Flutter project.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.0+1
+version: 0.0.1+1
 
 environment:
   sdk: ^3.6.0
-
 
 dependencies:
   flutter:
     sdk: flutter
 
+  #Icon Packages
+  cupertino_icons: ^1.0.8
+  provider: ^6.0.0
   #VoiceChat & http packages
   videosdk: ^1.3.0
   http: ^1.3.0
   dart_jsonwebtoken: ^2.17.0
-  #Icon Packages
-  cupertino_icons: ^1.0.8
   #FireBase Dependencies
   firebase_core: ^3.10.0
   firebase_auth: ^5.4.0
@@ -32,25 +32,18 @@ dependencies:
   firebase_database: ^11.3.0
   firebase_analytics: ^11.4.0
   google_fonts: ^6.2.1
-
-
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
   toastification: ^2.3.0
-  
-
 
   flutter_lints: ^5.0.0
 
 flutter:
-
-
   uses-material-design: true
+  
   assets:
     -  assets/images/
     -  assets/public_speaking.png
-  
-
   
