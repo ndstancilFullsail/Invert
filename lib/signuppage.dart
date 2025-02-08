@@ -23,6 +23,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordcontroller = TextEditingController();
   final TextEditingController _confirmpasswordcontroller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final userdata = FirebaseFirestore.instance.collection('users');
 
   @override
    void dispose() {
@@ -170,6 +171,7 @@ class _SignUpPageState extends State<SignUpPage> {
   void _signUp() async{
   String email = _emailcontroller.text.trim();
   String password = _passwordcontroller.text.trim();
+  String username = _usernamecontroller.text.trim();
 
       
   User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
@@ -185,8 +187,9 @@ class _SignUpPageState extends State<SignUpPage> {
     );
     addUserDetails(_fullnamecontroller.text.trim(),
      _usernamecontroller.text.trim(), 
-     _emailcontroller.text.trim());
+     _emailcontroller.text.trim(), userdata);
 
+    await user!.updateDisplayName(username);
      
     Navigator.push(context, MaterialPageRoute
     ( builder:(context) => const LoginPage()
@@ -205,13 +208,13 @@ class _SignUpPageState extends State<SignUpPage> {
     }
 }
   }
-  void addUserDetails(String fullname, String username, String email) async {
-   await FirebaseFirestore.instance.collection('users').add({
+  void addUserDetails(String fullname, String username, String email, CollectionReference userdata) async {
+    await userdata.doc(email).set({
       'Full Name': fullname,
       'Username': username,
       'Email': email,
-      
-   });
+      'Team': 'Unassigned',
+    });
     
   }
 
