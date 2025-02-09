@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'home.dart'; 
 
 void main() {
   runApp(MaterialApp(
@@ -49,28 +49,65 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
   int currentQuestionIndex = 0;
   List<String> userAnswers = [];
 
-  void nextQuestion(String answer) {
+  Future<void> nextQuestion(String answer) async {
     setState(() {
       userAnswers.add(answer);
-      if (currentQuestionIndex < questions.length - 1) {
-        currentQuestionIndex++;
-      } else {
-        // After answering all questions, go to HomeScreen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(),
-          ),
-        );
-      }
     });
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setState(() {
+        currentQuestionIndex++;
+      });
+    } else {
+      // After answering all questions, assign team and navigate to HomeScreen
+      String team = assignTeam(userAnswers);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(team: team), // Ensure HomeScreen accepts team parameter
+        ),
+      );
+    }
+  }
+
+  String assignTeam(List<String> answers) {
+    
+    String communicationPreference = answers[0];
+    String learningPreference = answers[1];
+    String interest = answers[2];
+
+    // Team names based on personality traits
+    if (communicationPreference == 'Public Speaking' &&
+        learningPreference == 'Participating in Workshops' &&
+        interest == 'Technology') {
+      return 'The Innovators';
+    } else if (communicationPreference == 'Group Discussions' &&
+        learningPreference == 'Watching Videos' &&
+        interest == 'Art') {
+      return 'The Creatives';
+    } else if (communicationPreference == 'One-on-One Conversations' &&
+        learningPreference == 'Reading Articles' &&
+        interest == 'Science') {
+      return 'The Thinkers';
+    } else if (communicationPreference == 'Writing' &&
+        learningPreference == 'Practicing Alone' &&
+        interest == 'Philosophy') {
+      return 'The Philosophers';
+    } else if (communicationPreference == 'Public Speaking' &&
+        learningPreference == 'Participating in Workshops' &&
+        interest == 'Sports') {
+      return 'The Champions';
+    } else {
+      // team for unmatched combinations
+      return 'The Explorers';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Onboarding'),
+        title: const Text('User Onboarding'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -79,9 +116,9 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
           children: [
             Text(
               questions[currentQuestionIndex]['question'],
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: Column(
                 children: questions[currentQuestionIndex]['options']
@@ -98,7 +135,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
                         child: Center(
                           child: Text(
                             option['text'],
-                            style: TextStyle(fontSize: 16),
+                            style: const TextStyle(fontSize: 16),
                             textAlign: TextAlign.center,
                           ),
                         ),

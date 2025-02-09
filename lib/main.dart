@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/signuputils.dart';
 import 'package:toastification/toastification.dart';
 import 'package:invert/homepage.dart';
-import 'firebase_options.dart'; // Importing the Firebase options
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,9 +37,9 @@ class _InVertAppState extends State<InVertApp> {
     return MaterialApp(
       title: 'InVert',
       theme: ThemeData(
-        primaryColor: Color.fromARGB(255,20,107,148),
+        primaryColor: const Color.fromARGB(255, 20, 107, 148),
       ),
-      home: const HomeScreen(),
+      home: const LoginPage(), // Set LoginPage as the initial screen
     );
   }
 }
@@ -68,14 +68,16 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Row(
         children: [
-          // Right Login Section
+          // Left Login Section
           Expanded(
             flex: 2,
             child: Container(
-              color: Color.fromARGB(255, 20, 107, 148),
+              color: const Color.fromARGB(255, 20, 107, 148),
               child: Column(
                 children: [
-                  Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png',),
+                  Image.asset(
+                    'assets/images/db5ae0242b73f9d87a79ae1f36559913.png',
+                  ),
                   const SizedBox(height: 20),
                   Text(
                     'nVert is your place to learn to connect.',
@@ -127,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                     // Email Input
                     TextFormField(
                       controller: _emailcontroller,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Email',
                         border: OutlineInputBorder(),
                       ),
@@ -136,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
                     // Password Input
                     TextFormField(
                       controller: _passwordcontroller,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Password',
                         border: OutlineInputBorder(),
                       ),
@@ -145,21 +147,26 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 10),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => ForgotPassword(),
-                        ));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPassword(),
+                          ),
+                        );
                       },
-                      child: const Text("Forgot Password?", 
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 20, 108, 148),
-                      )),
+                      child: const Text(
+                        "Forgot Password?",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 20, 108, 148),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 15),
                     // Login Button
                     ElevatedButton(
                       onPressed: _signIn,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(128, 20, 108, 148),
+                        backgroundColor: const Color.fromARGB(128, 20, 108, 148),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 15,
@@ -174,14 +181,19 @@ class _LoginPageState extends State<LoginPage> {
                     // Sign-Up Text
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => SignUpPage(),
-                        ));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignUpPage(),
+                          ),
+                        );
                       },
-                      child: const Text("Don't have an account? Sign Up",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 20, 108, 148),
-                      )),
+                      child: const Text(
+                        "Don't have an account? Sign Up",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 20, 108, 148),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -207,13 +219,18 @@ class _LoginPageState extends State<LoginPage> {
           type: ToastificationType.success,
           style: ToastificationStyle.flat,
           autoCloseDuration: const Duration(seconds: 5),
-          title: Text('Login Successfully'),
+          title: const Text('Login Successfully'),
           alignment: Alignment.centerRight,
         );
         print("Navigating to Homepage..."); // Logging navigation
-        Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ));
+
+        // Navigate to HomeScreen with a default team
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomeScreen(team: 'Default Team'), // Replace with dynamic team 
+          ),
+        );
       } else {
         print("Login failed for user: $email"); // Logging failure
         toastification.show(
@@ -221,7 +238,7 @@ class _LoginPageState extends State<LoginPage> {
           type: ToastificationType.error,
           style: ToastificationStyle.flat,
           autoCloseDuration: const Duration(seconds: 5),
-          title: Text('Invalid Email or Password'),
+          title: const Text('Invalid Email or Password'),
           alignment: Alignment.centerRight,
         );
       }
@@ -236,8 +253,5 @@ class _LoginPageState extends State<LoginPage> {
         alignment: Alignment.centerRight,
       );
     }
-
-
   }
 }
-
