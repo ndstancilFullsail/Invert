@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/main.dart';
-import 'package:invert/signuputils.dart';
+
 
 
 
@@ -175,38 +175,26 @@ class _SignUpPageState extends State<SignUpPage> {
 
       
   User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
-  if(user != null){
-    toastification.show(
-      context: context,
-      type: ToastificationType.success,
-      style: ToastificationStyle.flat,
-      autoCloseDuration: const Duration(seconds: 5),
-      title: Text('Account created Successfully'),
-      alignment: Alignment.bottomRight,
-      
-    );
-    addUserDetails(_fullnamecontroller.text.trim(),
-     _usernamecontroller.text.trim(), 
-     _emailcontroller.text.trim(), userdata);
+  toastification.show(
+    context: context,
+    type: ToastificationType.success,
+    style: ToastificationStyle.flat,
+    autoCloseDuration: const Duration(seconds: 5),
+    title: Text('Account created Successfully'),
+    alignment: Alignment.bottomRight,
+    
+  );
+  addUserDetails(_fullnamecontroller.text.trim(),
+   _usernamecontroller.text.trim(), 
+   _emailcontroller.text.trim(), userdata);
 
-    await user!.updateDisplayName(username);
-     
-    Navigator.push(context, MaterialPageRoute
-    ( builder:(context) => const LoginPage()
-    )
-    ); 
-    }else{
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Account creation failed\nPlease try again'),
-        alignment: Alignment.centerRight,
-      );
-       
-    }
-}
+  await user!.updateDisplayName(username);
+   
+  Navigator.push(context, MaterialPageRoute
+  ( builder:(context) => const LoginPage()
+  )
+  ); 
+  }
   }
   void addUserDetails(String fullname, String username, String email, CollectionReference userdata) async {
     await userdata.doc(email).set({
