@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChallengesPage extends StatefulWidget {
+  const ChallengesPage({super.key});
+
   @override
   _ChallengesPageState createState() => _ChallengesPageState();
 }
@@ -185,7 +187,7 @@ class SidebarIcon extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const SidebarIcon({
+  const SidebarIcon({super.key, 
     required this.icon,
     required this.label,
   });
@@ -213,7 +215,7 @@ class ChallengeCard extends StatelessWidget {
   final IconData imagePlaceholder;
   final VoidCallback onComplete;
 
-  const ChallengeCard({
+  const ChallengeCard({super.key, 
     required this.title,
     required this.progress,
     required this.isComplete,

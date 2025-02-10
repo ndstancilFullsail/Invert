@@ -5,7 +5,7 @@ import 'package:invert/settings.dart';
 class BaseLayout extends StatelessWidget {
   final Widget body;
 
-  const BaseLayout({Key? key, required this.body}) : super(key: key);
+  const BaseLayout({super.key, required this.body});
 
   @override
   Widget build(BuildContext context) {
