@@ -64,7 +64,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeScreen(team: team), // Ensure HomeScreen accepts team parameter
+          builder: (context) => HomeScreen(team: team), // HomeScreen team parameter
         ),
       );
     }
