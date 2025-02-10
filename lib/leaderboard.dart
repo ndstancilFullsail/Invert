@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 class LeaderboardPage extends StatelessWidget {
-  const LeaderboardPage({Key? key}) : super(key: key);
+  const LeaderboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Leaderboard'),
+        title: Text('Leaderboard'),
       ),
       body: Center(
-        child: const Text('Leaderboard Page Content'),
+        child: Text('Leaderboard Page', style: TextStyle(fontSize: 24)),
       ),
     );
   }
