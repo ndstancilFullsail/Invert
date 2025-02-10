@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'base_layout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:videosdk/videosdk.dart';
+import 'chat.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String team; // Add team parameter
+  final String team;
 
-  const HomeScreen({super.key, required this.team}); // Update constructor
+  const HomeScreen({super.key, required this.team});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late String meetingIds;
   late Room _channel;
 
-  var datebase = FirebaseFirestore.instance;
+  var database = FirebaseFirestore.instance;
 
   void getMeetingInfo() async {
     var db = FirebaseFirestore.instance.collection('VoiceInfo').doc('Info');
@@ -59,37 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               color: Colors.grey[200],
               padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Welcome to ${widget.team}!', // Display the team name
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        'Chat Section',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              child: ChatPage(), // Integrate the ChatPage widget
             ),
           ),
           // Right-side for Channels
           Container(
-            width: 300, // Width for the channels section
+            width: 300,
             color: Colors.blue[100],
-            padding: const EdgeInsets.all(16), // Padding
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 // Text Channels Section
