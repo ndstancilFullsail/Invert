@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:invert/discover.dart';
 import 'package:invert/forgotpassword.dart';
 import 'package:invert/home.dart';
 import 'package:invert/signuppage.dart';
@@ -39,7 +40,21 @@ class _InVertAppState extends State<InVertApp> {
       theme: ThemeData(
         primaryColor: const Color.fromARGB(255, 20, 107, 148),
       ),
-      home: const LoginPage(), // Set LoginPage as the initial screen
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/home': (context) => const HomeScreen(team: 'Default Team'), // Replace with dynamic team
+        '/discover': (context) => const DiscoverPage(),
+        // '/new_user_onboarding': (context) => const NewUserOnboarding(),
+        // '/settings': (context) => const SettingsPage(),
+        // '/chat': (context) => const ChatPage(),
+        // '/leaderboard': (context) => const LeaderboardPage(),
+      
+
+        '/signup': (context) => const SignUpPage(),
+        '/forgot_password': (context) => const ForgotPassword(),
+      },
+
     );
   }
 }
@@ -147,12 +162,8 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 10),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ForgotPassword(),
-                          ),
-                        );
+                      Navigator.pushNamed(context, '/forgot_password');
+
                       },
                       child: const Text(
                         "Forgot Password?",
@@ -181,12 +192,8 @@ class _LoginPageState extends State<LoginPage> {
                     // Sign-Up Text
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpPage(),
-                          ),
-                        );
+                      Navigator.pushNamed(context, '/signup');
+
                       },
                       child: const Text(
                         "Don't have an account? Sign Up",

@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 class DiscoverPage extends StatelessWidget {
+  const DiscoverPage({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Discover'),
+        title: const Text('Discover'),
       ),
       body: Center(
-        child: Text('Discover Page', style: TextStyle(fontSize: 24)),
+        child: const Text('Discover Page Content'),
       ),
     );
   }
