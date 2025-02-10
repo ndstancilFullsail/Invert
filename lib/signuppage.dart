@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/main.dart';
+import 'package:invert/firebasefunctions.dart';
 
 
 
@@ -174,7 +175,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String username = _usernamecontroller.text.trim();
 
       
-  User? user = await FirebaseSignUp().signUpWithEmailandPassword(email, password);
+  User? user = await FirebaseFunctions().signUpWithEmailandPassword(email, password);
   toastification.show(
     context: context,
     type: ToastificationType.success,
@@ -184,7 +185,7 @@ class _SignUpPageState extends State<SignUpPage> {
     alignment: Alignment.bottomRight,
     
   );
-  addUserDetails(_fullnamecontroller.text.trim(),
+  FirebaseFunctions().addUserDetails(_fullnamecontroller.text.trim(),
    _usernamecontroller.text.trim(), 
    _emailcontroller.text.trim(), userdata);
 
@@ -196,13 +197,5 @@ class _SignUpPageState extends State<SignUpPage> {
   ); 
   }
   }
-  void addUserDetails(String fullname, String username, String email, CollectionReference userdata) async {
-    await userdata.doc(email).set({
-      'Full Name': fullname,
-      'Username': username,
-      'Email': email,
-      'Team': 'Unassigned',
-    });
-    
-  }
+  
 
