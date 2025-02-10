@@ -1,15 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:invert/discover.dart';
+import 'package:invert/firebasefunctions.dart';
 import 'package:invert/forgotpassword.dart';
 import 'package:invert/home.dart';
 import 'package:invert/signuppage.dart';
-import 'package:invert/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:invert/signuputils.dart';
+
 import 'package:toastification/toastification.dart';
-import 'package:invert/homepage.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -40,21 +38,7 @@ class _InVertAppState extends State<InVertApp> {
       theme: ThemeData(
         primaryColor: const Color.fromARGB(255, 20, 107, 148),
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const LoginPage(),
-        '/home': (context) => const HomeScreen(team: 'Default Team'), // Replace with dynamic team
-        '/discover': (context) => const DiscoverPage(),
-        // '/new_user_onboarding': (context) => const NewUserOnboarding(),
-        // '/settings': (context) => const SettingsPage(),
-        // '/chat': (context) => const ChatPage(),
-        // '/leaderboard': (context) => const LeaderboardPage(),
-      
-
-        '/signup': (context) => const SignUpPage(),
-        '/forgot_password': (context) => const ForgotPassword(),
-      },
-
+      home: const LoginPage(), // Set LoginPage as the initial screen
     );
   }
 }
@@ -162,8 +146,12 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 10),
                     TextButton(
                       onPressed: () {
-                      Navigator.pushNamed(context, '/forgot_password');
-
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPassword(),
+                          ),
+                        );
                       },
                       child: const Text(
                         "Forgot Password?",
@@ -192,8 +180,12 @@ class _LoginPageState extends State<LoginPage> {
                     // Sign-Up Text
                     TextButton(
                       onPressed: () {
-                      Navigator.pushNamed(context, '/signup');
-
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignUpPage(),
+                          ),
+                        );
                       },
                       child: const Text(
                         "Don't have an account? Sign Up",
@@ -218,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       print("Attempting to sign in with email: $email"); // Logging the email
-      User? user = await FirebaseSignUp().signInWithEmailandPassword(email, password);
+      User? user = await FirebaseFunctions().signInWithEmailandPassword(email, password);
       if (user != null) {
         print("Login successful for user: $email"); // Logging success
         toastification.show(
