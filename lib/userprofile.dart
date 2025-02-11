@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/base_layout.dart';
+import 'package:invert/firebasefunctions.dart';
 
 
 class Homepage  extends StatefulWidget{
@@ -15,7 +16,7 @@ class Homepage  extends StatefulWidget{
     final FirebaseAuth _auth = FirebaseAuth.instance;
     final String uid = FirebaseAuth.instance.currentUser!.uid;
     final String email = FirebaseAuth.instance.currentUser!.email.toString();
-    final String name = FirebaseAuth.instance.currentUser!.displayName.toString();
+    final String username = FirebaseAuth.instance.currentUser!.displayName.toString();
     final String  invalidUser = 'No user is currently signed in';
     
     @override
@@ -25,8 +26,7 @@ class Homepage  extends StatefulWidget{
           children: <Widget> [
             Expanded(
               flex: 1,
-              child: Container(
-                color: Color.fromARGB(255, 20, 107, 148),
+              
                 child: Column(
                   children: <Widget> [
                     Card(child: SizedBox(height: 500, child:Column(
@@ -35,33 +35,84 @@ class Homepage  extends StatefulWidget{
                         Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png'),
 
                         const SizedBox(height: 20),
-                        Text(
-                          'InVert is your place to learn to connect.',
-                          style: GoogleFonts.roboto(
-                            fontSize: 24,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'Welcome, $name',
-                          style: GoogleFonts.roboto(
-                            fontSize: 24,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'Email: $email',
-                          style: GoogleFonts.roboto(
-                            fontSize: 24,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
+
+                        Text('Profile', 
+                        style: GoogleFonts.roboto(fontSize: 36, color: Colors.black)),
                         
+                         const SizedBox(height: 20),
+
+                        FutureBuilder(future: FirebaseFunctions().getFullName(), builder: (context,snapshot){
+                          if(snapshot.connectionState == ConnectionState.waiting){
+                            return CircularProgressIndicator();
+                          }else if(snapshot.hasError){
+                            return Text("Error: ${snapshot.error}");
+                          }
+                          else {
+                            return Text(
+                              "Full Name: ${snapshot.data}", 
+                              style: GoogleFonts.roboto(
+                                        fontSize: 24,
+                                          color: Colors.black,),
+                            );
+                          }
+                        }
+                      ),
+                      const SizedBox(height: 20),
+                         
+                         Text(
+                          'Welcome, $username',
+                          style: GoogleFonts.roboto(
+                            fontSize: 24,
+                            color: Colors.white,
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        Text(
+                          'Welcome, $email',
+                          style: GoogleFonts.roboto(
+                            fontSize: 24,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+
+                       FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(), builder: (context,snapshot){
+                          if(snapshot.connectionState == ConnectionState.waiting){
+                            return CircularProgressIndicator();
+                          }else if(snapshot.hasError){
+                            return Text("Error: ${snapshot.error}");
+                          }
+                          else {
+                            return Text(
+                              "Team: ${snapshot.data}", 
+                              style: GoogleFonts.roboto(
+                                        fontSize: 24,
+                                          color: Colors.black,),
+                            );
+                          }
+                        }
+                      ),
                       ],
                     ),
+                    ),
+                    ),
+                    Card(child: Column(children: <Widget>[
+                      Text('Badges', 
+                      style: GoogleFonts.roboto(
+                        fontSize: 24, 
+                        color: Colors.black,
+                        fontStyle: FontStyle.normal,
+                        fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 20),
+
+                        Text('This is where badge data will go'),
+                        
+                      
+
+                    ],
                     ),
                     ),
                     
@@ -69,7 +120,8 @@ class Homepage  extends StatefulWidget{
                 
                 ),
               ),
-            ),
+           
+
             Expanded(
               flex: 1, 
               child: Container()),
