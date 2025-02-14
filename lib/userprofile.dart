@@ -5,15 +5,15 @@ import 'package:invert/base_layout.dart';
 import 'package:invert/firebasefunctions.dart';
 
 
-class Homepage  extends StatefulWidget{
-  const Homepage({super.key});
+class UserProfile  extends StatefulWidget{
+  const UserProfile({super.key});
 
   @override
-  State<Homepage> createState() => _HomepageState();
+  State<UserProfile> createState() => _UserProfileState();
 }
-  class _HomepageState extends State<Homepage> {
+  class _UserProfileState extends State<UserProfile> { 
 
-    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
     final String uid = FirebaseAuth.instance.currentUser!.uid;
     final String email = FirebaseAuth.instance.currentUser!.email.toString();
     final String username = FirebaseAuth.instance.currentUser!.displayName.toString();

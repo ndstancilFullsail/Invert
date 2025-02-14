@@ -25,6 +25,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _confirmpasswordcontroller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final userdata = FirebaseFirestore.instance.collection('users');
+  
 
   @override
    void dispose() {
@@ -189,7 +190,12 @@ class _SignUpPageState extends State<SignUpPage> {
    _usernamecontroller.text.trim(), 
    _emailcontroller.text.trim(), userdata);
 
+   FirebaseFunctions().addUserIDUserCollection(email, userdata);
+
+  
+
   await user!.updateDisplayName(username);
+  
    
   Navigator.push(context, MaterialPageRoute
   ( builder:(context) => const LoginPage()

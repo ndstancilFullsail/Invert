@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invert/groupchat.dart';
 import 'package:invert/settings.dart';
 
 class BaseLayout extends StatelessWidget {
@@ -46,7 +47,7 @@ class BaseLayout extends StatelessWidget {
                   leading: Icon(Icons.message_outlined, color: Colors.white),
                   title: Text("Chat", style: TextStyle(color: Colors.white)),
                   onTap: () {
-                    Navigator.pushNamed(context, '/chat');
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => GroupchatScreen()),);
                   },
                 ),
                 ListTile(

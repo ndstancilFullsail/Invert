@@ -31,6 +31,11 @@ class FirebaseFunctions {
       print('Error: $e');
       return null;
     }
+
+
+
+
+
   }
 
   void addUserDetails(String fullname, String username, String email, CollectionReference userdata) async {
@@ -39,7 +44,6 @@ class FirebaseFunctions {
       'Username': username,
       'Email': email,
       'Team': 'Unassigned',
-      'User ID': FirebaseAuth.instance.currentUser!.uid,
     });
     
   }
@@ -148,4 +152,14 @@ class FirebaseFunctions {
       'Email': email,
     });
   }
+
+  void addUserIDUserCollection(String email, CollectionReference userdata) async {
+    String userid =  FirebaseAuth.instance.currentUser!.uid;
+    
+    await userdata.doc(email).set({
+      'User ID': userid,
+    });
+  }
+
+
 }
