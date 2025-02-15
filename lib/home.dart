@@ -3,6 +3,7 @@ import 'base_layout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:videosdk/videosdk.dart';
 import 'chat.dart';
+import 'discover.dart';
 
 class HomeScreen extends StatefulWidget {
   final String team;
@@ -19,6 +20,24 @@ class _HomeScreenState extends State<HomeScreen> {
   late Room _channel;
 
   var database = FirebaseFirestore.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    getMeetingInfo();
+
+    // Check if the user is in "The Explorers" team
+    if (widget.team == 'The Explorers') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DiscoverPage(),
+          ),
+        );
+      });
+    }
+  }
 
   void getMeetingInfo() async {
     var db = FirebaseFirestore.instance.collection('VoiceInfo').doc('Info');
@@ -42,12 +61,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     _channel.join();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getMeetingInfo();
   }
 
   @override
@@ -142,11 +155,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-}
-
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: HomeScreen(team: 'Default Team'),
-  ));
 }
