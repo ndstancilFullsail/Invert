@@ -44,6 +44,7 @@ class FirebaseFunctions {
       'Username': username,
       'Email': email,
       'Team': 'Unassigned',
+      'User ID': FirebaseAuth.instance.currentUser!.uid,
     });
     
   }
@@ -153,13 +154,7 @@ class FirebaseFunctions {
     });
   }
 
-  void addUserIDUserCollection(String email, CollectionReference userdata) async {
-    String userid =  FirebaseAuth.instance.currentUser!.uid;
-    
-    await userdata.doc(email).set({
-      'User ID': userid,
-    });
-  }
+
 
 
 }
