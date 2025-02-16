@@ -190,7 +190,7 @@ class _SignUpPageState extends State<SignUpPage> {
    _usernamecontroller.text.trim(), 
    _emailcontroller.text.trim(), userdata);
 
-   FirebaseFunctions().addUserIDUserCollection(email, userdata);
+   
 
   
 
