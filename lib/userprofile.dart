@@ -124,27 +124,79 @@ class Homepage  extends StatefulWidget{
 
             Expanded(
               flex: 1, 
-              child: Container()),
+              child: Column(children: <Widget> [ Card( child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('LeaderBoard', style: GoogleFonts.roboto(),),
 
-            Expanded(child: Container()),
+                const SizedBox(height: 100),
 
+                Text('This is where the leaderboard stats will be')
 
+              ],
+              ),
+              ),
+              ),
+              Card(child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('Challenges', style: GoogleFonts.roboto(),),
 
+                const SizedBox(height: 100),
 
+                Text('This is where the leaderboard stats will be')
 
-
-
-
-          ]
-            // Chat Section
+              ],
+              ),
+              ),
+              ),
+              ],
+              
+              ),
+            ),
             
-        ),
+            Expanded(flex:1, child: Column(children: <Widget> [ Card( child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('Friends', style: GoogleFonts.roboto(),),
+
+                const SizedBox(height: 100),
+
+                Text('This is where the Friends list and requests will be')
+
+              ],
+              
+              ),
+            ),
+          ),
+          Card(child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('Friends', style: GoogleFonts.roboto(),),
+
+                const SizedBox(height: 100),
+
+                Text('This is where the Friends list and requests will be')
+
+              ],
+              
+              ),
+            ),
+          ),
+            ]
+            )
+        )
+          ]
+        )
       );
-      
-    }
+            
+
+            
+
+
+
+
+
+
+
+
+        
 
 
 
     
   }
+}
 
