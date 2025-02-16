@@ -278,6 +278,7 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
+// this is for new and returning users for teams//
 
   // Function to check if the user is logging in for the first time
   Future<bool> isFirstTimeUser(String userId) async {
@@ -289,6 +290,8 @@ class _LoginPageState extends State<LoginPage> {
     }
     return isFirstTime;
   }
+  
+  //end of the function for new and returning users for teams//
 
   // Function to retrieve the user's selected team from shared preferences
   Future<String?> getTeamSelection() async {
