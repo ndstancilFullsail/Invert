@@ -31,6 +31,11 @@ class FirebaseFunctions {
       print('Error: $e');
       return null;
     }
+
+
+
+
+
   }
 
   void addUserDetails(String fullname, String username, String email, CollectionReference userdata) async {
@@ -148,4 +153,8 @@ class FirebaseFunctions {
       'Email': email,
     });
   }
+
+
+
+
 }
