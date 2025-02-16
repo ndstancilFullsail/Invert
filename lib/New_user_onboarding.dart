@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
-import 'discover.dart';
+import 'discover.dart'; 
 
 void main() {
   runApp(MaterialApp(
@@ -51,10 +51,10 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
   int currentQuestionIndex = 0; // Track the current question index
   List<String> userAnswers = []; // Store user answers
 
-  // Function to handle the "Next" button
+  // Function to handle the "Next" button or option selection
   void nextQuestion(String answer) async {
     setState(() {
-      userAnswers.add(answer); // Add the users answer to the list
+      userAnswers.add(answer); // Add the user's answer to the list
     });
 
     // Check if there are more questions
@@ -85,13 +85,13 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     }
   }
 
-  // Function to assign a team based on user answers
+  // Function to assign a team based on user answers using a Map
   String assignTeam(List<String> answers) {
     String communicationPreference = answers[0];
     String learningPreference = answers[1];
     String interest = answers[2];
 
-    // Define team assignment rules
+    // Define team assignment rules in a Map
     final Map<List<String>, String> teamRules = {
       ['Public Speaking', 'Participating in Workshops', 'Technology']: 'The Innovators',
       ['Group Discussions', 'Watching Videos', 'Art']: 'The Creatives',
@@ -128,16 +128,6 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Onboarding'),
-        actions: [
-          // Skip button in the app bar
-          TextButton(
-            onPressed: skipOnboarding,
-            child: const Text(
-              'Skip',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -153,28 +143,42 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
             // Display the options for the current question
             Expanded(
               child: Column(
-                children: questions[currentQuestionIndex]['options']
-                    .map<Widget>((option) {
-                  return GestureDetector(
-                    onTap: () => nextQuestion(option['value']),
-                    child: Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Text(
-                            option['text'],
-                            style: const TextStyle(fontSize: 16),
-                            textAlign: TextAlign.center,
+                children: [
+                  ...questions[currentQuestionIndex]['options']
+                      .map<Widget>((option) {
+                    return GestureDetector(
+                      onTap: () => nextQuestion(option['value']), // Pass the selected value
+                      child: Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Center(
+                            child: Text(
+                              option['text'],
+                              style: const TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       ),
+                    );
+                  }).toList(),
+                  const SizedBox(height: 20), // Add spacing before the skip button
+                  // Skip Button
+                  TextButton(
+                    onPressed: skipOnboarding,
+                    child: const Text(
+                      'Skip Onboarding',
+                      style: TextStyle(
+                        color: Colors.blue, // Customize the color
+                        fontSize: 16,
+                      ),
                     ),
-                  );
-                }).toList(),
+                  ),
+                ],
               ),
             ),
           ],
