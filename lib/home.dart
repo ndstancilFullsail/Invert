@@ -30,23 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   //final String uid = FirebaseAuth.instance.currentUser!.uid; 
 
 
-  @override
-  void initState() {
-    super.initState();
-    getMeetingInfo();
+  
+    
 
-    // Check if the user is in "The Explorers" team
-    if (widget.team == 'The Explorers') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DiscoverPage(),
-          ),
-        );
-      });
-    }
-  }
 
   void getMeetingInfo() async {
     var datab = FirebaseFirestore.instance.collection('VoiceInfo').doc('Info');
@@ -105,6 +91,19 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     getMeetingInfo();
+
+
+    // Check if the user is in "The Explorers" team
+    if (widget.team == 'The Explorers') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DiscoverPage(),
+          ),
+        );
+      });
+    }
   }
 
   void setRoomEvents()
