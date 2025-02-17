@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:invert/voiceconnect.dart';
 import 'base_layout.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:videosdk/videosdk.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'chat.dart';
 import 'discover.dart';
 
@@ -18,8 +21,14 @@ class _HomeScreenState extends State<HomeScreen> {
   late String token;
   late String meetingIds;
   late Room _channel;
-
+  late String userName;
+  bool connected = false;
+  bool micphEnable = true;
   var database = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseDatabase realdatabase = FirebaseDatabase.instance;
+  //final String uid = FirebaseAuth.instance.currentUser!.uid; 
+
 
   @override
   void initState() {
@@ -40,14 +49,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void getMeetingInfo() async {
-    var db = FirebaseFirestore.instance.collection('VoiceInfo').doc('Info');
-    await db.get().then(
+    var datab = FirebaseFirestore.instance.collection('VoiceInfo').doc('Info');
+    await datab.get().then(
       (DocumentSnapshot doc) {
         final data = doc.data() as Map<String, dynamic>;
         token = data['token'];
         meetingIds = data['meetingId'];
       },
       onError: (e) => print("Error completing: $e"),
+    );
+    //For future use put uid in the doc instead of test example which is a userid already pasted into the doc field
+    var database = FirebaseFirestore.instance.collection('users').doc('eimBKOW0O3Vl0AnViRfw');
+
+    await database.get().then(    
+      (DocumentSnapshot doc)
+      {
+        final data = doc.data() as Map<String, dynamic>;
+        userName = data['Username'];
+      }
     );
   }
 
@@ -57,10 +76,47 @@ class _HomeScreenState extends State<HomeScreen> {
       displayName: nameofChannel,
       token: token,
       camEnabled: false,
-      micEnabled: true,
+      micEnabled: micphEnable,
     );
 
+    setRoomEvents();
+
     _channel.join();
+  }
+
+  void joinRoom() async {
+
+     var db = FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCH1').doc('eimBKOW0O3Vl0AnViRfw');
+
+    await db.set({
+      "Username": userName
+
+    },SetOptions(merge: true));
+
+  }
+
+
+  void leaveRoom() async {
+    var db = FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCH1');
+    await db.doc('eimBKOW0O3Vl0AnViRfw').delete();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getMeetingInfo();
+  }
+
+  void setRoomEvents()
+  {   
+      _channel.on(Events.roomJoined, () {
+          joinRoom();
+      });
+
+
+      _channel.on(Events.roomLeft, () {
+          leaveRoom();
+      });
   }
 
   @override
@@ -124,27 +180,50 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       ListTile(
                         title: Text('Voice Channel 1'),
-                        leading: Icon(Icons.mic),
+                        
                         onTap: () {
                           onJoinButtonPressed('Voice Channel 1');
+
+
+                          setState(() {
+                            connected = true;
+                          });
                         },
                       ),
+                      ParticipantToken(),
                       ListTile(
                         title: Text('Voice Channel 2'),
-                        leading: Icon(Icons.mic),
+                        
                       ),
                       ListTile(
                         title: Text('Voice Channel 3'),
-                        leading: Icon(Icons.mic),
+                        
                       ),
                       ListTile(
                         title: Text('Voice Channel 4'),
-                        leading: Icon(Icons.mic),
+                        
                       ),
                       ListTile(
                         title: Text('Voice Channel 5'),
-                        leading: Icon(Icons.mic),
+                        
                       ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                        IconButton(
+                        onPressed: () {
+                          micphEnable ? _channel.muteMic() : _channel.unmuteMic();
+                          micphEnable = !micphEnable;
+                        }, 
+                        icon: Icon(Icons.mic)),
+                        LeaveButton(connect: connected,icon: Text('Leave'),onPressed: () {
+                          _channel.leave();
+                          setState(() {
+                            connected = false;
+                          });
+                        },),               
+                        ],
+                      )
                     ],
                   ),
                 ),
