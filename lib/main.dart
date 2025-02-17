@@ -1,12 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // For team persistence
 import 'package:invert/firebasefunctions.dart';
 import 'package:invert/forgotpassword.dart';
 import 'package:invert/home.dart';
 import 'package:invert/signuppage.dart';
+import 'package:invert/discover.dart'; // Import the Discover page
+import 'package:invert/New_user_onboarding.dart'; // Import the onboarding page
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:toastification/toastification.dart';
 import 'firebase_options.dart';
 
@@ -221,15 +223,38 @@ class _LoginPageState extends State<LoginPage> {
           title: const Text('Login Successfully'),
           alignment: Alignment.centerRight,
         );
-        print("Navigating to Homepage..."); // Logging navigation
 
-        // Navigate to HomeScreen with a default team
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreen(team: 'Default Team'), // Replace with dynamic team 
-          ),
-        );
+        // Check if the user is new (first-time login)
+        bool isNewUser = await isFirstTimeUser(user.uid);
+        if (isNewUser) {
+          // Redirect new users to the onboarding questions
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NewUserOnboarding(),
+            ),
+          );
+        } else {
+          // Redirect returning users based on their team selection
+          String? selectedTeam = await getTeamSelection();
+          if (selectedTeam == null || selectedTeam == 'The Explorers') {
+            // Redirect to Discover page if no team is selected
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DiscoverPage(),
+              ),
+            );
+          } else {
+            // Redirect to HomeScreen with the selected team
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(team: selectedTeam),
+              ),
+            );
+          }
+        }
       } else {
         print("Login failed for user: $email"); // Logging failure
         toastification.show(
@@ -252,5 +277,25 @@ class _LoginPageState extends State<LoginPage> {
         alignment: Alignment.centerRight,
       );
     }
+  }
+// this is for new and returning users for teams//
+
+  // Function to check if the user is logging in for the first time
+  Future<bool> isFirstTimeUser(String userId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isFirstTime = prefs.getBool('isFirstTime_$userId') ?? true;
+    if (isFirstTime) {
+      // Mark the user as no longer a first-time user
+      await prefs.setBool('isFirstTime_$userId', false);
+    }
+    return isFirstTime;
+  }
+  
+  //end of the function for new and returning users for teams//
+
+  // Function to retrieve the user's selected team from shared preferences
+  Future<String?> getTeamSelection() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('selectedTeam');
   }
 }

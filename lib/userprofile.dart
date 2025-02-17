@@ -5,15 +5,15 @@ import 'package:invert/base_layout.dart';
 import 'package:invert/firebasefunctions.dart';
 
 
-class Homepage  extends StatefulWidget{
-  const Homepage({super.key});
+class UserProfile  extends StatefulWidget{
+  const UserProfile({super.key});
 
   @override
-  State<Homepage> createState() => _HomepageState();
+  State<UserProfile> createState() => _UserProfileState();
 }
-  class _HomepageState extends State<Homepage> {
+  class _UserProfileState extends State<UserProfile> { 
 
-    final FirebaseAuth _auth = FirebaseAuth.instance;
+    final FirebaseAuth auth = FirebaseAuth.instance;
     final String uid = FirebaseAuth.instance.currentUser!.uid;
     final String email = FirebaseAuth.instance.currentUser!.email.toString();
     final String username = FirebaseAuth.instance.currentUser!.displayName.toString();
@@ -124,27 +124,78 @@ class Homepage  extends StatefulWidget{
 
             Expanded(
               flex: 1, 
-              child: Container()),
+              child: Column(children: <Widget> [ Card( child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('LeaderBoard', style: GoogleFonts.roboto(),),
 
-            Expanded(child: Container()),
+                const SizedBox(height: 100),
 
+                Text('This is where the leaderboard stats will be')
 
+              ],
+              ),
+              ),
+              ),
+              Card(child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('Challenges', style: GoogleFonts.roboto(),),
 
+                const SizedBox(height: 100),
 
+                Text('This is where the leaderboard stats will be')
 
-
-
-
-          ]
-            // Chat Section
+              ],
+              ),
+              ),
+              ),
+              ],
+              
+              ),
+            ),
             
-        ),
+            Expanded(flex:1, child: Column(children: <Widget> [ Card( child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('Friends', style: GoogleFonts.roboto(),),
+
+                const SizedBox(height: 100),
+
+                Text('This is where the Friends list and requests will be')
+
+              ],
+              
+              ),
+            ),
+          ),
+          Card(child: SizedBox(height: 300, child: Column( children: <Widget>[
+                Text('Friends', style: GoogleFonts.roboto(),),
+
+                const SizedBox(height: 100),
+
+                Text('This is where the Friends list and requests will be')
+
+              ],
+              
+              ),
+            ),
+          ),
+            ]
+            )
+        )
+          ]
+        )
       );
-      
-    }
+            
+
+            
+
+
+
+
+
+
+
+
+        
 
 
 
     
   }
-
+}
