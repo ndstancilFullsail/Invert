@@ -147,7 +147,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
                   ...questions[currentQuestionIndex]['options']
                       .map<Widget>((option) {
                     return GestureDetector(
-                      onTap: () => nextQuestion(option['value']), // Pass the selected value
+                      onTap: () => nextQuestion(option['value']),
                       child: Card(
                         elevation: 2,
                         shape: RoundedRectangleBorder(
@@ -166,14 +166,14 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
                       ),
                     );
                   }).toList(),
-                  const SizedBox(height: 20), // Add spacing before the skip button
+                  const SizedBox(height: 20), // spacing before the skip button
                   // Skip Button
                   TextButton(
                     onPressed: skipOnboarding,
                     child: const Text(
                       'Skip Onboarding',
                       style: TextStyle(
-                        color: Colors.blue, // Customize the color
+                        color: Colors.blue,
                         fontSize: 16,
                       ),
                     ),
