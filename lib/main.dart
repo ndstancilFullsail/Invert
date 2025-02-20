@@ -40,7 +40,7 @@ class _InVertAppState extends State<InVertApp> {
       theme: ThemeData(
         primaryColor: const Color.fromARGB(255, 20, 107, 148),
       ),
-      home: const LoginPage(), // Set LoginPage as the initial screen
+      home: const HomeScreen(team: 'test',), // Set LoginPage as the initial screen
     );
   }
 }

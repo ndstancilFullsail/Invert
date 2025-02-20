@@ -1,7 +1,12 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:videosdk/videosdk.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 
 var videoSdkAPIKey = "f5a9379d-821c-494f-b999-16ac3f19a081";
 var videoSecretKey = "1101fb1d41d6d9f2d6af7d43b744d9acf728b97275861e331d2ff92b98fa4944";
@@ -21,9 +26,9 @@ void setInfo() async{
 
   var token = jwt.sign(SecretKey(videoSecretKey),algorithm: JWTAlgorithm.HS256);
 
-  var db = FirebaseFirestore.instance.collection("VoiceInfo").doc("Info");
+  var db = FirebaseFirestore.instance.collection("Teams").doc("Champions");
   
-  await db.set({'token':token});
+  await db.set({'token':token},SetOptions(merge: true));
 
     if(token != '')
     {
@@ -41,7 +46,96 @@ void setInfo() async{
 
 }
 
+class LeaveButton extends IconButton
+{
+  final bool connect;
+  const LeaveButton({super.key,required this.connect, required super.onPressed, required super.icon});
+  
+  @override
+  Widget build(BuildContext context) {
+
+    Widget test = SizedBox();
+
+    if(connect)
+    {
+      test = IconButton(
+      onPressed: super.onPressed, 
+      icon: super.icon);
+    }
+
+    return test;
+  }
+}
+
+class ParticipantToken extends StatefulWidget
+{
+  const ParticipantToken({super.key});
+
+  @override
+  State<ParticipantToken> createState() => _ParticipantTokenState();
+}
+
+class _ParticipantTokenState extends State<ParticipantToken> {
 
 
+  List<Widget> userTokens = [];
 
+  void addToken(String data){
+    setState(() {
+      userTokens.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(data),
+          ],
+        )
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return StreamBuilder(
+    stream: FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCh1').snapshots(),
+    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+    
+        if(snapshot.hasError)
+        {
+            return const Text('Something went wrong');
+        }
+        if(snapshot.connectionState == ConnectionState.waiting)
+        {
+          return const Text("Loading");
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+           return const Text("No users found");
+        }
+    
+        // snapshot.data!.docs.map((DocumentSnapshot document) {
+        //         var data = document.data()! as Map<String, dynamic>;
+        //         print(data['Username']);
+        //         addToken(data['Username']);
+        //       });
+    
+
+        return SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: snapshot.data!.docs.map((document) {
+                var data = document.data() as Map<String, dynamic>;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(data['Username']),
+                  ],
+                );
+              }).toList(),
+            ),
+          );
+        },
+      );
+
+  }
+}
 
