@@ -1,29 +1,40 @@
 import 'package:flutter/material.dart';
+import 'home.dart';
 
 class DiscoverPage extends StatelessWidget {
   const DiscoverPage({super.key});
 
-  // List of teams and their logos
-  final List<Map<String, String>> teams = const [
+  // List of teams and details
+  final List<Map<String, dynamic>> teams = const [
     {
       'name': 'The Innovators',
-      'logo': 'public_speaking.png',
+      'logo': 'assets/innovators_logo.png',
+      'description': 'Tech enthusiasts who love building the future.',
+      'memberCount': 120,
     },
     {
       'name': 'The Creatives',
-      'logo': 'public_speaking.png', 
+      'logo': 'assets/creatives_logo.png',
+      'description': 'Artists and designers who bring ideas to life.',
+      'memberCount': 95,
     },
     {
       'name': 'The Thinkers',
-      'logo': 'public_speaking.png', 
+      'logo': 'assets/thinkers_logo.png',
+      'description': 'Deep thinkers who explore science and philosophy.',
+      'memberCount': 80,
     },
     {
       'name': 'The Philosophers',
-      'logo': 'public_speaking.png', 
+      'logo': 'assets/philosophers_logo.png',
+      'description': 'Lovers of wisdom and deep conversations.',
+      'memberCount': 65,
     },
     {
       'name': 'The Champions',
-      'logo': 'public_speaking.png', 
+      'logo': 'assets/champions_logo.png',
+      'description': 'Sports enthusiasts who strive for excellence.',
+      'memberCount': 110,
     },
   ];
 
@@ -33,38 +44,87 @@ class DiscoverPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Discover'),
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.all(16.0),
-        itemCount: teams.length,
-        itemBuilder: (context, index) {
-          final team = teams[index];
-          return Card(
-            elevation: 4,
-            margin: EdgeInsets.only(bottom: 16.0),
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  // Team logo
-                  Image.asset(
-                    team['logo']!,
-                    width: 50,
-                    height: 50,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.error); // Placeholder if image fails to load
-                    },
-                  ),
-                  SizedBox(width: 16.0),
-                  // Team name
-                  Text(
-                    team['name']!,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Two teams per row
+            crossAxisSpacing: 5.0, // Spacing between columns
+            mainAxisSpacing: 5.0, // Spacing between rows
+            childAspectRatio: 1.0, // Adjust the aspect ratio for balanced cards
+          ),
+          itemCount: teams.length,
+          itemBuilder: (context, index) {
+            final team = teams[index];
+            return _buildTeamCard(team, context);
+          },
+        ),
+      ),
+    );
+  }
+
+  // Helper function to build a team card
+  Widget _buildTeamCard(Map<String, dynamic> team, BuildContext context) {
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Team logo
+            Image.asset(
+              team['logo']!,
+              width: 20,
+              height: 20,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.error); // Placeholder if image fails to load
+              },
+            ),
+            SizedBox(height: 2),
+            // Team name
+            Text(
+              team['name']!,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          );
-        },
+            SizedBox(height: 2),
+            // Team description
+            Text(
+              team['description']!,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 2),
+            // Member count TODO: Replace with live member count
+            Text(
+              '${team['memberCount']} members',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey[800],
+              ),
+            ),
+            SizedBox(height: 2),
+            // Select Team Button TODO: add team discrption on button press then user has to press join team
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to HomeScreen with the selected team
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(team: team['name']!),
+                  ),
+                );
+              },
+              child: Text('Select Team'),
+            ),
+          ],
+        ),
       ),
     );
   }
