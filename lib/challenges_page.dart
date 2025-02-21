@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChallengesPage extends StatefulWidget {
   const ChallengesPage({super.key});
@@ -9,17 +10,29 @@ class ChallengesPage extends StatefulWidget {
 }
 
 class _ChallengesPageState extends State<ChallengesPage> {
-  final DatabaseReference leaderboardRef = FirebaseDatabase.instance.ref().child("Leaderboard");
+  // Reference to Firebase Realtime Database for the leaderboard
+  final DatabaseReference leaderboardRef =
+      FirebaseDatabase.instance.ref().child("Leaderboard");
+  // Reference to Firestore for challenges
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   List<Map<String, dynamic>> leaderboard = [];
+  List<Map<String, dynamic>> challenges = [];
 
   @override
   void initState() {
     super.initState();
-    fetchLeaderboard();
+    fetchLeaderboard(); // Fetch leaderboard data
+    fetchChallenges(); // Fetch challenges data
   }
 
+  // Fetches the top players from Firebase Realtime Database
   void fetchLeaderboard() {
-    leaderboardRef.orderByChild("challengesScore").limitToLast(10).onValue.listen((event) {
+    leaderboardRef
+        .orderByChild("challengesScore")
+        .limitToLast(10)
+        .onValue
+        .listen((event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
 
       if (data != null) {
@@ -33,6 +46,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
           });
         });
 
+        // Sort players by score in descending order
         players.sort((a, b) => b["score"].compareTo(a["score"]));
 
         setState(() {
@@ -42,17 +56,36 @@ class _ChallengesPageState extends State<ChallengesPage> {
     });
   }
 
-  void updateLeaderboard(String userId, String username, String fullname, int additionalScore, String profilePicture) {
+  // Fetches challenges from Firestore
+  void fetchChallenges() async {
+    QuerySnapshot snapshot = await firestore.collection('challenges').get();
+    List<Map<String, dynamic>> fetchedChallenges = snapshot.docs.map((doc) {
+      return {
+        "id": doc.id,
+        "title": doc["title"],
+      };
+    }).toList();
+
+    setState(() {
+      challenges = fetchedChallenges;
+    });
+  }
+
+  // Updates leaderboard when a user completes a challenge
+  void updateLeaderboard(String userId, String username, String fullname,
+      int additionalScore, String profilePicture) {
     DatabaseReference userRef = leaderboardRef.child(userId);
 
     userRef.once().then((snapshot) {
       if (snapshot.snapshot.value != null) {
-        Map<String, dynamic> userData = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
+        Map<String, dynamic> userData =
+            Map<String, dynamic>.from(snapshot.snapshot.value as Map);
         int currentScore = userData["challengesScore"] ?? 0;
         userRef.update({
           "challengesScore": currentScore + additionalScore,
         });
       } else {
+        // If the user doesn't exist in the leaderboard, create a new entry
         userRef.set({
           "username": username,
           "fullname": fullname,
@@ -65,7 +98,9 @@ class _ChallengesPageState extends State<ChallengesPage> {
     });
   }
 
-  void completeChallenge(String userId, String username, String fullname, int challengeScore, String profilePicture) {
+  // Called when a user completes a challenge
+  void completeChallenge(String userId, String username, String fullname,
+      int challengeScore, String profilePicture) {
     updateLeaderboard(userId, username, fullname, challengeScore, profilePicture);
   }
 
@@ -74,12 +109,14 @@ class _ChallengesPageState extends State<ChallengesPage> {
     return Scaffold(
       body: Row(
         children: [
+          // Sidebar navigation
           Container(
             width: 100,
             color: const Color(0xFF146C94),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Logo
                 const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: CircleAvatar(
@@ -103,6 +140,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
                     SidebarIcon(icon: Icons.settings_outlined, label: "Settings"),
                   ],
                 ),
+                // Profile icon
                 const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: CircleAvatar(
@@ -113,6 +151,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
               ],
             ),
           ),
+          // Main content area
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -125,24 +164,27 @@ class _ChallengesPageState extends State<ChallengesPage> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: GridView.count(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      children: List.generate(9, (index) {
-                        return ChallengeCard(
-                          title: "Challenge ${index + 1}",
-                          progress: (index % 4) * 0.25,
-                          isComplete: index % 2 == 0,
-                          imagePlaceholder: Icons.image,
-                        );
-                      }),
-                    ),
+                    child: challenges.isEmpty
+                        ? const Center(child: CircularProgressIndicator())
+                        : GridView.count(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            children: challenges.map((challenge) {
+                              return ChallengeCard(
+                                title: challenge["title"],
+                                progress: 0.0, // Placeholder progress
+                                isComplete: false, // Placeholder completion status
+                                imagePlaceholder: Icons.image,
+                              );
+                            }).toList(),
+                          ),
                   ),
                 ],
               ),
             ),
           ),
+          // Leaderboard panel
           Container(
             width: 250,
             decoration: const BoxDecoration(
@@ -170,40 +212,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
                           itemCount: leaderboard.length,
                           itemBuilder: (context, index) {
                             var player = leaderboard[index];
-                            return Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 20,
-                                    backgroundImage: player["profilePicture"] != null
-                                        ? NetworkImage(player["profilePicture"])
-                                        : const AssetImage('assets/profile.png') as ImageProvider,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          player["username"],
-                                          style: const TextStyle(fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          "Points: ${player["score"]}",
-                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
+                            return LeaderboardTile(player: player);
                           },
                         ),
                 ),
@@ -216,57 +225,40 @@ class _ChallengesPageState extends State<ChallengesPage> {
   }
 }
 
+// Placeholder widgets for missing components
+class SidebarIcon extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const SidebarIcon({required this.icon, required this.label, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(icon, color: Colors.white);
+  }
+}
+
 class ChallengeCard extends StatelessWidget {
   final String title;
   final double progress;
   final bool isComplete;
   final IconData imagePlaceholder;
 
-  const ChallengeCard({
-    super.key,
-    required this.title,
-    required this.progress,
-    required this.isComplete,
-    required this.imagePlaceholder,
-  });
+  const ChallengeCard({required this.title, required this.progress, required this.isComplete, required this.imagePlaceholder, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(imagePlaceholder, size: 48),
-          const SizedBox(height: 8),
-          Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          LinearProgressIndicator(value: progress),
-          const SizedBox(height: 8),
-          Text(isComplete ? "Complete" : "In Progress"),
-        ],
-      ),
-    );
+    return Card(child: Text(title));
   }
 }
 
-class SidebarIcon extends StatelessWidget {
-  final IconData icon;
-  final String label;
+class LeaderboardTile extends StatelessWidget {
+  final Map<String, dynamic> player;
 
-  const SidebarIcon({super.key, required this.icon, required this.label});
+  const LeaderboardTile({required this.player, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.white, size: 32),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white, fontSize: 12),
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
+    return ListTile(title: Text(player['username']));
   }
 }
