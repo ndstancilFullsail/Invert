@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // For team persistence
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:invert/firebasefunctions.dart';
 import 'package:invert/forgotpassword.dart';
 import 'package:invert/home.dart';
 import 'package:invert/signuppage.dart';
-import 'package:invert/discover.dart'; // Import the Discover page
-import 'package:invert/New_user_onboarding.dart'; // Import the onboarding page
+import 'package:invert/discover.dart';
+import 'package:invert/New_user_onboarding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toastification/toastification.dart';
 import 'firebase_options.dart';
@@ -18,12 +18,19 @@ void main() async {
   runApp(const InVertApp());
 }
 
-// Function to initialize Firebase
 Future<void> setupFirebase() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    print('Initializing Firebase...');
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebase initialized successfully');
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+    rethrow;
+  }
 }
+
 
 class InVertApp extends StatefulWidget {
   const InVertApp({super.key});
@@ -40,7 +47,36 @@ class _InVertAppState extends State<InVertApp> {
       theme: ThemeData(
         primaryColor: const Color.fromARGB(255, 20, 107, 148),
       ),
-      home: const HomeScreen(team: 'test',), // Set LoginPage as the initial screen
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/home': (context) => const HomeScreen(team: 'test'),
+        '/discover': (context) => const DiscoverPage(),
+        '/signup': (context) => const SignUpPage(),
+        '/forgot-password': (context) => const ForgotPassword(),
+        '/onboarding': (context) => const NewUserOnboarding(),
+      },
+
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            print('Auth state: Waiting for authentication status');
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasData) {
+            print('Auth state: User signed in - ${snapshot.data!.email}');
+            return const HomeScreen(team: 'test');
+          }
+          print('Auth state: No user signed in');
+          return const LoginPage();
+        },
+      ),
+    );
+  }
+
+  Future<void> navigateToLogin(BuildContext context) async {
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      '/login',
+      (Route<dynamic> route) => false,
     );
   }
 }
@@ -56,6 +92,10 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailcontroller = TextEditingController();
   final TextEditingController _passwordcontroller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFunctions _firebaseFunctions = FirebaseFunctions();
+
+
+
 
   @override
   void dispose() {
@@ -69,7 +109,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Row(
         children: [
-          // Left Login Section
           Expanded(
             flex: 2,
             child: Container(
@@ -103,7 +142,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          // Right Login Section
           Expanded(
             flex: 3,
             child: Center(
@@ -127,8 +165,9 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Email Input
+
                     TextFormField(
+
                       controller: _emailcontroller,
                       decoration: const InputDecoration(
                         labelText: 'Email',
@@ -136,7 +175,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    // Password Input
                     TextFormField(
                       controller: _passwordcontroller,
                       decoration: const InputDecoration(
@@ -163,7 +201,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    // Login Button
                     ElevatedButton(
                       onPressed: _signIn,
                       style: ElevatedButton.styleFrom(
@@ -179,7 +216,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Sign-Up Text
                     TextButton(
                       onPressed: () {
                         Navigator.push(
@@ -211,10 +247,10 @@ class _LoginPageState extends State<LoginPage> {
     String password = _passwordcontroller.text.trim();
 
     try {
-      print("Attempting to sign in with email: $email"); // Logging the email
+      print("Attempting to sign in with email: $email");
       User? user = await FirebaseFunctions().signInWithEmailandPassword(email, password);
       if (user != null) {
-        print("Login successful for user: $email"); // Logging success
+        print("Login successful for user: $email");
         toastification.show(
           context: context,
           type: ToastificationType.success,
@@ -224,10 +260,8 @@ class _LoginPageState extends State<LoginPage> {
           alignment: Alignment.centerRight,
         );
 
-        // Check if the user is new (first-time login)
         bool isNewUser = await isFirstTimeUser(user.uid);
         if (isNewUser) {
-          // Redirect new users to the onboarding questions
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -235,10 +269,8 @@ class _LoginPageState extends State<LoginPage> {
             ),
           );
         } else {
-          // Redirect returning users based on their team selection
           String? selectedTeam = await getTeamSelection();
-          if (selectedTeam == null || selectedTeam == 'The Explorers') {
-            // Redirect to Discover page if no team is selected
+          if (selectedTeam == null) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -246,7 +278,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else {
-            // Redirect to HomeScreen with the selected team
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -255,8 +286,9 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         }
+
       } else {
-        print("Login failed for user: $email"); // Logging failure
+        print("Login failed for user: $email");
         toastification.show(
           context: context,
           type: ToastificationType.error,
@@ -266,8 +298,18 @@ class _LoginPageState extends State<LoginPage> {
           alignment: Alignment.centerRight,
         );
       }
+    } on FirebaseAuthException catch (e) {
+      print("Firebase error during login: ${e.code} - ${e.message}");
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: Text('Error: ${e.message ?? "Authentication failed"}'),
+        alignment: Alignment.centerRight,
+      );
     } catch (e) {
-      print("Error during login: ${e.toString()}"); // Logging error
+      print("Error during login: ${e.toString()}");
       toastification.show(
         context: context,
         type: ToastificationType.error,
@@ -277,23 +319,20 @@ class _LoginPageState extends State<LoginPage> {
         alignment: Alignment.centerRight,
       );
     }
-  }
-// this is for new and returning users for teams//
 
-  // Function to check if the user is logging in for the first time
+
+
+  }
+
   Future<bool> isFirstTimeUser(String userId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isFirstTime = prefs.getBool('isFirstTime_$userId') ?? true;
     if (isFirstTime) {
-      // Mark the user as no longer a first-time user
       await prefs.setBool('isFirstTime_$userId', false);
     }
     return isFirstTime;
   }
   
-  //end of the function for new and returning users for teams//
-
-  // Function to retrieve the user's selected team from shared preferences
   Future<String?> getTeamSelection() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('selectedTeam');
