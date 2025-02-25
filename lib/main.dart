@@ -40,7 +40,7 @@ class _InVertAppState extends State<InVertApp> {
       theme: ThemeData(
         primaryColor: const Color.fromARGB(255, 20, 107, 148),
       ),
-      home: const HomeScreen(team: 'test',), // Set LoginPage as the initial screen
+      home: LoginPage(), // Set LoginPage as the initial screen
     );
   }
 }
@@ -210,6 +210,8 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailcontroller.text.trim();
     String password = _passwordcontroller.text.trim();
 
+    
+
     try {
       print("Attempting to sign in with email: $email"); // Logging the email
       User? user = await FirebaseFunctions().signInWithEmailandPassword(email, password);
@@ -251,7 +253,8 @@ class _LoginPageState extends State<LoginPage> {
               context,
               MaterialPageRoute(
                 builder: (context) => HomeScreen(team: selectedTeam),
-              ),
+                  
+                ),
             );
           }
         }

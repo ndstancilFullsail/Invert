@@ -194,7 +194,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   
 
-  await user!.updateDisplayName(username);
+  await user?.updateDisplayName(username);
   
    
   Navigator.push(context, MaterialPageRoute

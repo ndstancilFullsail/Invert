@@ -47,7 +47,7 @@ class BaseLayout extends StatelessWidget {
                   leading: Icon(Icons.message_outlined, color: Colors.white),
                   title: Text("Chat", style: TextStyle(color: Colors.white)),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage()),);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(teamname: 'YourTeamName')),);
                   },
                 ),
                 ListTile(

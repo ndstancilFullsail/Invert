@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               color: Colors.grey[200],
               padding: const EdgeInsets.all(16),
-              child: ChatPage(), // Integrate the ChatPage widget
+              child: ChatPage(teamname: widget.team), // Integrate the ChatPage widget
             ),
           ),
           // Right-side for Channels

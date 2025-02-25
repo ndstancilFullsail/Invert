@@ -1,6 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:invert/firebasefunctions.dart';
 import 'home.dart';
-import 'discover.dart'; 
+import 'discover.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -16,6 +18,13 @@ class NewUserOnboarding extends StatefulWidget {
 }
 
 class _NewUserOnboardingState extends State<NewUserOnboarding> {
+    final String champion = 'Champions';
+    final String creative = 'Creatives';
+    final String innovator = 'Innovators';
+    final String philosopher = 'Philosophers';
+    final String thinker = 'Thinkers';
+    final String explorer = 'Explorers';
+
   // List of onboarding questions with options
   final List<Map<String, dynamic>> questions = [
     {
@@ -51,10 +60,10 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
   int currentQuestionIndex = 0; // Track the current question index
   List<String> userAnswers = []; // Store user answers
 
-  // Function to handle the "Next" button or option selection
+  // Function to handle the "Next" button
   void nextQuestion(String answer) async {
     setState(() {
-      userAnswers.add(answer); // Add the user's answer to the list
+      userAnswers.add(answer); // Add the users answer to the list
     });
 
     // Check if there are more questions
@@ -65,6 +74,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     } else {
       // If all questions are answered, assign a team and navigate
       String team = assignTeam(userAnswers);
+      _AddUsertoTeamCollections(team);
       if (team == 'The Explorers') {
         // If the user is assigned to "The Explorers," send them to the Discover page
         Navigator.pushReplacement(
@@ -85,13 +95,13 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     }
   }
 
-  // Function to assign a team based on user answers using a Map
+  // Function to assign a team based on user answers
   String assignTeam(List<String> answers) {
     String communicationPreference = answers[0];
     String learningPreference = answers[1];
     String interest = answers[2];
 
-    // Define team assignment rules in a Map
+    // Define team assignment rules
     final Map<List<String>, String> teamRules = {
       ['Public Speaking', 'Participating in Workshops', 'Technology']: 'The Innovators',
       ['Group Discussions', 'Watching Videos', 'Art']: 'The Creatives',
@@ -113,6 +123,41 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     return 'The Explorers';
   }
 
+  // ignore: non_constant_identifier_names
+  void _AddUsertoTeamCollections(String team) {
+    
+
+    switch (team){
+      case 'The Champions':
+        FirebaseFunctions().addUsertoTeamCollection(champion);
+        FirebaseFunctions().addUsertoTeam(champion);
+        break;
+      case 'The Creatives':
+        FirebaseFunctions().addUsertoTeamCollection(creative);
+        FirebaseFunctions().addUsertoTeam(creative);
+
+        break;
+      case 'The Innovators':
+        FirebaseFunctions().addUsertoTeamCollection(innovator);
+        FirebaseFunctions().addUsertoTeam(innovator);
+        break;
+      case 'The Philosophers':
+        FirebaseFunctions().addUsertoTeamCollection(philosopher);
+        FirebaseFunctions().addUsertoTeam(philosopher);
+        break;
+      case 'The Thinkers':
+        FirebaseFunctions().addUsertoTeamCollection(thinker);
+        FirebaseFunctions().addUsertoTeam(thinker);
+        break;
+      case 'The Explorers':
+        FirebaseFunctions().addUsertoTeamCollection(explorer);
+        FirebaseFunctions().addUsertoTeam(explorer);
+        break;
+      }
+    
+    
+  }
+
   // Function to skip onboarding and go to the Discover page
   void skipOnboarding() {
     Navigator.pushReplacement(
@@ -128,6 +173,16 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Onboarding'),
+        actions: [
+          // Skip button in the app bar
+          TextButton(
+            onPressed: skipOnboarding,
+            child: const Text(
+              'Skip',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -143,42 +198,28 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
             // Display the options for the current question
             Expanded(
               child: Column(
-                children: [
-                  ...questions[currentQuestionIndex]['options']
-                      .map<Widget>((option) {
-                    return GestureDetector(
-                      onTap: () => nextQuestion(option['value']),
-                      child: Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Center(
-                            child: Text(
-                              option['text'],
-                              style: const TextStyle(fontSize: 16),
-                              textAlign: TextAlign.center,
-                            ),
+                children: questions[currentQuestionIndex]['options']
+                    .map<Widget>((option) {
+                  return GestureDetector(
+                    onTap: () => nextQuestion(option['value']),
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
+                          child: Text(
+                            option['text'],
+                            style: const TextStyle(fontSize: 16),
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ),
-                    );
-                  }).toList(),
-                  const SizedBox(height: 20), // spacing before the skip button
-                  // Skip Button
-                  TextButton(
-                    onPressed: skipOnboarding,
-                    child: const Text(
-                      'Skip Onboarding',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                      ),
                     ),
-                  ),
-                ],
+                  );
+                }).toList(),
               ),
             ),
           ],
