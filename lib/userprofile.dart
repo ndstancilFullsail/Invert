@@ -1,8 +1,13 @@
+import 'dart:io';
+import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:invert/base_layout.dart';
 import 'package:invert/firebasefunctions.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 
 
 class UserProfile  extends StatefulWidget{
@@ -11,13 +16,106 @@ class UserProfile  extends StatefulWidget{
   @override
   State<UserProfile> createState() => _UserProfileState();
 }
-  class _UserProfileState extends State<UserProfile> { 
+
+class _UserProfileState extends State<UserProfile> { 
 
     final FirebaseAuth auth = FirebaseAuth.instance;
-    final String uid = FirebaseAuth.instance.currentUser!.uid;
-    final String email = FirebaseAuth.instance.currentUser!.email.toString();
-    final String username = FirebaseAuth.instance.currentUser!.displayName.toString();
+    final String uid = 'fMCuXU782EWfa54Ks7XTg4H3KZj1'; //FirebaseAuth.instance.currentUser!.uid;
+    final String email = 'sample@gmail.com';//FirebaseAuth.instance.currentUser!.email.toString();
+    final String username = 'sample1';//FirebaseAuth.instance.currentUser!.displayName.toString();
     final String  invalidUser = 'No user is currently signed in';
+    late Future<String>? userProfilepic;
+    final placeholder = 'placeholder.png';
+    final storageRef = FirebaseStorage.instance.ref();
+
+
+    Future<String?> pickImage() async {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.image, 
+      );
+
+      if (result != null && result.files.single.path != null) {
+        return result.files.single.path; 
+      } else {
+        return null; 
+      }
+    }
+
+    String getFileType(String? example) {
+      List<String> array = [];
+    
+      if(example != null)
+      {
+        array = example.split('\\');
+      }
+
+      return array.last;
+    }
+
+  Future<String> getUserPicture(String path) async {
+
+    try {
+      String downloadURL = await FirebaseStorage.instance
+        .ref(path)
+        .getDownloadURL();
+        return downloadURL;
+    } catch (e) {
+      debugPrint('$e');
+      return '';
+    }
+
+  }
+
+   void uploadUserPicture() async {
+
+      String? imagePath = await pickImage();
+
+   
+      if (imagePath != null) {
+
+        String fileType = getFileType(imagePath);
+        String combo = "images/$fileType"; //Replace uid with current.uid
+        final userProPic = storageRef.child(combo);
+        
+        File imagefile = File(imagePath);
+        try{
+          userProPic.putFile(imagefile).snapshotEvents.listen((taskSnapshot){
+            switch(taskSnapshot.state) {
+              case TaskState.running:
+              break;
+              case TaskState.paused:
+              break;
+              case TaskState.success:
+              setState(() {
+                userProfilepic = getUserPicture(combo);
+              });        
+              break;
+              case TaskState.canceled:
+              break;
+              case TaskState.error:
+              break;
+            }
+          });
+
+          
+        } catch (e) {
+          debugPrint('$e');
+          
+        }
+
+      } 
+      else {
+        debugPrint('User has cancel windows dialog');
+      }
+    }
+
+
+
+    @override
+  void initState() {
+    userProfilepic = getUserPicture(placeholder);
+    super.initState();
+  }
     
     @override
     Widget build(BuildContext context) {
@@ -32,38 +130,52 @@ class UserProfile  extends StatefulWidget{
                     Card(child: SizedBox(height: 500, child:Column(
                       children: <Widget> [
 
-                        Image.asset('assets/images/db5ae0242b73f9d87a79ae1f36559913.png'),
+                        IconButton(onPressed: () {
+                          uploadUserPicture();
 
+                        }, 
+                        icon: FutureBuilder<String>(
+                                future: userProfilepic,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return CircularProgressIndicator();
+                                  }
+                                  if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+                                    return Icon(Icons.account_circle, size: 100);
+                                  }
+                                    return Image.network(snapshot.data!,width: 100,height: 100,);
+                                },
+                              ),
+                        ),
                         const SizedBox(height: 20),
 
                         Text('Profile', 
                         style: GoogleFonts.roboto(fontSize: 36, color: Colors.black)),
                         
                          const SizedBox(height: 20),
-
-                        FutureBuilder(future: FirebaseFunctions().getFullName(), builder: (context,snapshot){
-                          if(snapshot.connectionState == ConnectionState.waiting){
-                            return CircularProgressIndicator();
-                          }else if(snapshot.hasError){
-                            return Text("Error: ${snapshot.error}");
-                          }
-                          else {
-                            return Text(
-                              "Full Name: ${snapshot.data}", 
-                              style: GoogleFonts.roboto(
-                                        fontSize: 24,
-                                          color: Colors.black,),
-                            );
-                          }
-                        }
-                      ),
+                      //   FutureBuilder(future: FirebaseFunctions().getFullName(), builder: (context,snapshot){
+                      //     if(snapshot.connectionState == ConnectionState.waiting){
+                      //       return CircularProgressIndicator();
+                      //     }else if(snapshot.hasError){
+                      //       return Text("Error: ${snapshot.error}");
+                      //     }
+                      //     else {
+                      //       return Text(
+                      //         "Full Name: ${snapshot.data}", 
+                      //         style: GoogleFonts.roboto(
+                      //                   fontSize: 24,
+                      //                     color: Colors.black,),
+                      //       );
+                      //     }
+                      //   }
+                      // ),
                       const SizedBox(height: 20),
                          
                          Text(
                           'Welcome, $username',
                           style: GoogleFonts.roboto(
                             fontSize: 24,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
 
@@ -73,27 +185,26 @@ class UserProfile  extends StatefulWidget{
                           'Welcome, $email',
                           style: GoogleFonts.roboto(
                             fontSize: 24,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
                         const SizedBox(height: 20),
-
-                       FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(), builder: (context,snapshot){
-                          if(snapshot.connectionState == ConnectionState.waiting){
-                            return CircularProgressIndicator();
-                          }else if(snapshot.hasError){
-                            return Text("Error: ${snapshot.error}");
-                          }
-                          else {
-                            return Text(
-                              "Team: ${snapshot.data}", 
-                              style: GoogleFonts.roboto(
-                                        fontSize: 24,
-                                          color: Colors.black,),
-                            );
-                          }
-                        }
-                      ),
+                      //  FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(), builder: (context,snapshot){
+                      //     if(snapshot.connectionState == ConnectionState.waiting){
+                      //       return CircularProgressIndicator();
+                      //     }else if(snapshot.hasError){
+                      //       return Text("Error: ${snapshot.error}");
+                      //     }
+                      //     else {
+                      //       return Text(
+                      //         "Team: ${snapshot.data}", 
+                      //         style: GoogleFonts.roboto(
+                      //                   fontSize: 24,
+                      //                     color: Colors.black,),
+                      //       );
+                      //     }
+                      //   }
+                      // ),
                       ],
                     ),
                     ),
@@ -181,21 +292,7 @@ class UserProfile  extends StatefulWidget{
           ]
         )
       );
-            
-
-            
-
-
-
-
-
-
-
-
-        
-
-
-
-    
   }
 }
+
+

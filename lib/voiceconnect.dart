@@ -49,8 +49,10 @@ void setInfo() async{
 class LeaveButton extends IconButton
 {
   final bool connect;
+  
   const LeaveButton({super.key,required this.connect, required super.onPressed, required super.icon});
   
+
   @override
   Widget build(BuildContext context) {
 
@@ -93,8 +95,27 @@ class _ParticipantTokenState extends State<ParticipantToken> {
     });
   }
 
+  void getTokeninfo() async{
+
+    var db = FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCH1');
+
+    await db.get().then((onValue) {
+
+        for(var docu in onValue.docs)
+        {
+          final data = docu.data();
+          addToken(data['Username']);
+        }
+    }, onError: (e) {
+      throw e;
+    });
+
+
+  }
+
   @override
   Widget build(BuildContext context) {
+
 
     return StreamBuilder(
     stream: FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCh1').snapshots(),
@@ -117,20 +138,14 @@ class _ParticipantTokenState extends State<ParticipantToken> {
         //         print(data['Username']);
         //         addToken(data['Username']);
         //       });
-    
+
+        //getTokeninfo();
+
 
         return SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: snapshot.data!.docs.map((document) {
-                var data = document.data() as Map<String, dynamic>;
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(data['Username']),
-                  ],
-                );
-              }).toList(),
+              children: userTokens
             ),
           );
         },
