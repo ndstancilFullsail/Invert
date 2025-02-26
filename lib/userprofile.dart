@@ -20,9 +20,9 @@ class UserProfile  extends StatefulWidget{
 class _UserProfileState extends State<UserProfile> { 
 
     final FirebaseAuth auth = FirebaseAuth.instance;
-    final String uid = 'fMCuXU782EWfa54Ks7XTg4H3KZj1'; //FirebaseAuth.instance.currentUser!.uid;
-    final String email = 'sample@gmail.com';//FirebaseAuth.instance.currentUser!.email.toString();
-    final String username = 'sample1';//FirebaseAuth.instance.currentUser!.displayName.toString();
+    final String uid = FirebaseAuth.instance.currentUser!.uid;
+    final String email = FirebaseAuth.instance.currentUser!.email.toString();
+    final String username = FirebaseAuth.instance.currentUser!.displayName.toString();
     final String  invalidUser = 'No user is currently signed in';
     late Future<String>? userProfilepic;
     final placeholder = 'placeholder.png';
@@ -153,22 +153,22 @@ class _UserProfileState extends State<UserProfile> {
                         style: GoogleFonts.roboto(fontSize: 36, color: Colors.black)),
                         
                          const SizedBox(height: 20),
-                      //   FutureBuilder(future: FirebaseFunctions().getFullName(), builder: (context,snapshot){
-                      //     if(snapshot.connectionState == ConnectionState.waiting){
-                      //       return CircularProgressIndicator();
-                      //     }else if(snapshot.hasError){
-                      //       return Text("Error: ${snapshot.error}");
-                      //     }
-                      //     else {
-                      //       return Text(
-                      //         "Full Name: ${snapshot.data}", 
-                      //         style: GoogleFonts.roboto(
-                      //                   fontSize: 24,
-                      //                     color: Colors.black,),
-                      //       );
-                      //     }
-                      //   }
-                      // ),
+                        FutureBuilder(future: FirebaseFunctions().getFullName(), builder: (context,snapshot){
+                          if(snapshot.connectionState == ConnectionState.waiting){
+                            return CircularProgressIndicator();
+                          }else if(snapshot.hasError){
+                            return Text("Error: ${snapshot.error}");
+                          }
+                          else {
+                            return Text(
+                              "Full Name: ${snapshot.data}", 
+                              style: GoogleFonts.roboto(
+                                        fontSize: 24,
+                                          color: Colors.black,),
+                            );
+                          }
+                        }
+                      ),
                       const SizedBox(height: 20),
                          
                          Text(
@@ -189,22 +189,22 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                      //  FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(), builder: (context,snapshot){
-                      //     if(snapshot.connectionState == ConnectionState.waiting){
-                      //       return CircularProgressIndicator();
-                      //     }else if(snapshot.hasError){
-                      //       return Text("Error: ${snapshot.error}");
-                      //     }
-                      //     else {
-                      //       return Text(
-                      //         "Team: ${snapshot.data}", 
-                      //         style: GoogleFonts.roboto(
-                      //                   fontSize: 24,
-                      //                     color: Colors.black,),
-                      //       );
-                      //     }
-                      //   }
-                      // ),
+                       FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(), builder: (context,snapshot){
+                          if(snapshot.connectionState == ConnectionState.waiting){
+                            return CircularProgressIndicator();
+                          }else if(snapshot.hasError){
+                            return Text("Error: ${snapshot.error}");
+                          }
+                          else {
+                            return Text(
+                              "Team: ${snapshot.data}", 
+                              style: GoogleFonts.roboto(
+                                        fontSize: 24,
+                                          color: Colors.black,),
+                            );
+                          }
+                        }
+                      ),
                       ],
                     ),
                     ),
