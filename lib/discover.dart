@@ -2,8 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:invert/firebasefunctions.dart';
 import 'home.dart';
+import 'user_count_service.dart';
 
 class DiscoverPage extends StatelessWidget {
+  UserCountService userCountService = UserCountService(); // Initialize user count service
+
   DiscoverPage({super.key});
 
   // List of teams and details
@@ -52,10 +55,10 @@ class DiscoverPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 1, // Two teams per row
-            crossAxisSpacing: 5.0, // Spacing between columns
-            mainAxisSpacing: 5.0, // Spacing between rows
-            childAspectRatio: 1.0, // Adjust the aspect ratio for balanced cards
+            crossAxisCount: 5, //teams per row
+            crossAxisSpacing: 4.0, //spacing between columns
+            mainAxisSpacing: 4.0, // spacing between rows
+            childAspectRatio: 0.8, // card aspect ratio
           ),
           itemCount: teams.length,
           itemBuilder: (context, index) {
@@ -67,7 +70,7 @@ class DiscoverPage extends StatelessWidget {
     );
   }
 
-  // Helper function to build a team card
+  // function to build a team card
   Widget _buildTeamCard(Map<String, dynamic> team, BuildContext context) {
     return Card(
       elevation: 2,
@@ -79,42 +82,53 @@ class DiscoverPage extends StatelessWidget {
             // Team logo
             Image.asset(
               team['logo']!,
-              width: 20,
-              height: 20,
+              width: 16,
+              height: 16,
               errorBuilder: (context, error, stackTrace) {
                 return Icon(Icons.error); // Placeholder if image fails to load
               },
             ),
-            SizedBox(height: 2),
+            SizedBox(height: 1),
             // Team name
             Text(
               team['name']!,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 2),
+            SizedBox(height: 1),
             // Team description
             Text(
               team['description']!,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 10,
                 color: Colors.grey[600],
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 2),
-            // Member count TODO: Replace with live member count
-            Text(
-              '${team['memberCount']} members',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[800],
-              ),
+            SizedBox(height: 1),
+            // Member count
+            StreamBuilder<int>(
+              stream: userCountService.listenToUserCount(team['name']),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  return Text(
+                    '${snapshot.data} members',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey[800],
+                    ),
+                  );
+                }
+              },
             ),
-            SizedBox(height: 2),
-            // Select Team Button TODO: add team discrption on button press then user has to press join team
+            SizedBox(height: 1),
+            // Select Team Button TODO: add team description on button press then user has to press join team
             ElevatedButton(
               onPressed: () {
                 FirebaseFunctions().addUsertoTeam(team['name']!);
