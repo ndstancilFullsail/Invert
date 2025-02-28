@@ -1,5 +1,7 @@
 
 
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -51,6 +53,7 @@ class FirebaseFunctions {
       'Email': email,
       'Team Name': 'Unassigned',
       'User ID': FirebaseAuth.instance.currentUser!.uid,
+      'First Time': true,
     });
     
   }
@@ -125,9 +128,9 @@ class FirebaseFunctions {
     }
   }
 
-  Future<String> getTeamFromCollection() async {
+  Future<String> getTeamFromCollection(String email) async {
       String team = '';
-      String email = FirebaseAuth.instance.currentUser!.email!;
+      
        try {
       DocumentSnapshot doc = await FirebaseFirestore.instance
           .collection('users') // Replace with your collection name
@@ -169,6 +172,17 @@ class FirebaseFunctions {
       });
     }
 
+    Future<void> addUserToTeamRealTime(String team, String username) async {
+    
+    final url = Uri.parse("$databaseUrl/TeamChats/$team/Users.json");
+    final response = await http.post(
+      url,
+      body: json.encode({
+        "Users": username,
+      }),
+    );
+  }
+
     
 
   Future<void> sendMessage(String teamId, String senderId, String message) async {
@@ -208,5 +222,35 @@ class FirebaseFunctions {
       return [];
     }
   }
+  
+  Future<bool> checkUser(String email) async {
+  bool checkuser = false;
+  try {
+    DocumentSnapshot doc = await FirebaseFirestore.instance
+        .collection('users') // Replace with your collection name
+        .doc(email) // Replace with your document ID
+        .get();
+    if (doc.exists) {
+        checkuser =doc.get('First Time');
+        return checkuser;
+      }
+    else {
+      return checkuser;
+    }
+  } catch (e) {
+    return checkuser;
+  }
 }
+
+
+
+void changeStatus(String email) async {
+  await FirebaseFirestore.instance.collection('users').doc(email).update({
+    'First Time': false,
+  });
+}
+}
+
+
+
 

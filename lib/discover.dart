@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:invert/firebasefunctions.dart';
 import 'home.dart';
 
 class DiscoverPage extends StatelessWidget {
-  const DiscoverPage({super.key});
+  DiscoverPage({super.key});
 
   // List of teams and details
   final List<Map<String, dynamic>> teams = const [
@@ -38,6 +40,8 @@ class DiscoverPage extends StatelessWidget {
     },
   ];
 
+  final String username = FirebaseAuth.instance.currentUser!.displayName!;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +52,7 @@ class DiscoverPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Two teams per row
+            crossAxisCount: 1, // Two teams per row
             crossAxisSpacing: 5.0, // Spacing between columns
             mainAxisSpacing: 5.0, // Spacing between rows
             childAspectRatio: 1.0, // Adjust the aspect ratio for balanced cards
@@ -113,7 +117,11 @@ class DiscoverPage extends StatelessWidget {
             // Select Team Button TODO: add team discrption on button press then user has to press join team
             ElevatedButton(
               onPressed: () {
-                // Navigate to HomeScreen with the selected team
+                FirebaseFunctions().addUsertoTeam(team['name']!);
+                FirebaseFunctions().addUsertoTeamCollection(team['name']!);
+                FirebaseFunctions().addUserToTeamRealTime(team['name'], username);
+
+               
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
