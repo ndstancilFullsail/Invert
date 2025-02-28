@@ -50,7 +50,8 @@ class _InVertAppState extends State<InVertApp> {
       routes: {
         '/login': (context) => const LoginPage(),
         '/home': (context) => const HomeScreen(team: 'test'),
-        '/discover': (context) => const DiscoverPage(),
+    '/discover': (context) => DiscoverPage(),
+
         '/signup': (context) => const SignUpPage(),
         '/forgot-password': (context) => const ForgotPassword(),
         '/onboarding': (context) => const NewUserOnboarding(),

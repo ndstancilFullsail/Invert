@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'home.dart';
+import 'user_count_service.dart';
 
 class DiscoverPage extends StatelessWidget {
-  const DiscoverPage({super.key});
+  UserCountService userCountService = UserCountService(); // Initialize user count service
+
+  DiscoverPage({super.key});
 
   // List of teams and details
   final List<Map<String, dynamic>> teams = const [
@@ -101,16 +104,27 @@ class DiscoverPage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 1),
-            // Member count TODO: Replace with live member count
-            Text(
-              '${team['memberCount']} members',
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.grey[800],
-              ),
+            // Member count
+            StreamBuilder<int>(
+              stream: userCountService.listenToUserCount(team['name']),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  return Text(
+                    '${snapshot.data} members',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey[800],
+                    ),
+                  );
+                }
+              },
             ),
             SizedBox(height: 1),
-            // Select Team Button TODO: add team discrption on button press then user has to press join team
+            // Select Team Button TODO: add team description on button press then user has to press join team
             ElevatedButton(
               onPressed: () {
                 // Navigate to HomeScreen with the selected team
