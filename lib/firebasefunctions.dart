@@ -22,7 +22,7 @@ class FirebaseFunctions {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print('Sign Up Error: $e');
-      return null;
+      throw Exception('Failed to sign up: ${e.message}');
     }
   }
 
@@ -36,20 +36,15 @@ class FirebaseFunctions {
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       print('Sign In Error: $e');
-      return null;
+      throw Exception('Failed to sign in: ${e.message}');
     }
   }
 
   // Sign out
   Future<void> signOut() async {
     try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        await _auth.signOut();
-        print('User signed out successfully');
-      } else {
-        print('No user is currently signed in');
-      }
+      await _auth.signOut();
+      print('User signed out successfully');
     } on FirebaseAuthException catch (e) {
       print('Sign Out Error: ${e.code} - ${e.message}');
       throw Exception('Failed to sign out: ${e.message}');
@@ -61,14 +56,24 @@ class FirebaseFunctions {
 
   // Save team selection to SharedPreferences
   Future<void> saveTeamSelection(String team) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedTeam', team);
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('selectedTeam', team);
+    } catch (e) {
+      print('Error saving team selection: $e');
+      throw Exception('Failed to save team selection: $e');
+    }
   }
 
   // Get team selection from SharedPreferences
   Future<String?> getTeamSelection() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('selectedTeam');
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      return prefs.getString('selectedTeam');
+    } catch (e) {
+      print('Error getting team selection: $e');
+      throw Exception('Failed to get team selection: $e');
+    }
   }
 
   // Add user details to Firestore
@@ -96,10 +101,10 @@ class FirebaseFunctions {
       if (doc.exists) {
         return doc.get('Full Name') as String;
       } else {
-        return "No Name exists!";
+        throw Exception('No Name exists!');
       }
     } catch (e) {
-      return "Error: $e";
+      throw Exception('Error: $e');
     }
   }
 
@@ -111,10 +116,10 @@ class FirebaseFunctions {
       if (doc.exists) {
         return doc.get('Username') as String;
       } else {
-        return "No Username exists!";
+        throw Exception('No Username exists!');
       }
     } catch (e) {
-      return "Error: $e";
+      throw Exception('Error: $e');
     }
   }
 
@@ -126,10 +131,10 @@ class FirebaseFunctions {
       if (doc.exists) {
         return doc.get('Email') as String;
       } else {
-        return "No email exists!";
+        throw Exception('No email exists!');
       }
     } catch (e) {
-      return "Error: $e";
+      throw Exception('Error: $e');
     }
   }
 
@@ -140,10 +145,10 @@ class FirebaseFunctions {
       if (doc.exists) {
         return doc.get('Team Name') as String;
       } else {
-        return "No Team exists!";
+        throw Exception('No Team exists!');
       }
     } catch (e) {
-      return "Error: $e";
+      throw Exception('Error: $e');
     }
   }
 
@@ -248,7 +253,7 @@ class FirebaseFunctions {
       return doc.exists && doc.get('First Time') as bool;
     } catch (e) {
       print('Error checking user: $e');
-      return false;
+      throw Exception('Failed to check user: $e');
     }
   }
 

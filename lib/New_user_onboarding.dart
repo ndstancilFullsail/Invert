@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:invert/firebasefunctions.dart';
 import 'home.dart';
@@ -18,12 +17,12 @@ class NewUserOnboarding extends StatefulWidget {
 }
 
 class _NewUserOnboardingState extends State<NewUserOnboarding> {
-    final String champion = 'Champions';
-    final String creative = 'Creatives';
-    final String innovator = 'Innovators';
-    final String philosopher = 'Philosophers';
-    final String thinker = 'Thinkers';
-    final String explorer = 'Explorers';
+  final String champion = 'Champions';
+  final String creative = 'Creatives';
+  final String innovator = 'Innovators';
+  final String philosopher = 'Philosophers';
+  final String thinker = 'Thinkers';
+  final String explorer = 'Explorers';
 
   // List of onboarding questions with options
   final List<Map<String, dynamic>> questions = [
@@ -63,7 +62,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
   // Function to handle the "Next" button
   void nextQuestion(String answer) async {
     setState(() {
-      userAnswers.add(answer); // Add the users answer to the list
+      userAnswers.add(answer); // Add the user's answer to the list
     });
 
     // Check if there are more questions
@@ -74,7 +73,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     } else {
       // If all questions are answered, assign a team and navigate
       String team = assignTeam(userAnswers);
-      _AddUsertoTeamCollections(team);
+      await _addUserToTeamCollections(team);
       if (team == 'The Explorers') {
         // If the user is assigned to "The Explorers," send them to the Discover page
         Navigator.pushReplacement(
@@ -123,39 +122,39 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     return 'The Explorers';
   }
 
-  // ignore: non_constant_identifier_names
-  void _AddUsertoTeamCollections(String team) {
-    
-
-    switch (team){
-      case 'The Champions':
-        FirebaseFunctions().addUsertoTeamCollection(champion);
-        FirebaseFunctions().addUsertoTeam(champion);
-        break;
-      case 'The Creatives':
-        FirebaseFunctions().addUsertoTeamCollection(creative);
-        FirebaseFunctions().addUsertoTeam(creative);
-
-        break;
-      case 'The Innovators':
-        FirebaseFunctions().addUsertoTeamCollection(innovator);
-        FirebaseFunctions().addUsertoTeam(innovator);
-        break;
-      case 'The Philosophers':
-        FirebaseFunctions().addUsertoTeamCollection(philosopher);
-        FirebaseFunctions().addUsertoTeam(philosopher);
-        break;
-      case 'The Thinkers':
-        FirebaseFunctions().addUsertoTeamCollection(thinker);
-        FirebaseFunctions().addUsertoTeam(thinker);
-        break;
-      case 'The Explorers':
-        FirebaseFunctions().addUsertoTeamCollection(explorer);
-        FirebaseFunctions().addUsertoTeam(explorer);
-        break;
+  // Add user to the team collection in Firestore
+  Future<void> _addUserToTeamCollections(String team) async {
+    try {
+      switch (team) {
+        case 'The Champions':
+          await FirebaseFunctions().addUsertoTeamCollection(champion);
+          await FirebaseFunctions().addUsertoTeam(champion);
+          break;
+        case 'The Creatives':
+          await FirebaseFunctions().addUsertoTeamCollection(creative);
+          await FirebaseFunctions().addUsertoTeam(creative);
+          break;
+        case 'The Innovators':
+          await FirebaseFunctions().addUsertoTeamCollection(innovator);
+          await FirebaseFunctions().addUsertoTeam(innovator);
+          break;
+        case 'The Philosophers':
+          await FirebaseFunctions().addUsertoTeamCollection(philosopher);
+          await FirebaseFunctions().addUsertoTeam(philosopher);
+          break;
+        case 'The Thinkers':
+          await FirebaseFunctions().addUsertoTeamCollection(thinker);
+          await FirebaseFunctions().addUsertoTeam(thinker);
+          break;
+        case 'The Explorers':
+          await FirebaseFunctions().addUsertoTeamCollection(explorer);
+          await FirebaseFunctions().addUsertoTeam(explorer);
+          break;
       }
-    
-    
+    } catch (e) {
+      print('Error adding user to team: $e');
+      throw Exception('Failed to add user to team: $e');
+    }
   }
 
   // Function to skip onboarding and go to the Discover page
@@ -163,7 +162,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => DiscoverPage(teamname: '',),
+        builder: (context) => DiscoverPage(teamname: ''),
       ),
     );
   }

@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _fetchMeetingInfo();
+    _fetchUserName();
     _checkTeamAndNavigate();
   }
 
@@ -52,6 +53,23 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       print('Error fetching meeting info: $e');
+    }
+  }
+
+  // Fetch username from Firestore
+  Future<void> _fetchUserName() async {
+    try {
+      final user = _auth.currentUser;
+      if (user != null) {
+        final doc = await _firestore.collection('users').doc(user.uid).get();
+        if (doc.exists) {
+          setState(() {
+            userName = doc.get('Username') as String;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching username: $e');
     }
   }
 
