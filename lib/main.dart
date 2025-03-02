@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // Add this import
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:invert/firebasefunctions.dart';
 import 'package:invert/forgotpassword.dart';
@@ -11,10 +12,12 @@ import 'package:invert/New_user_onboarding.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toastification/toastification.dart';
 import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupFirebase();
+
   runApp(const InVertApp());
 }
 
@@ -25,12 +28,17 @@ Future<void> setupFirebase() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print('Firebase initialized successfully');
+
+    // Connect to Firestore Emulator in debug mode
+    if (kDebugMode) {
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      print('Connected to Firestore Emulator');
+    }
   } catch (e) {
     print('Error initializing Firebase: $e');
     rethrow;
   }
 }
-
 
 class InVertApp extends StatefulWidget {
   const InVertApp({super.key});
@@ -49,14 +57,12 @@ class _InVertAppState extends State<InVertApp> {
       ),
       routes: {
         '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomeScreen(team: 'test'),
-    '/discover': (context) => DiscoverPage(),
-
+        '/home': (context) => const HomeScreen(teamname: 'test'),
+        '/discover': (context) => DiscoverPage(teamname: 'test'),
         '/signup': (context) => const SignUpPage(),
         '/forgot-password': (context) => const ForgotPassword(),
         '/onboarding': (context) => const NewUserOnboarding(),
       },
-
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
@@ -65,7 +71,7 @@ class _InVertAppState extends State<InVertApp> {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
             print('Auth state: User signed in - ${snapshot.data!.email}');
-            return const HomeScreen(team: 'test');
+            return const HomeScreen(teamname: 'test');
           }
           print('Auth state: No user signed in');
           return const LoginPage();
@@ -78,7 +84,6 @@ class _InVertAppState extends State<InVertApp> {
     Navigator.of(context).pushNamedAndRemoveUntil(
       '/login',
       (Route<dynamic> route) => false,
-      home: LoginPage(), // Set LoginPage as the initial screen
     );
   }
 }
@@ -96,7 +101,6 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool firsttime = true;
   String explorers = 'Explorers';
-
 
   @override
   void dispose() {
@@ -166,9 +170,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-
                     TextFormField(
-
                       controller: _emailcontroller,
                       decoration: const InputDecoration(
                         labelText: 'Email',
@@ -249,7 +251,6 @@ class _LoginPageState extends State<LoginPage> {
     String team = await FirebaseFunctions().getTeamFromCollection(email);
     bool checkuser = await FirebaseFunctions().checkUser(email);
     if (checkuser == true) {
-
       FirebaseFunctions().changeStatus(email);
       Navigator.push(
         context,
@@ -259,27 +260,25 @@ class _LoginPageState extends State<LoginPage> {
       );
     } else {
       if (team != explorers) {
-          Navigator.push(
+        Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(team: team,),
+            builder: (context) => HomeScreen(teamname: team),
           ),
         );
       } else {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DiscoverPage(),
+            builder: (context) => DiscoverPage(teamname: team),
           ),
         );
       }
     }
 
-    
-
     try {
-      print("Attempting to sign in with email: $email"); // Logging the email
-      User? user = await FirebaseFunctions().signInWithEmailandPassword(email, password);
+      print("Attempting to sign in with email: $email");
+      User? user = await FirebaseFunctions().signInWithEmailAndPassword(email, password);
       if (user != null) {
         print("Login successful for user: $email");
         toastification.show(
@@ -290,11 +289,6 @@ class _LoginPageState extends State<LoginPage> {
           title: const Text('Login Successfully'),
           alignment: Alignment.centerRight,
         );
-
-
-
-        
-        
       } else {
         print("Login failed for user: $email");
         toastification.show(
@@ -327,9 +321,5 @@ class _LoginPageState extends State<LoginPage> {
         alignment: Alignment.centerRight,
       );
     }
-
-
-
   }
-
 }

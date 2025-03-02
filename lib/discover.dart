@@ -1,16 +1,18 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:invert/firebasefunctions.dart';
 import 'home.dart';
 import 'user_count_service.dart';
 
 class DiscoverPage extends StatelessWidget {
-  UserCountService userCountService = UserCountService(); // Initialize user count service
+  final String teamname; // Required parameter
 
-  DiscoverPage({super.key});
+  DiscoverPage({super.key, required this.teamname}); // Mark as required
+
+  final UserCountService userCountService = UserCountService(); // Initialize user count service
 
   // List of teams and details
-  final List<Map<String, dynamic>> teams = const [
+  static const List<Map<String, dynamic>> teams = [
     {
       'name': 'The Innovators',
       'logo': 'assets/innovators_logo.png',
@@ -43,71 +45,79 @@ class DiscoverPage extends StatelessWidget {
     },
   ];
 
-  final String username = FirebaseAuth.instance.currentUser!.displayName!;
-
   @override
   Widget build(BuildContext context) {
+    final String? username = FirebaseAuth.instance.currentUser?.displayName;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Discover'),
+        title: const Text('Discover'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 5, //teams per row
-            crossAxisSpacing: 4.0, //spacing between columns
-            mainAxisSpacing: 4.0, // spacing between rows
-            childAspectRatio: 0.8, // card aspect ratio
+            crossAxisCount: 2, // Teams per row
+            crossAxisSpacing: 16.0, // Spacing between columns
+            mainAxisSpacing: 16.0, // Spacing between rows
+            childAspectRatio: 0.8, // Card aspect ratio
           ),
           itemCount: teams.length,
           itemBuilder: (context, index) {
             final team = teams[index];
-            return _buildTeamCard(team, context);
+            return _buildTeamCard(team, context, username);
           },
         ),
       ),
     );
   }
 
-  // function to build a team card
-  Widget _buildTeamCard(Map<String, dynamic> team, BuildContext context) {
+  // Function to build a team card
+  Widget _buildTeamCard(
+    Map<String, dynamic> team,
+    BuildContext context,
+    String? username,
+  ) {
     return Card(
-      elevation: 2,
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Team logo
-            Image.asset(
-              team['logo']!,
-              width: 16,
-              height: 16,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(Icons.error); // Placeholder if image fails to load
+            CircleAvatar(
+              radius: 40,
+              backgroundImage: AssetImage(team['logo']),
+              onBackgroundImageError: (exception, stackTrace) {
+                // Placeholder if image fails to load
+                const Icon(Icons.error);
               },
             ),
-            SizedBox(height: 1),
+            const SizedBox(height: 16),
             // Team name
             Text(
-              team['name']!,
-              style: TextStyle(
-                fontSize: 14,
+              team['name'],
+              style: const TextStyle(
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 1),
+            const SizedBox(height: 8),
             // Team description
             Text(
-              team['description']!,
+              team['description'],
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 14,
                 color: Colors.grey[600],
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 1),
+            const SizedBox(height: 16),
             // Member count
             StreamBuilder<int>(
               stream: userCountService.listenToUserCount(team['name']),
@@ -120,34 +130,80 @@ class DiscoverPage extends StatelessWidget {
                   return Text(
                     '${snapshot.data} members',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 14,
                       color: Colors.grey[800],
                     ),
                   );
                 }
               },
             ),
-            SizedBox(height: 1),
-            // Select Team Button TODO: add team description on button press then user has to press join team
+            const SizedBox(height: 16),
+            // Select Team Button
             ElevatedButton(
-              onPressed: () {
-                FirebaseFunctions().addUsertoTeam(team['name']!);
-                FirebaseFunctions().addUsertoTeamCollection(team['name']!);
-                FirebaseFunctions().addUserToTeamRealTime(team['name'], username);
-
-               
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(team: team['name']!),
-                  ),
-                );
-              },
-              child: Text('Select Team'),
+              onPressed: () => _onJoinTeamPressed(context, team, username),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: const Text('Join Team'),
             ),
           ],
         ),
       ),
     );
+  }
+
+  // Function to handle team join button press
+  void _onJoinTeamPressed(
+    BuildContext context,
+    Map<String, dynamic> team,
+    String? username,
+  ) async {
+    if (username == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not logged in. Please sign in.')),
+      );
+      return;
+    }
+
+    // Show confirmation dialog
+    final bool confirmJoin = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Join Team'),
+        content: Text('Are you sure you want to join ${team['name']}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Join'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmJoin == true) {
+      try {
+        final FirebaseFunctions firebaseFunctions = FirebaseFunctions();
+        await firebaseFunctions.addUsertoTeam(team['name']);
+        await firebaseFunctions.addUsertoTeamCollection(team['name']);
+        await firebaseFunctions.addUserToTeamRealTime(team['name'], username);
+
+        // Navigate to the home screen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(teamname: team['name']), // Pass teamname
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to join team: $e')),
+        );
+      }
+    }
   }
 }

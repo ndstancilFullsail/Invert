@@ -1,20 +1,19 @@
-
-
-import 'dart:ffi';
-
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseFunctions {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseDatabase _database = FirebaseDatabase.instance;
   final String databaseUrl = "https://nvert-1ec6c-default-rtdb.firebaseio.com/";
 
-  Future<User?> signUpWithEmailandPassword(String email, String password) async {
+  // Sign up with email and password
+  Future<User?> signUpWithEmailAndPassword(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -22,12 +21,13 @@ class FirebaseFunctions {
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      print('Error: $e');
+      print('Sign Up Error: $e');
       return null;
     }
   }
 
-  Future<User?> signInWithEmailandPassword(String email, String password) async {
+  // Sign in with email and password
+  Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -35,76 +35,66 @@ class FirebaseFunctions {
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      print('Error: $e');
+      print('Sign In Error: $e');
       return null;
     }
-
-
-
-
-
   }
 
+  // Sign out
   Future<void> signOut() async {
     try {
-      print('Starting sign out process...');
       final user = _auth.currentUser;
       if (user != null) {
-        print('Signing out user: ${user.uid} (${user.email})');
         await _auth.signOut();
-        print('Sign out completed successfully');
+        print('User signed out successfully');
       } else {
         print('No user is currently signed in');
-        throw Exception('No user is currently signed in');
       }
     } on FirebaseAuthException catch (e) {
-      print('FirebaseAuthException during sign out: ${e.code} - ${e.message}');
+      print('Sign Out Error: ${e.code} - ${e.message}');
       throw Exception('Failed to sign out: ${e.message}');
     } catch (e) {
-      print('Unexpected error during sign out: $e');
+      print('Unexpected Error during sign out: $e');
       throw Exception('Unexpected error during sign out: $e');
     }
   }
 
+  // Save team selection to SharedPreferences
   Future<void> saveTeamSelection(String team) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedTeam', team);
   }
 
+  // Get team selection from SharedPreferences
   Future<String?> getTeamSelection() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('selectedTeam');
   }
 
-  Future<void> navigateToLogin(BuildContext context) async {
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-      (Route<dynamic> route) => false,
-    );
+  // Add user details to Firestore
+  Future<void> addUserDetails(String fullName, String username, String email) async {
+    try {
+      await _firestore.collection('users').doc(email).set({
+        'Full Name': fullName,
+        'Username': username,
+        'Email': email,
+        'Team Name': 'Unassigned',
+        'User ID': _auth.currentUser!.uid,
+        'First Time': true,
+      });
+    } catch (e) {
+      print('Error adding user details: $e');
+      throw Exception('Failed to add user details: $e');
+    }
   }
 
-  void addUserDetails(String fullname, String username, String email, CollectionReference userdata) async {
-    await userdata.doc(email).set({
-      'Full Name': fullname,
-      'Username': username,
-      'Email': email,
-      'Team Name': 'Unassigned',
-      'User ID': FirebaseAuth.instance.currentUser!.uid,
-      'First Time': true,
-    });
-  }
-  
+  // Get full name from Firestore
   Future<String> getFullName() async {
-    String fullname = '';
-    String email = FirebaseAuth.instance.currentUser!.email.toString();
     try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(email)
-          .get();
+      String email = _auth.currentUser!.email!;
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
       if (doc.exists) {
-        fullname = doc.get('Full Name');
-        return fullname;
+        return doc.get('Full Name') as String;
       } else {
         return "No Name exists!";
       }
@@ -113,17 +103,13 @@ class FirebaseFunctions {
     }
   }
 
+  // Get username from Firestore
   Future<String> getUsernameFromCollection() async {
-    String username = '';
-    String email = FirebaseAuth.instance.currentUser!.email.toString();
     try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(email)
-          .get();
+      String email = _auth.currentUser!.email!;
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
       if (doc.exists) {
-        username = doc.get('Username');
-        return username;
+        return doc.get('Username') as String;
       } else {
         return "No Username exists!";
       }
@@ -131,18 +117,14 @@ class FirebaseFunctions {
       return "Error: $e";
     }
   }
-  
+
+  // Get email from Firestore
   Future<String> getEmailFromCollection() async {
-    String useremail = '';
-    String email = FirebaseAuth.instance.currentUser!.email!;
     try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(email)
-          .get();
+      String email = _auth.currentUser!.email!;
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
       if (doc.exists) {
-        useremail = doc.get('Email');
-        return useremail;
+        return doc.get('Email') as String;
       } else {
         return "No email exists!";
       }
@@ -151,17 +133,12 @@ class FirebaseFunctions {
     }
   }
 
+  // Get team from Firestore
   Future<String> getTeamFromCollection(String email) async {
-      String team = '';
-      
-       try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(email)
-          .get();
+    try {
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
       if (doc.exists) {
-        team =doc.get('Team Name');
-        return team;
+        return doc.get('Team Name') as String;
       } else {
         return "No Team exists!";
       }
@@ -170,109 +147,120 @@ class FirebaseFunctions {
     }
   }
 
-  void addUsertoTeam(String team) async {
-    String email = FirebaseAuth.instance.currentUser!.email!;
-    await FirebaseFirestore.instance.collection('users').doc(email).update({
-      'Team Name': team,
-    });
-  }
-
-  void addUsertoTeamCollection(String team) async {
-    String email = FirebaseAuth.instance.currentUser!.email!;
-    String username = await getUsernameFromCollection();
-    await FirebaseFirestore.instance.collection('Teams').doc(team).collection('Members').doc(username).set({
-      'Email': email,
-    });
-  }
-
-    void _AddUsertoRealtimeDatabase(String team) async {
-      String username = await getUsernameFromCollection();
-      
-      DatabaseReference ref = FirebaseDatabase.instance.ref('TeamChats').child(team).child('Users').push();
-      ref.set({
-        'User': username,
+  // Add user to a team in Firestore
+  Future<void> addUsertoTeam(String team) async {
+    try {
+      String email = _auth.currentUser!.email!;
+      await _firestore.collection('users').doc(email).update({
+        'Team Name': team,
       });
-    }
-
-    Future<void> addUserToTeamRealTime(String team, String username) async {
-    
-    final url = Uri.parse("$databaseUrl/TeamChats/$team/Users.json");
-    final response = await http.post(
-      url,
-      body: json.encode({
-        "Users": username,
-      }),
-    );
-  }
-
-    
-
-  Future<void> sendMessage(String teamId, String senderId, String message) async {
-    final url = Uri.parse("$databaseUrl/TeamChats/$teamId/Messages.json");
-    final response = await http.post(
-      url,
-      body: json.encode({
-        "sender": senderId,
-        "text": message,
-        "Timestamp": DateTime.now().millisecondsSinceEpoch,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print("Message sent successfully!");
-    } else {
-      print("Error sending message: ${response.body}");
+    } catch (e) {
+      print('Error adding user to team: $e');
+      throw Exception('Failed to add user to team: $e');
     }
   }
 
-  Future<List<Map<String, dynamic>>?> fetchMessages(String teamId) async {
-    final url = Uri.parse("$databaseUrl/TeamChats/$teamId/Messages.json?orderBy=\"Timestamp\"");
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body) as Map<String, dynamic>?;
-      if (data == null) return [];
-      
-      List<Map<String, dynamic>> messages = data.entries.map((e) {
-        return {"id": e.key, ...e.value as Map<String, dynamic>};
-      }).toList().cast<Map<String, dynamic>>();
-
-      messages.sort((a, b) => (a["Timestamp"] ?? 0).compareTo(b["Timestamp"] ?? 0));
-      return messages;
-    } else {
-      print("Error fetching messages: ${response.body}");
-      return [];
+  // Add user to a team collection in Firestore
+  Future<void> addUsertoTeamCollection(String team) async {
+    try {
+      String email = _auth.currentUser!.email!;
+      String username = await getUsernameFromCollection();
+      await _firestore.collection('Teams').doc(team).collection('Members').doc(username).set({
+        'Email': email,
+      });
+    } catch (e) {
+      print('Error adding user to team collection: $e');
+      throw Exception('Failed to add user to team collection: $e');
     }
   }
-  
-  Future<bool> checkUser(String email) async {
-  bool checkuser = false;
-  try {
-    DocumentSnapshot doc = await FirebaseFirestore.instance
-        .collection('users') // Replace with your collection name
-        .doc(email) // Replace with your document ID
-        .get();
-    if (doc.exists) {
-        checkuser =doc.get('First Time');
-        return checkuser;
+
+  // Add user to Realtime Database
+  Future<void> addUserToTeamRealTime(String team, String username) async {
+    try {
+      final url = Uri.parse("$databaseUrl/TeamChats/$team/Users.json");
+      final response = await http.post(
+        url,
+        body: json.encode({
+          "Users": username,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to add user to Realtime Database: ${response.body}');
       }
-    else {
-      return checkuser;
+    } catch (e) {
+      print('Error adding user to Realtime Database: $e');
+      throw Exception('Failed to add user to Realtime Database: $e');
     }
-  } catch (e) {
-    return checkuser;
+  }
+
+  // Send message to Realtime Database
+  Future<void> sendMessage(String teamId, String senderId, String message) async {
+    try {
+      final url = Uri.parse("$databaseUrl/TeamChats/$teamId/Messages.json");
+      final response = await http.post(
+        url,
+        body: json.encode({
+          "sender": senderId,
+          "text": message,
+          "Timestamp": DateTime.now().millisecondsSinceEpoch,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to send message: ${response.body}');
+      }
+    } catch (e) {
+      print('Error sending message: $e');
+      throw Exception('Failed to send message: $e');
+    }
+  }
+
+  // Fetch messages from Realtime Database
+  Future<List<Map<String, dynamic>>> fetchMessages(String teamId) async {
+    try {
+      final url = Uri.parse("$databaseUrl/TeamChats/$teamId/Messages.json?orderBy=\"Timestamp\"");
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>?;
+        if (data == null) return [];
+
+        List<Map<String, dynamic>> messages = data.entries.map((e) {
+          return {"id": e.key, ...e.value as Map<String, dynamic>};
+        }).toList();
+
+        messages.sort((a, b) => (a["Timestamp"] ?? 0).compareTo(b["Timestamp"] ?? 0));
+        return messages;
+      } else {
+        throw Exception('Failed to fetch messages: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching messages: $e');
+      throw Exception('Failed to fetch messages: $e');
+    }
+  }
+
+  // Check if user exists in Firestore
+  Future<bool> checkUser(String email) async {
+    try {
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
+      return doc.exists && doc.get('First Time') as bool;
+    } catch (e) {
+      print('Error checking user: $e');
+      return false;
+    }
+  }
+
+  // Change user status in Firestore
+  Future<void> changeStatus(String email) async {
+    try {
+      await _firestore.collection('users').doc(email).update({
+        'First Time': false,
+      });
+    } catch (e) {
+      print('Error changing user status: $e');
+      throw Exception('Failed to change user status: $e');
+    }
   }
 }
-
-
-
-void changeStatus(String email) async {
-  await FirebaseFirestore.instance.collection('users').doc(email).update({
-    'First Time': false,
-  });
-}
-}
-
-
-
-

@@ -11,9 +11,9 @@ import 'discover.dart';
 import 'main.dart';
 
 class HomeScreen extends StatefulWidget {
-  final String team;
+  final String teamname; // Required parameter
 
-  const HomeScreen({super.key, required this.team});
+  const HomeScreen({super.key, required this.teamname}); // Mark as required
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -21,85 +21,149 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late String token;
-  late String meetingIds;
+  late String meetingId;
   late Room _channel;
   late String userName;
   bool connected = false;
-  bool micphEnable = true;
-  var database = FirebaseFirestore.instance;
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  final FirebaseDatabase realdatabase = FirebaseDatabase.instance;
+  bool micEnabled = true;
   final FirebaseFunctions _firebaseFunctions = FirebaseFunctions();
-
-  void getMeetingInfo() async {
-    var datab = FirebaseFirestore.instance.collection('VoiceInfo').doc('Info');
-    await datab.get().then(
-      (DocumentSnapshot doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        token = data['token'];
-        meetingIds = data['meetingId'];
-      },
-      onError: (e) => print("Error completing: $e"),
-    );
-
-    var database = FirebaseFirestore.instance.collection('users').doc('eimBKOW0O3Vl0AnViRfw');
-    await database.get().then(
-      (DocumentSnapshot doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        userName = data['Username'];
-      }
-    );
-  }
-
-  void onJoinButtonPressed(String nameofChannel) {
-    _channel = VideoSDK.createRoom(
-      roomId: meetingIds,
-      displayName: nameofChannel,
-      token: token,
-      camEnabled: false,
-      micEnabled: micphEnable,
-    );
-    setRoomEvents();
-    _channel.join();
-  }
-
-  void joinRoom() async {
-    var db = FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCH1').doc('eimBKOW0O3Vl0AnViRfw');
-    await db.set({
-      "Username": userName
-    }, SetOptions(merge: true));
-  }
-
-  void leaveRoom() async {
-    var db = FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCH1');
-    await db.doc('eimBKOW0O3Vl0AnViRfw').delete();
-  }
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-    getMeetingInfo();
+    _fetchMeetingInfo();
+    _checkTeamAndNavigate();
+  }
 
-    if (widget.team == 'The Explorers') {
+  // Fetch meeting info from Firestore
+  Future<void> _fetchMeetingInfo() async {
+    try {
+      final doc = await _firestore.collection('VoiceInfo').doc('Info').get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        setState(() {
+          token = data['token'];
+          meetingId = data['meetingId'];
+        });
+      } else {
+        print('VoiceInfo document does not exist');
+      }
+    } catch (e) {
+      print('Error fetching meeting info: $e');
+    }
+  }
+
+  // Check if the team is 'The Explorers' and navigate to DiscoverPage
+  void _checkTeamAndNavigate() {
+    if (widget.teamname == 'The Explorers') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => DiscoverPage(),
+            builder: (context) => DiscoverPage(teamname: widget.teamname), // Pass teamname
           ),
         );
       });
     }
   }
 
-  void setRoomEvents() {
+  // Join a voice channel
+  void _joinVoiceChannel(String channelName) {
+    _channel = VideoSDK.createRoom(
+      roomId: meetingId,
+      displayName: channelName,
+      token: token,
+      camEnabled: false,
+      micEnabled: micEnabled,
+    );
+    _setRoomEvents();
+    _channel.join();
+    setState(() {
+      connected = true;
+    });
+  }
+
+  // Set up room event listeners
+  void _setRoomEvents() {
     _channel.on(Events.roomJoined, () {
-      joinRoom();
+      _addUserToVoiceChannel();
     });
 
     _channel.on(Events.roomLeft, () {
-      leaveRoom();
+      _removeUserFromVoiceChannel();
     });
+  }
+
+  // Add user to Firestore voice channel
+  Future<void> _addUserToVoiceChannel() async {
+    try {
+      final userId = _auth.currentUser!.uid;
+      await _firestore
+          .collection('Teams')
+          .doc(widget.teamname) // Use widget.teamname
+          .collection('VoiceCH1')
+          .doc(userId)
+          .set({
+        "Username": userName,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print('Error adding user to voice channel: $e');
+    }
+  }
+
+  // Remove user from Firestore voice channel
+  Future<void> _removeUserFromVoiceChannel() async {
+    try {
+      final userId = _auth.currentUser!.uid;
+      await _firestore
+          .collection('Teams')
+          .doc(widget.teamname) // Use widget.teamname
+          .collection('VoiceCH1')
+          .doc(userId)
+          .delete();
+    } catch (e) {
+      print('Error removing user from voice channel: $e');
+    }
+  }
+
+  // Toggle microphone state
+  void _toggleMicrophone() {
+    if (micEnabled) {
+      _channel.muteMic();
+    } else {
+      _channel.unmuteMic();
+    }
+    setState(() {
+      micEnabled = !micEnabled;
+    });
+  }
+
+  // Leave the voice channel
+  void _leaveVoiceChannel() {
+    _channel.leave();
+    setState(() {
+      connected = false;
+    });
+  }
+
+  // Handle logout
+  Future<void> _handleLogout() async {
+    try {
+      await _firebaseFunctions.signOut();
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logout failed. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -133,33 +197,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DiscoverPage(),
+                    builder: (context) => DiscoverPage(teamname: widget.teamname), // Pass teamname
                   ),
                 );
               },
             ),
             ListTile(
               title: const Text('Logout'),
-              onTap: () async {
-                print('Logout button tapped');
-                try {
-                  print('Attempting to sign out...');
-                  await _firebaseFunctions.signOut();
-                  print('Sign out successful, navigating to login');
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/login',
-                    (Route<dynamic> route) => false,
-                  );
-                } catch (e) {
-                  print('Error during sign out: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Logout failed. Please try again.'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
+              onTap: _handleLogout,
             ),
           ],
         ),
@@ -171,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 color: Colors.grey[200],
                 padding: const EdgeInsets.all(16),
-                child: ChatPage(),
+                child: ChatPage(teamname: widget.teamname),
               ),
             ),
             Container(
@@ -219,12 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         ListTile(
                           title: Text('Voice Channel 1'),
-                          onTap: () {
-                            onJoinButtonPressed('Voice Channel 1');
-                            setState(() {
-                              connected = true;
-                            });
-                          },
+                          onTap: () => _joinVoiceChannel('Voice Channel 1'),
                         ),
                         ParticipantToken(),
                         ListTile(title: Text('Voice Channel 2')),
@@ -235,46 +275,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             IconButton(
-                              onPressed: () {
-                                micphEnable ? _channel.muteMic() : _channel.unmuteMic();
-                                micphEnable = !micphEnable;
-                              },
-                              icon: Icon(Icons.mic)
+                              onPressed: _toggleMicrophone,
+                              icon: Icon(micEnabled ? Icons.mic : Icons.mic_off),
                             ),
                             LeaveButton(
                               connect: connected,
                               icon: Text('Leave'),
-                              onPressed: () {
-                                _channel.leave();
-                                setState(() {
-                                  connected = false;
-                                });
-                              },
+                              onPressed: _leaveVoiceChannel,
                             ),
                           ],
                         ),
                         SizedBox(height: 20),
                         ElevatedButton(
-                          onPressed: () async {
-                            print('Logout button pressed');
-                            try {
-                              print('Attempting to sign out...');
-                              await _firebaseFunctions.signOut();
-                              print('Sign out successful, navigating to login');
-                              Navigator.of(context).pushNamedAndRemoveUntil(
-                                '/login',
-                                (Route<dynamic> route) => false,
-                              );
-                            } catch (e) {
-                              print('Error during sign out: $e');
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Logout failed. Please try again.'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
+                          onPressed: _handleLogout,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             minimumSize: Size(double.infinity, 40),
@@ -283,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Logout',
                             style: TextStyle(color: Colors.white),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),

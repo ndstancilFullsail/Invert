@@ -176,7 +176,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String username = _usernamecontroller.text.trim();
 
       
-  User? user = await FirebaseFunctions().signUpWithEmailandPassword(email, password);
+  User? user = await FirebaseFunctions().signUpWithEmailAndPassword(email, password);
   toastification.show(
     context: context,
     type: ToastificationType.success,
@@ -187,8 +187,8 @@ class _SignUpPageState extends State<SignUpPage> {
     
   );
   FirebaseFunctions().addUserDetails(_fullnamecontroller.text.trim(),
-   _usernamecontroller.text.trim(), 
-   _emailcontroller.text.trim(), userdata);
+     _usernamecontroller.text.trim(), 
+     _emailcontroller.text.trim());
 
    
 

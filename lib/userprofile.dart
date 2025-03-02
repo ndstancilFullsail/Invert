@@ -189,7 +189,7 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                       FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(), builder: (context,snapshot){
+                       FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(uid), builder: (context,snapshot){
                           if(snapshot.connectionState == ConnectionState.waiting){
                             return CircularProgressIndicator();
                           }else if(snapshot.hasError){

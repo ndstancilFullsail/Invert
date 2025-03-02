@@ -80,7 +80,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => DiscoverPage(),
+            builder: (context) => DiscoverPage(teamname: team),
           ),
         );
       } else {
@@ -88,7 +88,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(team: team),
+            builder: (context) => HomeScreen(teamname: team),
           ),
         );
       }
@@ -163,7 +163,7 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => DiscoverPage(),
+        builder: (context) => DiscoverPage(teamname: '',),
       ),
     );
   }
