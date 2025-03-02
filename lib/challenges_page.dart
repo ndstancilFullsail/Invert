@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 
 class ChallengesPage extends StatefulWidget {
   const ChallengesPage({super.key});
@@ -71,9 +72,20 @@ class _ChallengesPageState extends State<ChallengesPage> {
     });
   }
 
-  // Updates leaderboard when a user completes a challenge
-  void updateLeaderboard(String userId, String username, String fullname,
-      int additionalScore, String profilePicture) {
+  // Updates leaderboard using the authenticated user's details
+  void updateLeaderboard(int additionalScore) {
+    final User? user = FirebaseAuth.instance.currentUser; // Get logged-in user
+
+    if (user == null) {
+      print("No authenticated user found.");
+      return;
+    }
+
+    String userId = user.uid;
+    String username = user.displayName ?? "Anonymous";
+    String email = user.email ?? "";
+    String? profilePicture = user.photoURL;
+
     DatabaseReference userRef = leaderboardRef.child(userId);
 
     userRef.once().then((snapshot) {
@@ -88,7 +100,7 @@ class _ChallengesPageState extends State<ChallengesPage> {
         // If the user doesn't exist in the leaderboard, create a new entry
         userRef.set({
           "username": username,
-          "fullname": fullname,
+          "fullname": email, // Using email as a fallback if full name isn't available
           "challengesScore": additionalScore,
           "profilePicture": profilePicture
         });
@@ -99,9 +111,8 @@ class _ChallengesPageState extends State<ChallengesPage> {
   }
 
   // Called when a user completes a challenge
-  void completeChallenge(String userId, String username, String fullname,
-      int challengeScore, String profilePicture) {
-    updateLeaderboard(userId, username, fullname, challengeScore, profilePicture);
+  void completeChallenge(int challengeScore) {
+    updateLeaderboard(challengeScore);
   }
 
   @override
