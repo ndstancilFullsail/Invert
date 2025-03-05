@@ -81,44 +81,39 @@ class _ParticipantTokenState extends State<ParticipantToken> {
 
 
   List<Widget> userTokens = [];
+  List<String> internalUsers = [];
 
-  void addToken(String data){
-    setState(() {
-      userTokens.add(
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(data),
-          ],
-        )
-      );
-    });
-  }
+  void resolveToken(List<String> external)
+  {
 
-  void getTokeninfo() async{
+        bool same = ListEquality().equals(internalUsers, external);
 
-    var db = FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCH1');
-
-    await db.get().then((onValue) {
-
-        for(var docu in onValue.docs)
+        if(!same)
         {
-          final data = docu.data();
-          addToken(data['Username']);
+          List<Widget> temp = [];
+
+          for(var item in external)
+          {
+            temp.add(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(item),
+                  ],
+                )
+            );
+          }
+            internalUsers = List.from(external);
+            userTokens = List.from(temp);
         }
-    }, onError: (e) {
-      throw e;
-    });
-
-
   }
+
+
 
   @override
   Widget build(BuildContext context) {
-
-
     return StreamBuilder(
-    stream: FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCh1').snapshots(),
+    stream: FirebaseFirestore.instance.collection('Teams').doc('Champions').collection('VoiceCH1').snapshots(),
     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
     
         if(snapshot.hasError)
@@ -129,17 +124,21 @@ class _ParticipantTokenState extends State<ParticipantToken> {
         {
           return const Text("Loading");
         }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-           return const Text("No users found");
+        if (!snapshot.hasData || !snapshot.data!.docs.isNotEmpty) {
+           return const Text("No users found"); //Sizebox(0,0)
         }
-    
-        // snapshot.data!.docs.map((DocumentSnapshot document) {
-        //         var data = document.data()! as Map<String, dynamic>;
-        //         print(data['Username']);
-        //         addToken(data['Username']);
-        //       });
 
-        //getTokeninfo();
+        List<String> firebaseUsers = z[];
+        
+        for (var document in snapshot.data!.docs) {
+
+          var data = document.data() as Map<String, dynamic>;
+          firebaseUsers.add(data["Username"]);
+
+        }
+      
+        resolveToken(firebaseUsers);  
+
 
 
         return SingleChildScrollView(
