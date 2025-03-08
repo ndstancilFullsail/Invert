@@ -1,13 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart'; // If using Firebase
-import 'package:google_fonts/google_fonts.dart'; // For custom fonts
-import 'package:toastification/toastification.dart'; // For toast messages
-import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore
-import 'package:invert/firebasefunctions.dart'; // For Firebase functions
-import 'package:invert/forgotpassword.dart'; // For ForgotPassword screen
-import 'package:invert/home.dart'; // For HomeScreen
-import 'package:invert/signuppage.dart'; // For SignUpPage
+import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:toastification/toastification.dart';
+import 'package:invert/firebasefunctions.dart';
+import 'package:invert/forgotpassword.dart';
+import 'package:invert/home.dart';
+import 'package:invert/signuppage.dart';
 import 'package:invert/discover.dart'; 
 import 'package:invert/New_user_onboarding.dart'; 
 import 'firebase_options.dart'; 
@@ -208,86 +207,70 @@ class _LoginPageState extends State<LoginPage> {
     String password = _passwordcontroller.text.trim();
 
     try {
-      print("Attempting to sign in with email: $email");
-      User? user = await FirebaseFunctions().signInWithEmailAndPassword(email, password);
+        print("Attempting to sign in with email: $email");
+        User? user = await FirebaseFunctions().signInWithEmailAndPassword(email, password);
 
-      if (user != null) {
-        print("Login successful for user: $email");
+        if (user != null) {
+            print("Login successful for user: $email");
 
-        // Check if the user is new (First Time flag)
-        bool isNewUser = await FirebaseFunctions().checkUser(email);
+            //  Fetch the user's team from Firestore
+            String team = await FirebaseFunctions().getTeamFromCollection(email);
+            print("User's saved team: $team");
 
-        if (isNewUser) {
-          // Navigate to Onboarding Screen for new users
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const NewUserOnboarding(),
-            ),
-          );
+            //  If no team is assigned, set them as 'Explorers'
+            if (team.isEmpty || team == 'Unassigned') {
+                print("No team found. Assigning user to 'Explorers'.");
+                await FirebaseFunctions().addUsertoTeam('Explorers'); //  Assign user to Explorers
+                team = 'Explorers';
+            }
+
+            print("Final team for user: $team. Redirecting...");
+
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen(teamname: team)),
+            );
+
+            // show success message
+            toastification.show(
+                context: context,
+                type: ToastificationType.success,
+                style: ToastificationStyle.flat,
+                autoCloseDuration: const Duration(seconds: 5),
+                title: const Text('Login Successful'),
+                alignment: Alignment.centerRight,
+            );
         } else {
-          // Fetch the user's team
-          String team = await FirebaseFunctions().getTeamFromCollection(email);
-
-          if (team == explorers) {
-            // Navigate to DiscoverPage for Explorers
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DiscoverPage(teamname: team),
-              ),
+            print("Login failed for user: $email");
+            toastification.show(
+                context: context,
+                type: ToastificationType.error,
+                style: ToastificationStyle.flat,
+                autoCloseDuration: const Duration(seconds: 5),
+                title: const Text('Invalid Email or Password'),
+                alignment: Alignment.centerRight,
             );
-          } else {
-            // Navigate to HomeScreen for other teams
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeScreen(teamname: team),
-              ),
-            );
-          }
         }
-
-        // Show success message
-        toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 5),
-          title: const Text('Login Successful'),
-          alignment: Alignment.centerRight,
-        );
-      } else {
-        print("Login failed for user: $email");
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 5),
-          title: const Text('Invalid Email or Password'),
-          alignment: Alignment.centerRight,
-        );
-      }
     } on FirebaseAuthException catch (e) {
-      print("Firebase error during login: ${e.code} - ${e.message}");
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Error: ${e.message ?? "Authentication failed"}'),
-        alignment: Alignment.centerRight,
-      );
+        print("Firebase error during login: ${e.code} - ${e.message}");
+        toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flat,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: Text('Error: ${e.message ?? "Authentication failed"}'),
+            alignment: Alignment.centerRight,
+        );
     } catch (e) {
-      print("Error during login: ${e.toString()}");
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Error: ${e.toString()}'),
-        alignment: Alignment.centerRight,
-      );
+        print("Error during login: ${e.toString()}");
+        toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flat,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: Text('Error: ${e.toString()}'),
+            alignment: Alignment.centerRight,
+        );
     }
   }
 }

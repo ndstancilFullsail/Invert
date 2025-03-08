@@ -39,7 +39,7 @@ class _ChatPageState extends State<ChatPage> {
     List<Map<String, dynamic>>? messages = await _databaseService.fetchMessages(widget.teamname);
     if (mounted) {
       setState(() {
-        _messages = messages!;
+        _messages = messages;
       });
     }
   }

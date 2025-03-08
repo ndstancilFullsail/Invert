@@ -1,11 +1,8 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:videosdk/videosdk.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 
 var videoSdkAPIKey = "f5a9379d-821c-494f-b999-16ac3f19a081";
@@ -128,7 +125,7 @@ class _ParticipantTokenState extends State<ParticipantToken> {
            return const Text("No users found"); //Sizebox(0,0)
         }
 
-        List<String> firebaseUsers = z[];
+        List<String> firebaseUsers = [];
         
         for (var document in snapshot.data!.docs) {
 
