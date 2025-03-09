@@ -241,7 +241,7 @@ class SidebarIcon extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const SidebarIcon({required this.icon, required this.label, Key? key}) : super(key: key);
+  const SidebarIcon({required this.icon, required this.label, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -255,7 +255,7 @@ class ChallengeCard extends StatelessWidget {
   final bool isComplete;
   final IconData imagePlaceholder;
 
-  const ChallengeCard({required this.title, required this.progress, required this.isComplete, required this.imagePlaceholder, Key? key}) : super(key: key);
+  const ChallengeCard({required this.title, required this.progress, required this.isComplete, required this.imagePlaceholder, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +266,7 @@ class ChallengeCard extends StatelessWidget {
 class LeaderboardTile extends StatelessWidget {
   final Map<String, dynamic> player;
 
-  const LeaderboardTile({required this.player, Key? key}) : super(key: key);
+  const LeaderboardTile({required this.player, super.key});
 
   @override
   Widget build(BuildContext context) {

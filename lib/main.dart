@@ -1,16 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:toastification/toastification.dart';
 import 'package:invert/firebasefunctions.dart';
 import 'package:invert/forgotpassword.dart';
 import 'package:invert/home.dart';
 import 'package:invert/signuppage.dart';
-import 'package:invert/discover.dart';
-import 'package:invert/New_user_onboarding.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:toastification/toastification.dart';
-import 'firebase_options.dart';
+import 'package:invert/discover.dart'; 
+import 'package:invert/New_user_onboarding.dart'; 
+import 'firebase_options.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -278,25 +278,25 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      print("Firebase error during login: ${e.code} - ${e.message}");
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Error: ${e.message ?? "Authentication failed"}'),
-        alignment: Alignment.centerRight,
-      );
+        print("Firebase error during login: ${e.code} - ${e.message}");
+        toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flat,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: Text('Error: ${e.message ?? "Authentication failed"}'),
+            alignment: Alignment.centerRight,
+        );
     } catch (e) {
-      print("Error during login: ${e.toString()}");
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        autoCloseDuration: const Duration(seconds: 5),
-        title: Text('Error: ${e.toString()}'),
-        alignment: Alignment.centerRight,
-      );
+        print("Error during login: ${e.toString()}");
+        toastification.show(
+            context: context,
+            type: ToastificationType.error,
+            style: ToastificationStyle.flat,
+            autoCloseDuration: const Duration(seconds: 5),
+            title: Text('Error: ${e.toString()}'),
+            alignment: Alignment.centerRight,
+        );
     }
 
 

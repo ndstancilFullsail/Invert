@@ -5,10 +5,8 @@ import 'package:invert/firebasefunctions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:videosdk/videosdk.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'chat.dart';
 import 'discover.dart';
-import 'main.dart';
 
 class HomeScreen extends StatefulWidget {
   final String teamname; // Required parameter
