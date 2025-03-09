@@ -39,16 +39,17 @@ class _UserProfileState extends State<UserProfile> {
       }
     }
 
-    String getFileType(String? example) {
-      List<String> array = [];
+    // String getFileType(String? example) {
+    //   List<String> array = [];
     
-      if(example != null)
-      {
-        array = example.split('\\');
-      }
+    //   if(example != null)
+    //   {
+    //     array = example.split('\\');
+    //     array = array.last.split('.');
+    //   }
 
-      return array.last;
-    }
+    //   return array.last;
+    // }
 
   Future<String> getUserPicture(String path) async {
 
@@ -71,11 +72,11 @@ class _UserProfileState extends State<UserProfile> {
    
       if (imagePath != null) {
 
-        String fileType = getFileType(imagePath);
-        String combo = "images/$fileType"; //Replace uid with current.uid
+        String combo = "$username/$username.png"; 
         final userProPic = storageRef.child(combo);
         
         File imagefile = File(imagePath);
+
         try{
           userProPic.putFile(imagefile).snapshotEvents.listen((taskSnapshot){
             switch(taskSnapshot.state) {
@@ -141,7 +142,7 @@ class _UserProfileState extends State<UserProfile> {
                                   if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
                                     return Icon(Icons.account_circle, size: 100);
                                   }
-                                    return Image.network(snapshot.data!,width: 100,height: 100,);
+                                    return Image.network(snapshot.data!,width: 150,height: 150,);
                                 },
                               ),
                         ),

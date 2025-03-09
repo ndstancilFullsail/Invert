@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late String token;
-  late String meetingId;
+  List<String> meetingIds = [];
   late Room _channel;
   late String userName;
   bool connected = false;
@@ -34,17 +34,25 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchMeetingInfo();
     _fetchUserName();
     _checkTeamAndNavigate();
+    //VoiceStart().setInfo(); //Only used for settings all of videoSDK config
   }
 
   // Fetch meeting info from Firestore
   Future<void> _fetchMeetingInfo() async {
     try {
-      final doc = await _firestore.collection('VoiceInfo').doc('Info').get();
+      final doc = await _firestore.collection('Teams').doc(widget.teamname).collection('VoiceInfo').doc('Info').get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
+
+        List<String> temp = [];
+        for(int i = 0; i < 5; i++)
+        {
+          temp.add(data['meetingId$i']);
+        }
+
         setState(() {
           token = data['token'];
-          meetingId = data['meetingId'];
+          meetingIds = List.from(temp);
         });
       } else {
         print('VoiceInfo document does not exist');
@@ -59,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        final doc = await _firestore.collection('users').doc(user.uid).get();
+        final doc = await _firestore.collection('users').doc(user.email).get();
         if (doc.exists) {
           setState(() {
             userName = doc.get('Username') as String;
@@ -86,15 +94,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Join a voice channel
-  void _joinVoiceChannel(String channelName) {
+  void _joinVoiceChannel(String channelName,String channelId) {
     _channel = VideoSDK.createRoom(
-      roomId: meetingId,
+      roomId: channelId,
       displayName: channelName,
       token: token,
       camEnabled: false,
       micEnabled: micEnabled,
     );
-    _setRoomEvents();
+    _setRoomEvents(channelName);
     _channel.join();
     setState(() {
       connected = true;
@@ -102,41 +110,41 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Set up room event listeners
-  void _setRoomEvents() {
+  void _setRoomEvents(String channelName) {
     _channel.on(Events.roomJoined, () {
-      _addUserToVoiceChannel();
+      _addUserToVoiceChannel(channelName);
     });
 
     _channel.on(Events.roomLeft, () {
-      _removeUserFromVoiceChannel();
+      _removeUserFromVoiceChannel(channelName);
     });
   }
 
   // Add user to Firestore voice channel
-  Future<void> _addUserToVoiceChannel() async {
+  Future<void> _addUserToVoiceChannel(String channelName) async {
     try {
       final userId = _auth.currentUser!.uid;
       await _firestore
           .collection('Teams')
           .doc(widget.teamname) // Use widget.teamname
-          .collection('VoiceCH1')
+          .collection(channelName)
           .doc(userId)
           .set({
         "Username": userName,
-      }, SetOptions(merge: true));
+      },SetOptions(merge: true));
     } catch (e) {
       print('Error adding user to voice channel: $e');
     }
   }
 
   // Remove user from Firestore voice channel
-  Future<void> _removeUserFromVoiceChannel() async {
+  Future<void> _removeUserFromVoiceChannel(String channelName) async {
     try {
       final userId = _auth.currentUser!.uid;
       await _firestore
           .collection('Teams')
           .doc(widget.teamname) // Use widget.teamname
-          .collection('VoiceCH1')
+          .collection(channelName)
           .doc(userId)
           .delete();
     } catch (e) {
@@ -280,13 +288,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         ListTile(
                           title: Text('Voice Channel 1'),
-                          onTap: () => _joinVoiceChannel('Voice Channel 1'),
+                          onTap: () => _joinVoiceChannel('Voice Channel 1',meetingIds[0]),
                         ),
-                        ParticipantToken(),
-                        ListTile(title: Text('Voice Channel 2')),
-                        ListTile(title: Text('Voice Channel 3')),
-                        ListTile(title: Text('Voice Channel 4')),
-                        ListTile(title: Text('Voice Channel 5')),
+                        ParticipantToken(team: widget.teamname,channel: 'Voice Channel 1',),
+                        ListTile(
+                          title: Text('Voice Channel 2'),
+                          onTap: () => _joinVoiceChannel('Voice Channel 2',meetingIds[1]),
+                        ),
+                        ParticipantToken(team: widget.teamname,channel: 'Voice Channel 2',),
+                        ListTile(
+                          title: Text('Voice Channel 3'),
+                          onTap: () => _joinVoiceChannel('Voice Channel 3',meetingIds[2]),
+                        ),
+                         ParticipantToken(team: widget.teamname,channel: 'Voice Channel 3',),
+                        ListTile(
+                          title: Text('Voice Channel 4'),
+                          onTap: () => _joinVoiceChannel('Voice Channel 4',meetingIds[3]),
+                          ),
+                           ParticipantToken(team: widget.teamname,channel: 'Voice Channel 4',),
+                        ListTile(
+                          title: Text('Voice Channel 5'),
+                          onTap: () => _joinVoiceChannel('Voice Channel 5',meetingIds[4]),
+                          ),
+                           ParticipantToken(team: widget.teamname,channel: 'Voice Channel 5',),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
