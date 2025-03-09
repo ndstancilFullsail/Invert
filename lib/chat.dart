@@ -27,6 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   Timer? _timer;
   String? username = FirebaseAuth.instance.currentUser!.displayName;
+  
 
   @override
   void initState() {
@@ -45,8 +46,10 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<void> _sendMessage() async {
+  
+
     if (_messageController.text.trim().isEmpty) return;
-    await _databaseService.sendMessage(widget.teamname, username!, _messageController.text.trim());
+    await _databaseService.sendMessage(widget.teamname, username! , _messageController.text.trim());
     _messageController.clear();
     _fetchMessages(); // Manually refresh messages
   }
@@ -59,6 +62,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       appBar: AppBar(title: Text("Team Chat: ${widget.teamname}")),
       body: Column(
