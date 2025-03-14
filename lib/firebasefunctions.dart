@@ -130,6 +130,59 @@ class FirebaseFunctions {
       throw Exception('Error: $e');
     }
   }
+  Future<void> setOnlineStatus(String status, String email) async {
+    try {
+      
+      await _firestore.collection('users').doc(email).update({
+        'Online Status': status,
+      });
+    } catch (e) {
+      print('Error setting online status: $e');
+      throw Exception('Failed to set online status: $e');
+    }
+  }
+  Future<String> getOnlineStatus() async {
+    try {
+      String email = _auth.currentUser!.email!;
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
+      if (doc.exists) {
+        return doc.get('Online Status') as String;
+      } else {
+        throw Exception('No Online Status exists!');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+ 
+  Future<String> getLastSeen() async {
+    try {
+      String email = _auth.currentUser!.email!;
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
+      if (doc.exists) {
+        return doc.get('Last Seen').DateTime.fromMillisecondsSinceEpoch().toString();
+      } else {
+        throw Exception('No Last Seen exists!');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+ 
+
+  Future<void> setLastSeen(String email) async {
+    try {
+      await _firestore.collection('users').doc(email).update({
+        'Last Seen': DateTime.now().microsecondsSinceEpoch,
+      });
+    } catch (e) {
+      print('Error setting last seen: $e');
+      throw Exception('Failed to set last seen: $e');
+    }
+  }
+
+
 
   // Get username from Firestore
   Future<String> getUsernameFromCollection() async {
@@ -175,7 +228,7 @@ class FirebaseFunctions {
     }
   }
 
-Future<void> addUsertoTeam(String team) async {
+Future<void> updateuserprofileteam(String team) async {
     try {
         String email = _auth.currentUser!.email!;
         DocumentReference userRef = _firestore.collection('users').doc(email);
@@ -204,10 +257,16 @@ Future<void> addUsertoTeam(String team) async {
     try {
       String email = _auth.currentUser!.email!;
       String username = await getUsernameFromCollection();
-      await _firestore.collection('Teams').doc(team).collection('Members').doc(username).set({
+
+      bool checker = await _checkTeamMembersCollections(team, username);
+      if (!checker) {
+        await _firestore.collection('Teams').doc(team).collection('Members').doc(username).set({
         'Email': email,
       });
-    } catch (e) {
+      } else {
+        print('User $username is already a member of team $team');
+      }
+      } catch (e) {
       print('Error adding user to team collection: $e');
       throw Exception('Failed to add user to team collection: $e');
     }
@@ -215,9 +274,11 @@ Future<void> addUsertoTeam(String team) async {
 
   // Add user to Realtime Database
   Future<void> addUserToTeamRealTime(String team, String username) async {
-    try {
-      final url = Uri.parse("$databaseUrl/TeamChats/$team/Users.json");
-      final response = await http.post(
+      bool checker = await checkUserInTeamRealtime(team, username);
+      if (!checker) {
+         try {
+        final url = Uri.parse("$databaseUrl/TeamChats/$team/Users.json");
+        final response = await http.post(
         url,
         body: json.encode({
           "Users": username,
@@ -231,6 +292,9 @@ Future<void> addUsertoTeam(String team) async {
       print('Error adding user to Realtime Database: $e');
       throw Exception('Failed to add user to Realtime Database: $e');
     }
+  } 
+
+   
   }
 
   // Send message to Realtime Database
@@ -302,6 +366,88 @@ Future<void> changeStatus(String email, String team) async {
     } catch (e) {
         print('Error changing user status: $e');
         throw Exception('Failed to change user status: $e');
+    }
+  }
+
+
+
+Future<void> sendDirectMessage(String sender, String receiver, String message) async {
+    try {
+        await _firestore.collection('DirectMessages').doc(sender).collection(receiver).add({
+            'sender': sender,
+            'receiver': receiver,
+            'message': message,
+            'Timestamp': FieldValue.serverTimestamp(),
+        });
+
+        await _firestore.collection('DirectMessages').doc(receiver).collection(sender).add({
+            'sender': sender,
+            'receiver': receiver,
+            'message': message,
+            'Timestamp': FieldValue.serverTimestamp(),
+        });
+    } catch (e) {
+        print('Error sending direct message: $e');
+        throw Exception('Failed to send direct message: $e');
+    }
+  }
+
+
+  // Fetch direct messages from Firestore
+  Future<List<Object?>> fetchDirectMessages(String sender, String receiver) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore.collection('DirectMessages').doc(sender).collection(receiver).orderBy('Timestamp').get();
+      return querySnapshot.docs.map((doc) => doc.data()).toList();
+    } catch (e) {
+      print('Error fetching direct messages: $e');
+      throw Exception('Failed to fetch direct messages: $e');
+    }
+  }
+
+
+  // Fetch team members from Firestore
+  Future<List<String>> fetchTeamMembers(String team) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore.collection('Teams').doc(team).collection('Members').get();
+      return querySnapshot.docs.map((doc) => doc.id).toList();
+    } catch (e) {
+      print('Error fetching team members: $e');
+      throw Exception('Failed to fetch team members: $e');
+    }
+  }
+
+  Future<bool> _checkTeamMembersCollections(String team, String username) async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore.collection('Teams').doc(team).collection('Members').get();
+      for (var doc in querySnapshot.docs) {
+        if (doc.id == username) {
+          return true;
+        }
+        
+      }
+      return false;
+      print('User $username is not a member of team $team');
+    } catch (e) {
+      print('Error checking team members: $e');
+      throw Exception('Failed to check team members: $e');
+    }
+  }
+  Future<bool> checkUserInTeamRealtime(String team, String username) async {
+    try {
+      final url = Uri.parse("$databaseUrl/TeamChats/$team/Users.json");
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>?;
+        if (data == null) return false;
+
+        return data.values.contains(username);
+      } else {
+        throw Exception('Failed to check user in Realtime Database: ${response.body}');
+      }
+    } catch (e) {
+      print('Error checking user in Realtime Database: $e');
+      throw Exception('Failed to check user in Realtime Database: $e');
     }
   }
 }

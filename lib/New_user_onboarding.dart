@@ -17,12 +17,12 @@ class NewUserOnboarding extends StatefulWidget {
 }
 
 class _NewUserOnboardingState extends State<NewUserOnboarding> {
-  final String champion = 'Champions';
-  final String creative = 'Creatives';
-  final String innovator = 'Innovators';
-  final String philosopher = 'Philosophers';
-  final String thinker = 'Thinkers';
-  final String explorer = 'Explorers';
+  final String champion = 'The Champions';
+  final String creative = 'The Creatives';
+  final String innovator = 'The Innovators';
+  final String philosopher = 'The Philosophers';
+  final String thinker = 'The Thinkers';
+  final String explorer = 'The Explorers';
 
   // List of onboarding questions with options
   final List<Map<String, dynamic>> questions = [
@@ -128,27 +128,27 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
       switch (team) {
         case 'The Champions':
           await FirebaseFunctions().addUsertoTeamCollection(champion);
-          await FirebaseFunctions().addUsertoTeam(champion);
+          await FirebaseFunctions().updateuserprofileteam(champion);
           break;
         case 'The Creatives':
           await FirebaseFunctions().addUsertoTeamCollection(creative);
-          await FirebaseFunctions().addUsertoTeam(creative);
+          await FirebaseFunctions().updateuserprofileteam(creative);
           break;
         case 'The Innovators':
           await FirebaseFunctions().addUsertoTeamCollection(innovator);
-          await FirebaseFunctions().addUsertoTeam(innovator);
+          await FirebaseFunctions().updateuserprofileteam(innovator);
           break;
         case 'The Philosophers':
           await FirebaseFunctions().addUsertoTeamCollection(philosopher);
-          await FirebaseFunctions().addUsertoTeam(philosopher);
+          await FirebaseFunctions().updateuserprofileteam(philosopher);
           break;
         case 'The Thinkers':
           await FirebaseFunctions().addUsertoTeamCollection(thinker);
-          await FirebaseFunctions().addUsertoTeam(thinker);
+          await FirebaseFunctions().updateuserprofileteam(thinker);
           break;
         case 'The Explorers':
           await FirebaseFunctions().addUsertoTeamCollection(explorer);
-          await FirebaseFunctions().addUsertoTeam(explorer);
+          await FirebaseFunctions().updateuserprofileteam(explorer);
           break;
       }
     } catch (e) {

@@ -24,6 +24,7 @@ class _ChatPageState extends State<ChatPage> {
   Timer? _timer;
   String? username = FirebaseAuth.instance.currentUser!.displayName;
   
+  
 
   @override
   void initState() {
