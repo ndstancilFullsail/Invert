@@ -25,7 +25,7 @@ void setInfo() async{
 
   var token = jwt.sign(SecretKey(videoSecretKey),algorithm: JWTAlgorithm.HS256);
 
-  var db = FirebaseFirestore.instance.collection("Teams").doc("The Creatives").collection('VoiceInfo').doc('Info');
+  var db = FirebaseFirestore.instance.collection("Teams").doc("The Thinkers").collection('VoiceInfo').doc('Info');
   
   await db.set({'token':token},SetOptions(merge: true));
 
