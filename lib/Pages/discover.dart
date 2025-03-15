@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:invert/firebasefunctions.dart';
+import 'package:invert/Firebase/firebasefunctions.dart';
 import 'home.dart';
-import 'user_count_service.dart';
+import 'package:invert/Firebase/user_count_service.dart';
 
 class DiscoverPage extends StatelessWidget {
   final String teamname; // Required parameter

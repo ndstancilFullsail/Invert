@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:invert/chat.dart';
-import 'package:invert/settings.dart';
-import 'package:invert/userprofile.dart';
+import '../Base Fuctions/chat.dart';
+import 'package:invert/Pages/settings.dart';
+import 'package:invert/Pages/userprofile.dart';
 
 class BaseLayout extends StatelessWidget {
   final Widget body;

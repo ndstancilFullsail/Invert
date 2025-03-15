@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:invert/firebasefunctions.dart';
+import '../Firebase/firebasefunctions.dart';
 import 'home.dart';
 import 'discover.dart';
 

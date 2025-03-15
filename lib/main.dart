@@ -3,13 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toastification/toastification.dart';
-import 'package:invert/firebasefunctions.dart';
-import 'package:invert/forgotpassword.dart';
-import 'package:invert/home.dart';
-import 'package:invert/signuppage.dart';
-import 'package:invert/discover.dart'; 
-import 'package:invert/New_user_onboarding.dart'; 
-import 'firebase_options.dart'; 
+import 'package:invert/Firebase/firebasefunctions.dart';
+import 'package:invert/Pages/forgotpassword.dart';
+import 'Pages/home.dart';
+import 'package:invert/Pages/signuppage.dart';
+import 'Pages/discover.dart'; 
+import 'package:invert/Pages/New_user_onboarding.dart'; 
+import 'Firebase/firebase_options.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
