@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invert/main.dart';
 import 'package:invert/voiceconnect.dart';
 import 'base_layout.dart';
 import 'package:invert/firebasefunctions.dart';
@@ -173,22 +174,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Handle logout
-  Future<void> _handleLogout() async {
-    try {
-      await _firebaseFunctions.signOut();
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/login',
-        (Route<dynamic> route) => false,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logout failed. Please try again.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+ Future<void> _handleLogout() async {
+  try {
+    await _firebaseFunctions.signOut();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => LoginPage()),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Logout failed. Please try again.'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

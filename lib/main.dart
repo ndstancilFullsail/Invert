@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toastification/toastification.dart';
 import 'package:invert/firebasefunctions.dart';
@@ -221,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
     bool checkuser = await FirebaseFunctions().checkUser(email);
     if (checkuser == true) {
 
-      FirebaseFunctions().changeStatus(email);
+      FirebaseFunctions().changeStatus(email, team);
       Navigator.push(
         context,
         MaterialPageRoute(

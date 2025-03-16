@@ -5,43 +5,37 @@ import 'home.dart';
 import 'user_count_service.dart';
 
 class DiscoverPage extends StatelessWidget {
-  final String teamname; // Required parameter
+  final String teamname;
 
-  DiscoverPage({super.key, required this.teamname}); // Mark as required
+  DiscoverPage({super.key, required this.teamname});
 
-  final UserCountService userCountService = UserCountService(); // Initialize user count service
+  final UserCountService userCountService = UserCountService();
 
-  // List of teams and details
   static const List<Map<String, dynamic>> teams = [
     {
       'name': 'The Innovators',
       'logo': 'assets/innovators_logo.png',
       'description': 'Tech enthusiasts who love building the future.',
-      'memberCount': 120,
     },
     {
       'name': 'The Creatives',
       'logo': 'assets/creatives_logo.png',
       'description': 'Artists and designers who bring ideas to life.',
-      'memberCount': 95,
     },
     {
       'name': 'The Thinkers',
       'logo': 'assets/thinkers_logo.png',
       'description': 'Deep thinkers who explore science and philosophy.',
-      'memberCount': 80,
     },
     {
       'name': 'The Philosophers',
       'logo': 'assets/philosophers_logo.png',
       'description': 'Lovers of wisdom and deep conversations.',
-      'memberCount': 65,
     },
     {
       'name': 'The Champions',
       'logo': 'assets/champions_logo.png',
       'description': 'Sports enthusiasts who strive for excellence.',
-      'memberCount': 110,
     },
   ];
 
@@ -57,10 +51,10 @@ class DiscoverPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Teams per row
-            crossAxisSpacing: 16.0, // Spacing between columns
-            mainAxisSpacing: 16.0, // Spacing between rows
-            childAspectRatio: 0.8, // Card aspect ratio
+            crossAxisCount: 2,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            childAspectRatio: 0.8,
           ),
           itemCount: teams.length,
           itemBuilder: (context, index) {
@@ -72,7 +66,6 @@ class DiscoverPage extends StatelessWidget {
     );
   }
 
-  // Function to build a team card
   Widget _buildTeamCard(
     Map<String, dynamic> team,
     BuildContext context,
@@ -80,65 +73,39 @@ class DiscoverPage extends StatelessWidget {
   ) {
     return Card(
       elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Team logo
             CircleAvatar(
-              radius: 40,
+              radius: 35,
               backgroundImage: AssetImage(team['logo']),
-              onBackgroundImageError: (exception, stackTrace) {
-                // Placeholder if image fails to load
-                const Icon(Icons.error);
-              },
             ),
-            const SizedBox(height: 16),
-            // Team name
+            const SizedBox(height: 10),
             Text(
               team['name'],
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-            const SizedBox(height: 8),
-            // Team description
-            Text(
-              team['description'],
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            // Member count
+            const SizedBox(height: 5),
+            Text(team['description']),
+            const SizedBox(height: 5),
             StreamBuilder<int>(
               stream: userCountService.listenToUserCount(team['name']),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const Text('Loading...');
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
                   return Text(
-                    '${snapshot.data} members',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[800],
-                    ),
+                    '${snapshot.data ?? 0} members',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                   );
                 }
               },
             ),
-            const SizedBox(height: 16),
-            // Select Team Button
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () => _onJoinTeamPressed(context, team, username),
               style: ElevatedButton.styleFrom(
@@ -153,7 +120,6 @@ class DiscoverPage extends StatelessWidget {
     );
   }
 
-  // Function to handle team join button press
   void _onJoinTeamPressed(
     BuildContext context,
     Map<String, dynamic> team,
@@ -166,7 +132,6 @@ class DiscoverPage extends StatelessWidget {
       return;
     }
 
-    // Show confirmation dialog
     final bool confirmJoin = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -192,11 +157,10 @@ class DiscoverPage extends StatelessWidget {
         await firebaseFunctions.addUsertoTeamCollection(team['name']);
         await firebaseFunctions.addUserToTeamRealTime(team['name'], username);
 
-        // Navigate to the home screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(teamname: team['name']), // Pass teamname
+            builder: (context) => HomeScreen(teamname: team['name']),
           ),
         );
       } catch (e) {
