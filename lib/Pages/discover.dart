@@ -4,50 +4,74 @@ import 'package:invert/Firebase/firebasefunctions.dart';
 import 'home.dart';
 import 'package:invert/Firebase/user_count_service.dart';
 
-class DiscoverPage extends StatelessWidget {
-  final String teamname; // Required parameter
+class DiscoverPage extends StatefulWidget {
+  final String teamname;
 
-  DiscoverPage({super.key, required this.teamname}); // Mark as required
+  const DiscoverPage({Key? key, required this.teamname}) : super(key: key);
 
-  final UserCountService userCountService = UserCountService(); // Initialize user count service
+  @override
+  _DiscoverPageState createState() => _DiscoverPageState();
+}
 
-  // List of teams and details
+class _DiscoverPageState extends State<DiscoverPage> {
+  final UserCountService userCountService = UserCountService();
+
   static const List<Map<String, dynamic>> teams = [
     {
       'name': 'The Innovators',
       'logo': 'assets/innovators_logo.png',
       'description': 'Tech enthusiasts who love building the future.',
-      'memberCount': 120,
     },
     {
       'name': 'The Creatives',
       'logo': 'assets/creatives_logo.png',
       'description': 'Artists and designers who bring ideas to life.',
-      'memberCount': 95,
     },
     {
       'name': 'The Thinkers',
       'logo': 'assets/thinkers_logo.png',
       'description': 'Deep thinkers who explore science and philosophy.',
-      'memberCount': 80,
     },
     {
       'name': 'The Philosophers',
       'logo': 'assets/philosophers_logo.png',
       'description': 'Lovers of wisdom and deep conversations.',
-      'memberCount': 65,
     },
     {
       'name': 'The Champions',
       'logo': 'assets/champions_logo.png',
       'description': 'Sports enthusiasts who strive for excellence.',
-      'memberCount': 110,
     },
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _initializeTeamCounts();
+  }
+
+  Future<void> _initializeTeamCounts() async {
+  
+    for (var team in teams) {
+      await userCountService.initializeUserCount(team['name']);
+    }
+  }
+
+  int _calculateColumns(double width) {
+    if (width > 1200) {
+      return 4;
+    } else if (width > 800) {
+      return 3;
+    } else {
+      return 2;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final String? username = FirebaseAuth.instance.currentUser?.displayName;
+    final width = MediaQuery.of(context).size.width;
+    final crossAxisCount = _calculateColumns(width);
 
     return Scaffold(
       appBar: AppBar(
@@ -56,11 +80,11 @@ class DiscoverPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2, // Teams per row
-            crossAxisSpacing: 16.0, // Spacing between columns
-            mainAxisSpacing: 16.0, // Spacing between rows
-            childAspectRatio: 0.8, // Card aspect ratio
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            childAspectRatio: 0.8,
           ),
           itemCount: teams.length,
           itemBuilder: (context, index) {
@@ -72,7 +96,6 @@ class DiscoverPage extends StatelessWidget {
     );
   }
 
-  // Function to build a team card
   Widget _buildTeamCard(
     Map<String, dynamic> team,
     BuildContext context,
@@ -83,67 +106,74 @@ class DiscoverPage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Team logo
+           
             CircleAvatar(
               radius: 40,
               backgroundImage: AssetImage(team['logo']),
-              onBackgroundImageError: (exception, stackTrace) {
-                // Placeholder if image fails to load
-                const Icon(Icons.error);
-              },
             ),
-            const SizedBox(height: 16),
-            // Team name
+            const SizedBox(height: 12),
             Text(
               team['name'],
               style: const TextStyle(
-                fontSize: 18,
                 fontWeight: FontWeight.bold,
+                fontSize: 18,
               ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              team['description'],
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            // Team description
-            Text(
-              team['description'],
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
+            // Row to show total (memberCount) and online (onlineCount) counts
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                StreamBuilder<int>(
+                  stream: userCountService.listenToUserCount(team['name']),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text('Total: ...');
+                    } else if (snapshot.hasError) {
+                      return const Text('Total: err');
+                    } else {
+                      final total = snapshot.data ?? 0;
+                      return Text('Total: $total');
+                    }
+                  },
+                ),
+                const SizedBox(width: 8),
+                StreamBuilder<int>(
+                  stream: userCountService.listenToOnlineCount(team['name']),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text('Online: ...');
+                    } else if (snapshot.hasError) {
+                      return const Text('Online: err');
+                    } else {
+                      final online = snapshot.data ?? 0;
+                      return Text('Online: $online');
+                    }
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            // Member count
-            StreamBuilder<int>(
-              stream: userCountService.listenToUserCount(team['name']),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
-                } else {
-                  return Text(
-                    '${snapshot.data} members',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[800],
-                    ),
-                  );
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-            // Select Team Button
+            const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () => _onJoinTeamPressed(context, team, username),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: const Text('Join Team'),
             ),
@@ -153,7 +183,6 @@ class DiscoverPage extends StatelessWidget {
     );
   }
 
-  // Function to handle team join button press
   void _onJoinTeamPressed(
     BuildContext context,
     Map<String, dynamic> team,
@@ -161,12 +190,12 @@ class DiscoverPage extends StatelessWidget {
   ) async {
     if (username == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not logged in. Please sign in.')),
+        const SnackBar(
+            content: Text('User not logged in. Please sign in.')),
       );
       return;
     }
 
-    // Show confirmation dialog
     final bool confirmJoin = await showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -192,11 +221,14 @@ class DiscoverPage extends StatelessWidget {
         await firebaseFunctions.addUsertoTeamCollection(team['name']);
         await firebaseFunctions.addUserToTeamRealTime(team['name'], username);
 
-        // Navigate to the home screen
+        await firebaseFunctions.incrementTeamMemberCount(team['name']);
+    
+    
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(teamname: team['name']), // Pass teamname
+            builder: (context) => HomeScreen(teamname: team['name']),
           ),
         );
       } catch (e) {
