@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invert/Base%20Fuctions/voiceconnect.dart';
+import 'package:invert/main.dart';
 import 'base_layout.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,8 @@ import 'package:videosdk/videosdk.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../Base Fuctions/chat.dart';
 import 'discover.dart';
+import 'dmchat.dart';
+import 'package:toastification/toastification.dart';
 
 class HomeScreen extends StatefulWidget {
   final String teamname; // Required parameter
@@ -175,11 +178,17 @@ class _HomeScreenState extends State<HomeScreen> {
   // Handle logout
   Future<void> _handleLogout() async {
     try {
-      await _firebaseFunctions.signOut();
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        '/login',
-        (Route<dynamic> route) => false,
-      );
+      await _auth.signOut();
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+      toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 5),
+          title: const Text('Logout Successfully'),
+          alignment: Alignment.bottomRight,
+        );
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -238,40 +247,68 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Expanded(
               child: Container(
-                color: Colors.grey[200],
+                color: Color.fromARGB(255,246, 241, 241),
                 padding: const EdgeInsets.all(16),
                 child: ChatPage(teamname: widget.teamname),
               ),
             ),
             Container(
               width: 300,
-              color: Colors.blue[100],
+              color: Color.fromARGB(255,246, 241, 241),
               padding: const EdgeInsets.all(16),
               child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Text Channels',
+                children: <Widget> [
+                  Card(color: Color.fromARGB(255, 217, 217, 217), child: SizedBox(height:300, child: Column(
+                    
+                    children: <Widget>[
+                      Text('Team Members', 
                       style: TextStyle(
+                        fontSize: 24, 
                         color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        ListTile(title: Text('# Text Channel 1')),
-                        ListTile(title: Text('# Text Channel 2')),
-                        ListTile(title: Text('# Text Channel 3')),
-                        ListTile(title: Text('# Text Channel 4')),
-                        ListTile(title: Text('# Text Channel 5')),
-                        ListTile(title: Text('# Text Channel 6')),
-                      ],
-                    ),
-                  ),
+                        fontStyle: FontStyle.normal,
+                        fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 20),
+
+                        FutureBuilder(future: FirebaseFunctions().fetchTeamMembers(widget.teamname), builder: (context, snapshot){
+                          if(snapshot.connectionState == ConnectionState.waiting){
+                            return CircularProgressIndicator();
+                          }else if(snapshot.hasError){
+                            return Text("Error: ${snapshot.error}");
+                          }
+                          else if (snapshot.data!.isEmpty) {
+                            return Text("No Team Members are on this team.");
+                          } else {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: snapshot.data!.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(snapshot.data![index],),
+                                  //Send message to user
+                                  subtitle: TextButton(onPressed: (){
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => DMChatScreen(senderusername: userName, receiverusername: snapshot.data![index]),
+                                      ),
+                                    );
+                                  },
+
+                                  child: Text('Send Message')),
+                                  // Add user to Friend List
+                                  trailing: TextButton(onPressed: (){
+                                    // Add your logic to add the user to the friend list
+                                  }, child: Text('Add Friend')),
+                                );
+                              },
+                            );
+                          }
+                        })
+
+                    ]
+                  ))),
+                  
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
