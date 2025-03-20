@@ -3,13 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:toastification/toastification.dart';
-import 'package:invert/firebasefunctions.dart';
-import 'package:invert/forgotpassword.dart';
-import 'package:invert/home.dart';
-import 'package:invert/signuppage.dart';
-import 'package:invert/discover.dart'; 
-import 'package:invert/New_user_onboarding.dart'; 
-import 'firebase_options.dart'; 
+import 'package:invert/Firebase/firebasefunctions.dart';
+import 'package:invert/Pages/forgotpassword.dart';
+import 'Pages/home.dart';
+import 'package:invert/Pages/signuppage.dart';
+import 'Pages/discover.dart'; 
+import 'package:invert/Pages/New_user_onboarding.dart'; 
+import 'Firebase/firebase_options.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordcontroller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool firsttime = true;
-  String explorers = 'Explorers';
+  String explorers = 'The Explorers';
 
 
   @override
@@ -74,6 +74,11 @@ class _LoginPageState extends State<LoginPage> {
     _passwordcontroller.dispose();
     super.dispose();
   }
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -218,33 +223,7 @@ class _LoginPageState extends State<LoginPage> {
     String password = _passwordcontroller.text.trim();
     String team = await FirebaseFunctions().getTeamFromCollection(email);
     bool checkuser = await FirebaseFunctions().checkUser(email);
-    if (checkuser == true) {
-
-      FirebaseFunctions().changeStatus(email, team);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const NewUserOnboarding(),
-        ),
-      );
-    } else {
-      if (team != explorers) {
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(teamname: team,),
-          ),
-        );
-      } else {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DiscoverPage(teamname: ''),
-          ),
-        );
-      }
-    }
-
+   
     
 
     try {
@@ -261,6 +240,32 @@ class _LoginPageState extends State<LoginPage> {
           alignment: Alignment.centerRight,
         );
 
+          if (checkuser == true) {
+
+      FirebaseFunctions().changeStatus(email);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const NewUserOnboarding(),
+          ),
+        );
+        } else {
+        if (team != explorers) {
+          Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(teamname: team,),
+          ),
+        );
+          } else {
+          Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DiscoverPage(teamname: ''),
+          ),
+        );
+      }
+     }
 
 
         

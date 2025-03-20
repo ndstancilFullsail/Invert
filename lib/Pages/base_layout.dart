@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:invert/chat.dart';
-import 'package:invert/settings.dart';
+import '../Base Fuctions/chat.dart';
+import 'package:invert/Pages/settings.dart';
+import 'package:invert/Pages/userprofile.dart';
 
 class BaseLayout extends StatelessWidget {
   final Widget body;
@@ -66,16 +67,21 @@ class BaseLayout extends StatelessWidget {
                 ),
                 Spacer(),
                 // Bottom Circle for User Profile
-                Container(
-                  margin: const EdgeInsets.all(16),
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white, // Background color for the profile circle
-                    image: DecorationImage(
-                      image: AssetImage('assets/public_speaking.png'), // User profile image (Public speaking is placeholder so the error doesn't show)
-                      fit: BoxFit.cover,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserProfile()),);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.all(16),
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white, // Background color for the profile circle
+                      image: DecorationImage(
+                        image: AssetImage('assets/public_speaking.png'), // User profile image (Public speaking is placeholder so the error doesn't show)
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),

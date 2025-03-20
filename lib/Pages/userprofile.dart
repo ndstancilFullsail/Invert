@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:invert/base_layout.dart';
-import 'package:invert/firebasefunctions.dart';
+import 'base_layout.dart';
+import 'package:invert/Firebase/firebasefunctions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 

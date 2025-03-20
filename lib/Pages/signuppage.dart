@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:invert/main.dart';
 import 'package:toastification/toastification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:invert/firebasefunctions.dart';
+import '../Firebase/firebasefunctions.dart';
 import 'New_User_Onboarding.dart'; 
 
 class SignUpPage extends StatefulWidget {
@@ -202,7 +203,7 @@ class _SignUpPageState extends State<SignUpPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => NewUserOnboarding(),
+            builder: (context) => LoginPage()
           ),
         );
       }
@@ -218,4 +219,8 @@ class _SignUpPageState extends State<SignUpPage> {
       );
     }
   }
+
+
+
+ 
 }

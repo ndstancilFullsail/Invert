@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:invert/firebasefunctions.dart';
+import 'package:invert/Firebase/firebasefunctions.dart';
 import 'home.dart';
-import 'user_count_service.dart';
+import 'package:invert/Firebase/user_count_service.dart';
 
 class DiscoverPage extends StatefulWidget {
   final String teamname;
@@ -217,7 +217,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     if (confirmJoin == true) {
       try {
         final FirebaseFunctions firebaseFunctions = FirebaseFunctions();
-        await firebaseFunctions.addUsertoTeam(team['name']);
+        await firebaseFunctions.updateuserprofileteam(team['name']);
         await firebaseFunctions.addUsertoTeamCollection(team['name']);
         await firebaseFunctions.addUserToTeamRealTime(team['name'], username);
 

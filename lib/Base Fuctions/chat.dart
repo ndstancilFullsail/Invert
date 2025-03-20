@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:invert/firebasefunctions.dart';
+import 'package:invert/Firebase/firebasefunctions.dart';
 
 
 class ChatPage extends StatefulWidget {
@@ -23,6 +22,7 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   Timer? _timer;
   String? username = FirebaseAuth.instance.currentUser!.displayName;
+  
   
 
   @override

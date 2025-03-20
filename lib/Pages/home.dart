@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD:lib/home.dart
 import 'package:invert/main.dart';
 import 'package:invert/voiceconnect.dart';
+=======
+import 'package:invert/Base%20Fuctions/voiceconnect.dart';
+>>>>>>> dc27e49f0b6e08c8cc0bee5fd6ef761cab5e1f14:lib/Pages/home.dart
 import 'base_layout.dart';
-import 'package:invert/firebasefunctions.dart';
+import 'package:invert/Firebase/firebasefunctions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:videosdk/videosdk.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'chat.dart';
+import '../Base Fuctions/chat.dart';
 import 'discover.dart';
 
 class HomeScreen extends StatefulWidget {
