@@ -6,11 +6,14 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FirebaseFunctions {
-  
-  // Increment team member count
+
+  // Increment team member count (memberCount field in Teams collection)
   Future<void> incrementTeamMemberCount(String teamId) async {
     try {
-      await FirebaseFirestore.instance.collection('teams').doc(teamId).update(<String, dynamic>{
+      await FirebaseFirestore.instance
+          .collection('Teams')
+          .doc(teamId)
+          .update({
         'memberCount': FieldValue.increment(1),
       });
     } catch (e) {
@@ -21,14 +24,43 @@ class FirebaseFunctions {
   // Decrement team member count
   Future<void> decrementTeamMemberCount(String teamId) async {
     try {
-      await FirebaseFirestore.instance.collection('teams').doc(teamId).update(<String, dynamic>{
+      await FirebaseFirestore.instance
+          .collection('Teams')
+          .doc(teamId)
+          .update({
         'memberCount': FieldValue.increment(-1),
       });
     } catch (e) {
       print('Error decrementing team member count: $e');
     }
   }
-  
+
+
+  Future<void> incrementOnlineCount(String teamId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Teams')
+          .doc(teamId)
+          .update({
+        'onlineCount': FieldValue.increment(1),
+      });
+    } catch (e) {
+      print('Error incrementing online count: $e');
+    }
+  }
+
+  Future<void> decrementOnlineCount(String teamId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Teams')
+          .doc(teamId)
+          .update({
+        'onlineCount': FieldValue.increment(-1),
+      });
+    } catch (e) {
+      print('Error decrementing online count: $e');
+    }
+  }
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -175,36 +207,42 @@ class FirebaseFunctions {
     }
   }
 
-Future<void> addUsertoTeam(String team) async {
+  Future<void> addUsertoTeam(String team) async {
     try {
-        String email = _auth.currentUser!.email!;
-        DocumentReference userRef = _firestore.collection('users').doc(email);
+      String email = _auth.currentUser!.email!;
+      DocumentReference userRef = _firestore.collection('users').doc(email);
 
-        //  Ensure user document exists before updating
-        DocumentSnapshot userDoc = await userRef.get();
-        if (!userDoc.exists) {
-            await userRef.set({
-                'Team Name': team,
-                'Email': email,
-            }, SetOptions(merge: true));
-        } else {
-            await userRef.update({
-                'Team Name': team,
-            });
-        }
+      // Ensure user document exists before updating
+      DocumentSnapshot userDoc = await userRef.get();
+      if (!userDoc.exists) {
+        await userRef.set({
+          'Team Name': team,
+          'Email': email,
+        }, SetOptions(merge: true));
+      } else {
+        await userRef.update({
+          'Team Name': team,
+        });
+      }
 
-        print("Team successfully saved for user: $email");
+      print("Team successfully saved for user: $email");
     } catch (e) {
-        print('Error adding user to team: $e');
-        throw Exception('Failed to add user to team: $e');
+      print('Error adding user to team: $e');
+      throw Exception('Failed to add user to team: $e');
     }
-}
+  }
+
   // Add user to a team collection in Firestore
   Future<void> addUsertoTeamCollection(String team) async {
     try {
       String email = _auth.currentUser!.email!;
       String username = await getUsernameFromCollection();
-      await _firestore.collection('Teams').doc(team).collection('Members').doc(username).set({
+      await _firestore
+          .collection('Teams')
+          .doc(team)
+          .collection('Members')
+          .doc(username)
+          .set({
         'Email': email,
       });
     } catch (e) {
@@ -291,17 +329,18 @@ Future<void> addUsertoTeam(String team) async {
     }
   }
 
-// Change user status in Firestore
-Future<void> changeStatus(String email, String team) async {
+  // Change user status in Firestore
+  Future<void> changeStatus(String email, String team) async {
     try {
-        await _firestore.collection('users').doc(email).update({
-            'First Time': false,
-        });
+      await _firestore.collection('users').doc(email).update({
+        'First Time': false,
+      });
 
-        await incrementTeamMemberCount(team);  
+      // increments the memberCount
+      await incrementTeamMemberCount(team);
     } catch (e) {
-        print('Error changing user status: $e');
-        throw Exception('Failed to change user status: $e');
+      print('Error changing user status: $e');
+      throw Exception('Failed to change user status: $e');
     }
   }
 }
