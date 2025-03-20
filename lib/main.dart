@@ -242,7 +242,7 @@ class _LoginPageState extends State<LoginPage> {
 
           if (checkuser == true) {
 
-      FirebaseFunctions().changeStatus(email);
+      FirebaseFunctions().changeStatus(email, team);
       Navigator.push(
         context,
         MaterialPageRoute(

@@ -260,11 +260,7 @@ class FirebaseFunctions {
     }
   }
 
-<<<<<<< HEAD:lib/firebasefunctions.dart
   Future<void> addUsertoTeam(String team) async {
-=======
-Future<void> updateuserprofileteam(String team) async {
->>>>>>> dc27e49f0b6e08c8cc0bee5fd6ef761cab5e1f14:lib/Firebase/firebasefunctions.dart
     try {
       String email = _auth.currentUser!.email!;
       DocumentReference userRef = _firestore.collection('users').doc(email);
@@ -294,19 +290,10 @@ Future<void> updateuserprofileteam(String team) async {
     try {
       String email = _auth.currentUser!.email!;
       String username = await getUsernameFromCollection();
-<<<<<<< HEAD:lib/firebasefunctions.dart
-      await _firestore
-          .collection('Teams')
-          .doc(team)
-          .collection('Members')
-          .doc(username)
-          .set({
-=======
 
       bool checker = await _checkTeamMembersCollections(team, username);
       if (!checker) {
         await _firestore.collection('Teams').doc(team).collection('Members').doc(username).set({
->>>>>>> dc27e49f0b6e08c8cc0bee5fd6ef761cab5e1f14:lib/Firebase/firebasefunctions.dart
         'Email': email,
       });
       } else {
@@ -415,9 +402,6 @@ Future<void> updateuserprofileteam(String team) async {
       throw Exception('Failed to change user status: $e');
     }
   }
-<<<<<<< HEAD:lib/firebasefunctions.dart
-}
-=======
 
 
 
@@ -501,4 +485,3 @@ Future<void> sendDirectMessage(String sender, String receiver, String message) a
     }
   }
 }
->>>>>>> dc27e49f0b6e08c8cc0bee5fd6ef761cab5e1f14:lib/Firebase/firebasefunctions.dart

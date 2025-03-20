@@ -128,27 +128,27 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
       switch (team) {
         case 'The Champions':
           await FirebaseFunctions().addUsertoTeamCollection(champion);
-          await FirebaseFunctions().updateuserprofileteam(champion);
+          await FirebaseFunctions().addUsertoTeam(champion);
           break;
         case 'The Creatives':
           await FirebaseFunctions().addUsertoTeamCollection(creative);
-          await FirebaseFunctions().updateuserprofileteam(creative);
+          await FirebaseFunctions().addUsertoTeam(creative);
           break;
         case 'The Innovators':
           await FirebaseFunctions().addUsertoTeamCollection(innovator);
-          await FirebaseFunctions().updateuserprofileteam(innovator);
+          await FirebaseFunctions().addUsertoTeam(innovator);
           break;
         case 'The Philosophers':
           await FirebaseFunctions().addUsertoTeamCollection(philosopher);
-          await FirebaseFunctions().updateuserprofileteam(philosopher);
+          await FirebaseFunctions().addUsertoTeam(philosopher);
           break;
         case 'The Thinkers':
           await FirebaseFunctions().addUsertoTeamCollection(thinker);
-          await FirebaseFunctions().updateuserprofileteam(thinker);
+          await FirebaseFunctions().addUsertoTeam(thinker);
           break;
         case 'The Explorers':
           await FirebaseFunctions().addUsertoTeamCollection(explorer);
-          await FirebaseFunctions().updateuserprofileteam(explorer);
+          await FirebaseFunctions().addUsertoTeam(explorer);
           break;
       }
     } catch (e) {

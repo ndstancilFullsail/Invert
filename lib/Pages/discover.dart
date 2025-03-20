@@ -217,7 +217,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     if (confirmJoin == true) {
       try {
         final FirebaseFunctions firebaseFunctions = FirebaseFunctions();
-        await firebaseFunctions.updateuserprofileteam(team['name']);
+        await firebaseFunctions.addUsertoTeam(team['name']);
         await firebaseFunctions.addUsertoTeamCollection(team['name']);
         await firebaseFunctions.addUserToTeamRealTime(team['name'], username);
 
