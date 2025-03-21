@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:invert/main.dart';
 import 'package:invert/Base%20Fuctions/voiceconnect.dart';
-import 'package:invert/main.dart';
 import 'base_layout.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

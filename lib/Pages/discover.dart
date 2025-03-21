@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
 import 'home.dart';
 import 'package:invert/Firebase/user_count_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DiscoverPage extends StatefulWidget {
   final String teamname;
@@ -51,9 +52,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   Future<void> _initializeTeamCounts() async {
-  
+    // Only initialize the team's document if it doesn't exist already.
     for (var team in teams) {
-      await userCountService.initializeUserCount(team['name']);
+      DocumentSnapshot doc = await FirebaseFirestore.instance
+          .collection('Teams')
+          .doc(team['name'])
+          .get();
+      if (!doc.exists) {
+        await userCountService.initializeUserCount(team['name']);
+      }
     }
   }
 
@@ -112,7 +119,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-           
             CircleAvatar(
               radius: 40,
               backgroundImage: AssetImage(team['logo']),
@@ -190,8 +196,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
   ) async {
     if (username == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('User not logged in. Please sign in.')),
+        const SnackBar(content: Text('User not logged in. Please sign in.')),
       );
       return;
     }
@@ -222,8 +227,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
         await firebaseFunctions.addUserToTeamRealTime(team['name'], username);
 
         await firebaseFunctions.incrementTeamMemberCount(team['name']);
-    
-    
 
         Navigator.pushReplacement(
           context,

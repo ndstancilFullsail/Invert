@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'base_layout.dart';
 
 class DMChatScreen extends StatefulWidget {
   final String senderusername; 
