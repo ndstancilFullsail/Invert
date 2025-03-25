@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class DiscoverPage extends StatefulWidget {
   final String teamname;
 
-  const DiscoverPage({Key? key, required this.teamname}) : super(key: key);
+  const DiscoverPage({super.key, required this.teamname});
 
   @override
   _DiscoverPageState createState() => _DiscoverPageState();
