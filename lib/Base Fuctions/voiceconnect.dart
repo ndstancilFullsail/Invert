@@ -127,7 +127,7 @@ class _ParticipantTokenState extends State<ParticipantToken> {
 
             temp.add(
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(5.0),
@@ -190,3 +190,9 @@ class _ParticipantTokenState extends State<ParticipantToken> {
   }
 }
 
+
+
+void getTokenUrl()
+{
+  
+}
