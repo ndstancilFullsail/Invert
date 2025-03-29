@@ -407,11 +407,30 @@ class FirebaseFunctions {
 
 Future<void> sendDirectMessage(String sender, String receiver, String message) async {
     try {
-      
-      
-      
-      
-        
+      final url = Uri.parse("$databaseUrl/DirectMessages/$sender/$receiver.json");
+      final response = await http.post(
+        url,
+        body: json.encode({
+          "sender": sender,
+          "receiver": receiver,
+          "text": message,
+          "Timestamp": DateTime.now().millisecondsSinceEpoch,
+        }),
+      );
+      final url2 = Uri.parse("$databaseUrl/DirectMessages/$receiver/$sender.json");
+      final response2 = await http.post(
+        url2,
+        body: json.encode({
+          "sender": sender,
+          "receiver": receiver,
+          "text": message,
+          "Timestamp": DateTime.now().millisecondsSinceEpoch,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to send direct message: ${response.body}');
+      }  
     } catch (e) {
         print('Error sending direct message: $e');
         throw Exception('Failed to send direct message: $e');
@@ -449,49 +468,20 @@ Future<void> sendDirectMessage(String sender, String receiver, String message) a
   // Fetch team members from Firestore
  Future<Map<String, List<Map<String, dynamic>>>> fetchTeamMembersWithFields(String teamId) async {
     try {
-      // Fetch the team document from Firestore by TeamID
-      DocumentSnapshot teamSnapshot = await _firestore.collection('Teams').doc(teamId).get();
+      QuerySnapshot querySnapshot = await _firestore.collection('Teams').doc(teamId).collection('Members').get();
+      List<Map<String, dynamic>> members = [];
 
-      if (teamSnapshot.exists) {
-        // Check if the 'Members' field exists and is a list
-        if ((teamSnapshot.data() as Map<String, dynamic>).containsKey('Members')) {
-          List<dynamic> memberUsernames = teamSnapshot.get('Members') ?? [];
-
-          // List to hold member details (username, email)
-          List<Map<String, dynamic>> memberDetails = [];
-
-          // Fetch details for each member from the Users collection
-          for (var username in memberUsernames) {
-            DocumentSnapshot userSnapshot = await _firestore.collection('Users').doc(username).get();
-
-            if (userSnapshot.exists) {
-              // Extract user fields (e.g., username, email)
-              Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
-
-              // Add user data to the memberDetails list
-              memberDetails.add({
-                "username": userData["username"],
-                "email": userData["email"]
-              });
-            }
-          }
-
-          // Return a map with the team ID and the list of member details
-          return {teamId: memberDetails};
-        } else {
-          // If the 'Members' field is missing, return an empty map
-          print("The 'Members' field is missing in the team document.");
-          return {};
-        }
-      } else {
-        // If the team document doesn't exist, return an empty map
-        print("Team document with ID $teamId does not exist.");
-        return {};
+      for (var doc in querySnapshot.docs) {
+        members.add({
+          'username': doc.id,
+          'email': doc.get('Email'),
+        });
       }
+
+      return {teamId: members};
     } catch (e) {
-      // Handle any errors and return an empty map in case of failure
-      print("Error fetching team members with fields: $e");
-      return {};
+      print('Error fetching team members: $e');
+      throw Exception('Failed to fetch team members: $e');
     }
   }
 
