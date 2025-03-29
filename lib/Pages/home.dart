@@ -270,43 +270,48 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 20),
 
-                        FutureBuilder(future: FirebaseFunctions().fetchTeamMembers(widget.teamname), builder: (context, snapshot){
-                          if(snapshot.connectionState == ConnectionState.waiting){
-                            return CircularProgressIndicator();
-                          }else if(snapshot.hasError){
-                            return Text("Error: ${snapshot.error}");
-                          }
-                          else if (snapshot.data!.isEmpty) {
-                            return Text("No Team Members are on this team.");
-                          } else {
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  title: Text(snapshot.data![index],),
-                                  //Send message to user
-                                  subtitle: TextButton(onPressed: (){
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => DMChatScreen(senderusername: userName, receiverusername: snapshot.data![index]),
-                                      ),
-                                    );
-                                  },
+                        FutureBuilder(
+  future: FirebaseFunctions().fetchTeamMembersWithFields(widget.teamname),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      return Center(child: Text('Error: ${snapshot.error}'));
+    } else if (snapshot.hasData) {
+      // Extract team members from the snapshot data
+      Map<String, List<Map<String, dynamic>>> teamDetails = snapshot.data as Map<String, List<Map<String, dynamic>>>;
+      
+      // Extract the list of team members (for example, from the first entry in the map)
+      List<Map<String, dynamic>> members = teamDetails.values.first;
 
-                                  child: Text('Send Message')),
-                                  // Add user to Friend List
-                                  trailing: TextButton(onPressed: (){
-                                    // Add your logic to add the user to the friend list
-                                  }, child: Text('Add Friend')),
-                                );
-                              },
-                            );
-                          }
-                        })
+      return Expanded(
+        child: ListView.builder(
+          itemCount: members.length,
+          itemBuilder: (context, index) {
+            // Get the username of each team member
+            String username = members[index]['username'];
 
-                    ]
+            return ListTile(
+              title: Text(username),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DMChatScreen(
+                    senderusername: userName,
+                    receiverusername: username,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    } else {
+      return Center(child: Text('No team members found.'));
+    }
+  },
+),
+                    ],
                   ))),
                   
                   Padding(
