@@ -7,8 +7,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DiscoverPage extends StatefulWidget {
   final String teamname;
+  final List<String>? recommendedTeams;
 
-  const DiscoverPage({super.key, required this.teamname});
+  const DiscoverPage({Key? key, required this.teamname, this.recommendedTeams})
+      : super(key: key);
 
   @override
   _DiscoverPageState createState() => _DiscoverPageState();
@@ -17,6 +19,7 @@ class DiscoverPage extends StatefulWidget {
 class _DiscoverPageState extends State<DiscoverPage> {
   final UserCountService userCountService = UserCountService();
 
+ 
   static const List<Map<String, dynamic>> teams = [
     {
       'name': 'The Innovators',
@@ -52,7 +55,6 @@ class _DiscoverPageState extends State<DiscoverPage> {
   }
 
   Future<void> _initializeTeamCounts() async {
-    // Only initialize the team's document if it doesn't exist already.
     for (var team in teams) {
       DocumentSnapshot doc = await FirebaseFirestore.instance
           .collection('Teams')
@@ -64,6 +66,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     }
   }
 
+
   int _calculateColumns(double width) {
     if (width > 1200) {
       return 4;
@@ -74,35 +77,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final String? username = FirebaseAuth.instance.currentUser?.displayName;
-    final width = MediaQuery.of(context).size.width;
-    final crossAxisCount = _calculateColumns(width);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Discover'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-            childAspectRatio: 0.8,
-          ),
-          itemCount: teams.length,
-          itemBuilder: (context, index) {
-            final team = teams[index];
-            return _buildTeamCard(team, context, username);
-          },
-        ),
-      ),
-    );
-  }
-
+  
   Widget _buildTeamCard(
     Map<String, dynamic> team,
     BuildContext context,
@@ -240,5 +215,80 @@ class _DiscoverPageState extends State<DiscoverPage> {
         );
       }
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String? username = FirebaseAuth.instance.currentUser?.displayName;
+    final width = MediaQuery.of(context).size.width;
+    final crossAxisCount = _calculateColumns(width);
+
+    // Separate recommended teams from others
+    List<Map<String, dynamic>> recommendedTeamCards = [];
+    List<Map<String, dynamic>> otherTeamCards = List.from(teams);
+    if (widget.recommendedTeams != null && widget.recommendedTeams!.isNotEmpty) {
+      recommendedTeamCards = teams
+          .where((team) => widget.recommendedTeams!.contains(team['name']))
+          .toList();
+      otherTeamCards.removeWhere(
+          (team) => widget.recommendedTeams!.contains(team['name']));
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Discover'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+           // Recommended Teams section
+if (recommendedTeamCards.isNotEmpty) ...[
+  const Align(
+    alignment: Alignment.centerLeft,
+    child: Text(
+      'Recommended Teams',
+      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    ),
+  ),
+  const SizedBox(height: 16),
+  SizedBox(
+    //the screen height for recommended teams
+    height: MediaQuery.of(context).size.height * 0.35,
+    child: ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: recommendedTeamCards.length,
+      itemBuilder: (context, index) {
+        final team = recommendedTeamCards[index];
+        return Container(
+          width: 200,
+          margin: const EdgeInsets.only(right: 16),
+          child: _buildTeamCard(team, context, username),
+        );
+      },
+    ),
+  ),
+  const SizedBox(height: 16),
+],
+            // Grid of remaining teams
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: otherTeamCards.length,
+                itemBuilder: (context, index) {
+                  final team = otherTeamCards[index];
+                  return _buildTeamCard(team, context, username);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

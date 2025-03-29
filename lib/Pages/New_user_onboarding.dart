@@ -3,12 +3,6 @@ import '../Firebase/firebasefunctions.dart';
 import 'home.dart';
 import 'discover.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: NewUserOnboarding(),
-  ));
-}
-
 class NewUserOnboarding extends StatefulWidget {
   const NewUserOnboarding({super.key});
 
@@ -56,99 +50,113 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     },
   ];
 
-  int currentQuestionIndex = 0; // Track the current question index
-  List<String> userAnswers = []; // Store user answers
+  int currentQuestionIndex = 0;
+  List<String> userAnswers = [];
 
-  // Function to handle the "Next" button
-  void nextQuestion(String answer) async {
-    setState(() {
-      userAnswers.add(answer); // Add the user's answer to the list
-    });
+  // Define team rules as a list of maps
+  final List<Map<String, dynamic>> teamRules = [
+    {
+      'answers': ['Public Speaking', 'Participating in Workshops', 'Technology'],
+      'team': 'The Innovators',
+    },
+    {
+      'answers': ['Group Discussions', 'Watching Videos', 'Art'],
+      'team': 'The Creatives',
+    },
+    {
+      'answers': ['One-on-One Conversations', 'Reading Articles', 'Science'],
+      'team': 'The Thinkers',
+    },
+    {
+      'answers': ['Writing', 'Practicing Alone', 'Philosophy'],
+      'team': 'The Philosophers',
+    },
+    {
+      'answers': ['Public Speaking', 'Participating in Workshops', 'Sports'],
+      'team': 'The Champions',
+    },
+  ];
 
-    // Check if there are more questions
-    if (currentQuestionIndex < questions.length - 1) {
-      setState(() {
-        currentQuestionIndex++; // Move to the next question
-      });
-    } else {
-      // If all questions are answered, assign a team and navigate
-      String team = assignTeam(userAnswers);
-      await _addUserToTeamCollections(team);
-      if (team == 'The Explorers') {
-        // If the user is assigned to "The Explorers," send them to the Discover page
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DiscoverPage(teamname: team),
-          ),
-        );
-      } else {
-        // Otherwise, send them to the HomeScreen with their assigned team
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(teamname: team),
-          ),
-        );
+  // Computes how many answers match a given rule
+  int _matchScore(List<String> ruleAnswers, List<String> userAnswers) {
+    int score = 0;
+    for (var answer in ruleAnswers) {
+      if (userAnswers.contains(answer)) {
+        score++;
       }
     }
+    return score;
   }
 
-  // Function to assign a team based on user answers
+  // Returns the top two recommended teams based on match scores
+  List<String> getRecommendedTeams(List<String> userAnswers) {
+    List<Map<String, dynamic>> scoredRules = [];
+    for (var rule in teamRules) {
+      int score = _matchScore(List<String>.from(rule['answers']), userAnswers);
+      scoredRules.add({'team': rule['team'], 'score': score});
+    }
+    // Sort descending by score
+    scoredRules.sort((a, b) => b['score'].compareTo(a['score']));
+    List<String> recommendations = [];
+    for (var rule in scoredRules) {
+      if (rule['score'] > 0) {
+        recommendations.add(rule['team']);
+      }
+      if (recommendations.length == 2) break;
+    }
+    // If we didn't find two matches, add a default team as needed.
+    if (recommendations.isEmpty) {
+      recommendations.add(explorer);
+    } else if (recommendations.length == 1) {
+      recommendations.add(explorer);
+    }
+    return recommendations;
+  }
+
+  // For onboarding, assign a team based on an exact match if available
   String assignTeam(List<String> answers) {
     String communicationPreference = answers[0];
     String learningPreference = answers[1];
     String interest = answers[2];
 
-    // Define team assignment rules
-    final Map<List<String>, String> teamRules = {
-      ['Public Speaking', 'Participating in Workshops', 'Technology']: 'The Innovators',
-      ['Group Discussions', 'Watching Videos', 'Art']: 'The Creatives',
-      ['One-on-One Conversations', 'Reading Articles', 'Science']: 'The Thinkers',
-      ['Writing', 'Practicing Alone', 'Philosophy']: 'The Philosophers',
-      ['Public Speaking', 'Participating in Workshops', 'Sports']: 'The Champions',
-    };
-
-    // Check if the user's answers match any rule
-    for (var rule in teamRules.entries) {
-      if (rule.key[0] == communicationPreference &&
-          rule.key[1] == learningPreference &&
-          rule.key[2] == interest) {
-        return rule.value; // Return the corresponding team
+    for (var rule in teamRules) {
+      List<String> ruleAnswers = List<String>.from(rule['answers']);
+      if (ruleAnswers[0] == communicationPreference &&
+          ruleAnswers[1] == learningPreference &&
+          ruleAnswers[2] == interest) {
+        return rule['team'];
       }
     }
-
-    // Default team for unmatched combinations
-    return 'The Explorers';
+    return explorer;
   }
 
-  // Add user to the team collection in Firestore
+  // Add user to team collections
   Future<void> _addUserToTeamCollections(String team) async {
     try {
       switch (team) {
         case 'The Champions':
-          await FirebaseFunctions().addUsertoTeamCollection(champion);
-          await FirebaseFunctions().addUsertoTeam(champion);
+          await FirebaseFunctions().addUsertoTeamCollection('The Champions');
+          await FirebaseFunctions().addUsertoTeam('The Champions');
           break;
         case 'The Creatives':
-          await FirebaseFunctions().addUsertoTeamCollection(creative);
-          await FirebaseFunctions().addUsertoTeam(creative);
+          await FirebaseFunctions().addUsertoTeamCollection('The Creatives');
+          await FirebaseFunctions().addUsertoTeam('The Creatives');
           break;
         case 'The Innovators':
-          await FirebaseFunctions().addUsertoTeamCollection(innovator);
-          await FirebaseFunctions().addUsertoTeam(innovator);
+          await FirebaseFunctions().addUsertoTeamCollection('The Innovators');
+          await FirebaseFunctions().addUsertoTeam('The Innovators');
           break;
         case 'The Philosophers':
-          await FirebaseFunctions().addUsertoTeamCollection(philosopher);
-          await FirebaseFunctions().addUsertoTeam(philosopher);
+          await FirebaseFunctions().addUsertoTeamCollection('The Philosophers');
+          await FirebaseFunctions().addUsertoTeam('The Philosophers');
           break;
         case 'The Thinkers':
-          await FirebaseFunctions().addUsertoTeamCollection(thinker);
-          await FirebaseFunctions().addUsertoTeam(thinker);
+          await FirebaseFunctions().addUsertoTeamCollection('The Thinkers');
+          await FirebaseFunctions().addUsertoTeam('The Thinkers');
           break;
         case 'The Explorers':
-          await FirebaseFunctions().addUsertoTeamCollection(explorer);
-          await FirebaseFunctions().addUsertoTeam(explorer);
+          await FirebaseFunctions().addUsertoTeamCollection('The Explorers');
+          await FirebaseFunctions().addUsertoTeam('The Explorers');
           break;
       }
     } catch (e) {
@@ -157,7 +165,6 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     }
   }
 
-  // Function to skip onboarding and go to the Discover page
   void skipOnboarding() {
     Navigator.pushReplacement(
       context,
@@ -167,19 +174,41 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
     );
   }
 
+  void nextQuestion(String answer) async {
+    setState(() {
+      userAnswers.add(answer);
+    });
+
+    if (currentQuestionIndex < questions.length - 1) {
+      setState(() {
+        currentQuestionIndex++;
+      });
+    } else {
+      // After all questions,recommendations and assign a team
+      List<String> recommendedTeams = getRecommendedTeams(userAnswers);
+      String assignedTeam = assignTeam(userAnswers);
+      await _addUserToTeamCollections(assignedTeam);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DiscoverPage(
+            teamname: assignedTeam,
+            recommendedTeams: recommendedTeams,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Onboarding'),
         actions: [
-          // Skip button in the app bar
           TextButton(
             onPressed: skipOnboarding,
-            child: const Text(
-              'Skip',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: const Text('Skip', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -188,13 +217,11 @@ class _NewUserOnboardingState extends State<NewUserOnboarding> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display the current question
             Text(
               questions[currentQuestionIndex]['question'],
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            // Display the options for the current question
             Expanded(
               child: Column(
                 children: questions[currentQuestionIndex]['options']
