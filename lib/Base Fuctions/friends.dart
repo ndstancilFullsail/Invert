@@ -3,10 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Friends extends StatefulWidget
 {
-  //final String userid;
+  final String userid;
   final Widget uiWidget;
 
-  const Friends({super.key,required this.uiWidget});
+  const Friends({super.key,required this.uiWidget,required this.userid});
 
   @override
   State<Friends> createState() => _FriendsState();
@@ -15,6 +15,7 @@ class Friends extends StatefulWidget
 class _FriendsState extends State<Friends> {
 
   var databaseRef = FirebaseFirestore.instance;
+  Offset mousePos = Offset(0, 0);
 
     Future<void> addFriendListMethod(String friendUserId) async
     { 
@@ -82,20 +83,51 @@ class _FriendsState extends State<Friends> {
     }
 
 
-    
+    void _showContextMenu(BuildContext context, Offset mousePos)
+    {
+      showMenu(
+        context: context, 
+        position: RelativeRect.fromLTRB(
+          mousePos.dx, 
+          mousePos.dy, 
+          MediaQuery.of(context).size.width - mousePos.dx, 
+          MediaQuery.of(context).size.height - mousePos.dy), 
+        items: [
+          PopupMenuItem(
+            child: Text('Direct Message')
+            ),
+          PopupMenuItem(
+            child: Text('View Profile')
+            ),
+          PopupMenuItem(
+            child: Text('Add Friend')
+            ),
+          PopupMenuItem(
+            child: Text('Remove Friend')
+            ),
 
+        ]);
 
+    }
+
+    void _updateLocation(PointerEvent details)
+    {
+      setState(() {
+        mousePos = details.position;
+      });
+    }
 
     @override
   Widget build(BuildContext context) {
     
-    return Column(
-      children: [
-        Text('addfriend'),
-        Text('removefriend'),
-        Text('Direct Message'),
-        Text('View Profile')
-      ],
+    return GestureDetector(
+      onSecondaryTapDown: (details) {
+        _showContextMenu(context, mousePos);
+      },
+      child: MouseRegion(
+        onHover: _updateLocation,
+        child: widget.uiWidget,
+      ),
     );
   }
 }

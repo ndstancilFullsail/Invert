@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:invert/Base%20Fuctions/friends.dart';
 import 'package:invert/main.dart';
 import 'package:invert/Base%20Fuctions/voiceconnect.dart';
 import 'base_layout.dart';
@@ -290,19 +291,34 @@ class _HomeScreenState extends State<HomeScreen> {
           itemBuilder: (context, index) {
             // Get the username of each team member
             String username = members[index]['username'];
+            String baseUserid = members[index]['email'];
 
-            return ListTile(
-              title: Text(username),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DMChatScreen(
-                    senderusername: userName,
-                    receiverusername: username,
+
+            return Friends(uiWidget: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: Colors.transparent,
+                    backgroundImage: NetworkImage(tokenPLACEHOLDER),
                   ),
-                ),
+                  Text(username)
+                ],
               ),
-            );
+            ), userid: baseUserid);
+            // return ListTile(
+            //   title: Text(username),
+            //   onTap: () => Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) => DMChatScreen(
+            //         senderusername: userName,
+            //         receiverusername: username,
+            //       ),
+            //     ),
+            //   ),
+            // );
           },
         ),
       );
