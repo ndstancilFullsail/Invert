@@ -41,13 +41,11 @@ class _UserProfileState extends State<UserProfile> {
 
     // String getFileType(String? example) {
     //   List<String> array = [];
-    
     //   if(example != null)
     //   {
     //     array = example.split('\\');
     //     array = array.last.split('.');
     //   }
-
     //   return array.last;
     // }
 
@@ -62,7 +60,6 @@ class _UserProfileState extends State<UserProfile> {
       debugPrint('$e');
       return '';
     }
-
   }
 
    void uploadUserPicture() async {
@@ -126,8 +123,11 @@ class _UserProfileState extends State<UserProfile> {
               
                 child: Column(
                   children: <Widget> [
-                    Card(child: SizedBox(height: 500, child:Column(
-                      children: <Widget> [
+                    Card(
+                      child: SizedBox(
+                        height: 500, 
+                        child:Column(
+                          children: <Widget> [
 
                         IconButton(onPressed: () {
                           uploadUserPicture();
@@ -142,7 +142,16 @@ class _UserProfileState extends State<UserProfile> {
                                   if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
                                     return Icon(Icons.account_circle, size: 100);
                                   }
-                                    return Image.network(snapshot.data!,width: 150,height: 150,);
+                                    return Container(
+                                      width: 150,
+                                      height: 150,
+                                      clipBehavior: Clip.antiAlias,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                      ),
+                                      child: Image.network(snapshot.data!,fit: BoxFit.fill,),
+                                    );
                                 },
                               ),
                         ),
@@ -188,7 +197,7 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                       FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(uid), builder: (context,snapshot){
+                       FutureBuilder(future: FirebaseFunctions().getTeamFromCollection(email), builder: (context,snapshot){
                           if(snapshot.connectionState == ConnectionState.waiting){
                             return CircularProgressIndicator();
                           }else if(snapshot.hasError){

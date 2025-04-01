@@ -1,12 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:invert/Pages/home.dart';
 import '../Base Fuctions/chat.dart';
 import 'package:invert/Pages/settings.dart';
 import 'package:invert/Pages/userprofile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:invert/Firebase/firebasefunctions.dart';
 
-class BaseLayout extends StatelessWidget {
+class BaseLayout extends StatefulWidget {
   final Widget body;
 
   const BaseLayout({super.key, required this.body});
+
+  @override
+  State<BaseLayout> createState() => _BaseLayoutState();
+}
+
+class _BaseLayoutState extends State<BaseLayout> {
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String email = FirebaseAuth.instance.currentUser!.email.toString();
+  late String team;
+
+
+  void getTeamname()
+  {
+    FirebaseFunctions().getTeamFromCollection(email).then((value) {
+      team = value;
+    });
+  }
+
+  @override
+  void initState() {
+    getTeamname();
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +73,17 @@ class BaseLayout extends StatelessWidget {
                   },
                 ),
                 ListTile(
+                  leading: Icon(Icons.home_outlined,color: Colors.white,),
+                  title: Text("Home",style: TextStyle(color: Colors.white),),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(teamname: team)),);
+                  },
+                ),
+                ListTile(
                   leading: Icon(Icons.message_outlined, color: Colors.white),
                   title: Text("Chat", style: TextStyle(color: Colors.white)),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(teamname: 'YourTeamName')),);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(teamname: "Teamname")),);
                   },
                 ),
                 ListTile(
@@ -90,7 +125,7 @@ class BaseLayout extends StatelessWidget {
           ),
           // Main Content
           Expanded(
-            child: body,
+            child: widget.body,
           ),
         ],
       ),

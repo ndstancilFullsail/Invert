@@ -272,41 +272,46 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 20),
 
                         FutureBuilder(
-  future: FirebaseFunctions().fetchTeamMembersWithFields(widget.teamname),
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return Center(child: CircularProgressIndicator());
-    } else if (snapshot.hasError) {
-      return Center(child: Text('Error: ${snapshot.error}'));
-    } else if (snapshot.hasData) {
-      // Extract team members from the snapshot data
-      Map<String, List<Map<String, dynamic>>> teamDetails = snapshot.data as Map<String, List<Map<String, dynamic>>>;
-      
-      // Extract the list of team members (for example, from the first entry in the map)
-      List<Map<String, dynamic>> members = teamDetails.values.first;
+                        future: FirebaseFunctions().fetchTeamMembersWithFields(widget.teamname),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(child: Text('Error: ${snapshot.error}'));
+                              } else if (snapshot.hasData) {
+                              // Extract team members from the snapshot data
+                              Map<String, List<Map<String, dynamic>>> teamDetails = snapshot.data as Map<String, List<Map<String, dynamic>>>;
+                              
+                              // Extract the list of team members (for example, from the first entry in the map)
+                              List<Map<String, dynamic>> members = teamDetails.values.first;
 
-      return Expanded(
-        child: ListView.builder(
-          itemCount: members.length,
-          itemBuilder: (context, index) {
-            // Get the username of each team member
-            String username = members[index]['username'];
-            String baseUserid = members[index]['email'];
+                              return Expanded(
+                                child: ListView.builder(
+                                  itemCount: members.length,
+                                  itemBuilder: (context, index) {
+                                    // Get the username of each team member
+                                    String username = members[index]['username'];
+                                    String baseUserid = members[index]['email'];
+                                    String userTokenPath = tokenPLACEHOLDER;
+                                    
+                                    getToken(username).then((value){
+                                      userTokenPath = value;
+                                    });
 
-
-            return Friends(uiWidget: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: NetworkImage(tokenPLACEHOLDER),
-                  ),
-                  Text(username)
-                ],
-              ),
-            ), userid: baseUserid);
+                                    return Friends(
+                                      uiWidget: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Colors.transparent,
+                                            backgroundImage: NetworkImage(userTokenPath),
+                                          ),
+                                          Text(username)
+                                        ],
+                                      ),
+                                    ), userid: baseUserid);
             // return ListTile(
             //   title: Text(username),
             //   onTap: () => Navigator.push(

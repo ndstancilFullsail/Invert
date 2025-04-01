@@ -1,5 +1,35 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:invert/Base Fuctions/voiceconnect.dart';
+
+
+
+Future<String> getUsername(String email) async {
+  final databasedoc = await FirebaseFirestore.instance.collection('users').doc(email).get();
+  String temp = 'ERROR USERNAME';
+
+  if(databasedoc.exists)
+  {
+    final doc = databasedoc.data() as Map<String, dynamic>;
+    temp = doc['username'];
+  }
+  return temp;
+}
+
+Future<String> getToken(String username) async {
+
+  try{
+    String tokenURL = await FirebaseStorage.instance.ref(username).getDownloadURL();
+    return tokenURL;
+  }
+  catch(e)
+  {
+    debugPrint('$e');
+    return '$e';
+  }
+}
+
 
 class Friends extends StatefulWidget
 {
@@ -73,9 +103,57 @@ class _FriendsState extends State<Friends> {
 
     }
 
-    void viewProfile()
+    void viewProfile(BuildContext context, String friendUserId)
     {
 
+      String tempUsername = '';
+
+        getUsername(friendUserId).then((value){
+          tempUsername = value;
+        });
+
+
+      showDialog(
+        context: context,
+        barrierDismissible: true, 
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            //elevation: 5,
+            child: Row(
+              children: [
+                Column(
+                  children: [
+                    Card(
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 75,
+                            backgroundColor: Colors.transparent,
+                            backgroundImage: NetworkImage(tokenPLACEHOLDER),
+                          ),
+                          Text(tempUsername)
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                Column()
+              ],
+            )
+
+
+
+
+
+
+
+
+          );
+        }
+        );
     }
 
     void directMsg(){
@@ -100,10 +178,14 @@ class _FriendsState extends State<Friends> {
             child: Text('View Profile')
             ),
           PopupMenuItem(
-            child: Text('Add Friend')
+            child: Text('Add Friend'),
+            onTap: () {
+              
+            },
             ),
           PopupMenuItem(
             child: Text('Remove Friend')
+
             ),
 
         ]);

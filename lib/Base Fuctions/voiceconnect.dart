@@ -189,10 +189,3 @@ class _ParticipantTokenState extends State<ParticipantToken> {
 
   }
 }
-
-
-
-void getTokenUrl()
-{
-  
-}
