@@ -60,12 +60,19 @@ class LoginPage extends StatefulWidget {
   State<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
   final TextEditingController _emailcontroller = TextEditingController();
   final TextEditingController _passwordcontroller = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool firsttime = true;
   String explorers = 'The Explorers';
+  
+  //For animations
+   bool _isLoading = false;
+
+    // Animation variables.
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
 
   @override
@@ -73,6 +80,15 @@ class _LoginPageState extends State<LoginPage> {
     _emailcontroller.dispose();
     _passwordcontroller.dispose();
     super.dispose();
+
+     _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+      _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
+    _animationController.forward();
   }
 
   @override
@@ -222,84 +238,99 @@ class _LoginPageState extends State<LoginPage> {
     
 
     try {
-      print("Attempting to sign in with email: $email"); // Logging the email
-      User? user = await FirebaseFunctions().signInWithEmailAndPassword(email, password);
-      if (user != null) {
-        print("Login successful for user: $email");
-        toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 5),
-          title: const Text('Login Successfully'),
-          alignment: Alignment.centerRight,
-        );
+  print("Attempting to sign in with email: $email");
+  User? user = await FirebaseFunctions().signInWithEmailAndPassword(email, password);
+  if (user != null) {
+    print("Login successful for user: $email");
+    toastification.show(
+      context: context,
+      type: ToastificationType.success,
+      style: ToastificationStyle.flat,
+      autoCloseDuration: const Duration(seconds: 5),
+      title: const Text('Login Successfully'),
+      alignment: Alignment.centerRight,
+    );
 
-          if (checkuser == true) {
-
+    if (checkuser == true) {
       FirebaseFunctions().changeStatus(email, team);
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => const NewUserOnboarding(),
-          ),
-        );
-        } else {
-        if (team != explorers) {
-          Navigator.push(
+        PageRouteBuilder(
+          transitionDuration: const Duration(milliseconds: 500),
+          pageBuilder: (context, animation, secondaryAnimation) => const NewUserOnboarding(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        ),
+      );
+    } else {
+      if (team != explorers) {
+        Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(teamname: team,),
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 500),
+            pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(teamname: team),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
           ),
         );
-          } else {
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DiscoverPage(teamname: ''),
-          ),
-        );
-      }
-     }
-
-
-        
-        
       } else {
-        print("Login failed for user: $email");
-        toastification.show(
-          context: context,
-          type: ToastificationType.error,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 5),
-          title: const Text('Invalid Email or Password'),
-          alignment: Alignment.centerRight,
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 500),
+            pageBuilder: (context, animation, secondaryAnimation) => DiscoverPage(teamname: ''),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ),
         );
       }
-    } on FirebaseAuthException catch (e) {
-        print("Firebase error during login: ${e.code} - ${e.message}");
-        toastification.show(
-            context: context,
-            type: ToastificationType.error,
-            style: ToastificationStyle.flat,
-            autoCloseDuration: const Duration(seconds: 5),
-            title: Text('Error: ${e.message ?? "Authentication failed"}'),
-            alignment: Alignment.centerRight,
-        );
-    } catch (e) {
-        print("Error during login: ${e.toString()}");
-        toastification.show(
-            context: context,
-            type: ToastificationType.error,
-            style: ToastificationStyle.flat,
-            autoCloseDuration: const Duration(seconds: 5),
-            title: Text('Error: ${e.toString()}'),
-            alignment: Alignment.centerRight,
-        );
     }
-
-
-
+  } else {
+    print("Login failed for user: $email");
+    toastification.show(
+      context: context,
+      type: ToastificationType.error,
+      style: ToastificationStyle.flat,
+      autoCloseDuration: const Duration(seconds: 5),
+      title: const Text('Invalid Email or Password'),
+      alignment: Alignment.centerRight,
+    );
   }
-
+} on FirebaseAuthException catch (e) {
+  print("Firebase error during login: ${e.code} - ${e.message}");
+  toastification.show(
+    context: context,
+    type: ToastificationType.error,
+    style: ToastificationStyle.flat,
+    autoCloseDuration: const Duration(seconds: 5),
+    title: Text('Error: ${e.message ?? "Authentication failed"}'),
+    alignment: Alignment.centerRight,
+  );
+} catch (e) {
+  print("Error during login: ${e.toString()}");
+  toastification.show(
+    context: context,
+    type: ToastificationType.error,
+    style: ToastificationStyle.flat,
+    autoCloseDuration: const Duration(seconds: 5),
+    title: Text('Error: ${e.toString()}'),
+    alignment: Alignment.centerRight,
+  );
+} finally {
+  setState(() {
+    _isLoading = false;
+  });
 }
+} }

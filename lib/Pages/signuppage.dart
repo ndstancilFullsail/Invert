@@ -198,14 +198,23 @@ class _SignUpPageState extends State<SignUpPage> {
           alignment: Alignment.bottomRight,
         );
 
-        // Navigate to Onboarding Screen
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => LoginPage()
-          ),
-        );
-      }
+        // Navigate to login page 
+         Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 500),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            LoginPage(),
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
+    );
+  }
     } on FirebaseAuthException catch (e) {
       // Show error message
       toastification.show(
