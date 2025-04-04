@@ -12,7 +12,7 @@ Future<String> getUsername(String email) async {
   if(databasedoc.exists)
   {
     final doc = databasedoc.data() as Map<String, dynamic>;
-    temp = doc['username'];
+    temp = doc['Username'];
   }
   return temp;
 }
@@ -56,13 +56,12 @@ class _FriendsState extends State<Friends> {
         {
           final data = doclist.data() as Map<String, dynamic>;
 
+          //Finding if the field friends exist
           if(doclist.data()!.containsKey('friends'))
           {
             temp = List.from(data['friends']);
-
-            //temp.contains(friendUserId); check if the person is already friended so the add friend menu doesn't appear.
+            
             temp.add(friendUserId);
-
             await databaseRef.collection('users').doc(widget.userid).update({
               'friends' : temp
             });  
@@ -79,7 +78,7 @@ class _FriendsState extends State<Friends> {
         }
     }
 
-    Future<void> removeFriend(String friendUserId) async
+    Future<void> removeFriendListMethod(String friendUserId) async
     {
       final doclist = await databaseRef.collection('users').doc(widget.userid).get();
       List<String> temp = [];
@@ -107,11 +106,15 @@ class _FriendsState extends State<Friends> {
     {
 
       String tempUsername = '';
+      String userTokenGen = tokenPLACEHOLDER;
 
         getUsername(friendUserId).then((value){
           tempUsername = value;
         });
-
+        
+        getToken(tempUsername).then((value){
+          userTokenGen = value;
+        });
 
       showDialog(
         context: context,
@@ -121,18 +124,23 @@ class _FriendsState extends State<Friends> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            //elevation: 5,
+            elevation: 5,
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Card(
                       child: Column(
                         children: [
-                          CircleAvatar(
-                            radius: 75,
-                            backgroundColor: Colors.transparent,
-                            backgroundImage: NetworkImage(tokenPLACEHOLDER),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundColor: Colors.transparent,
+                              backgroundImage: NetworkImage(userTokenGen),
+                            ),
                           ),
                           Text(tempUsername)
                         ],
@@ -140,22 +148,13 @@ class _FriendsState extends State<Friends> {
                     )
                   ],
                 ),
-                Column()
+                //Column()
               ],
             )
-
-
-
-
-
-
-
-
           );
         }
         );
     }
-
     void directMsg(){
       
     }
@@ -163,6 +162,11 @@ class _FriendsState extends State<Friends> {
 
     void _showContextMenu(BuildContext context, Offset mousePos)
     {
+        String addFriendString = 'Add Friend';
+        String removeFriendString = 'Remove Friend';
+
+        //Need to add a check here for if user is already friends with another user and if the friends field exists as well
+
       showMenu(
         context: context, 
         position: RelativeRect.fromLTRB(
@@ -175,16 +179,18 @@ class _FriendsState extends State<Friends> {
             child: Text('Direct Message')
             ),
           PopupMenuItem(
-            child: Text('View Profile')
-            ),
-          PopupMenuItem(
-            child: Text('Add Friend'),
+            child: Text('View Profile'),
             onTap: () {
-              
+              viewProfile(context,widget.userid);
             },
             ),
           PopupMenuItem(
-            child: Text('Remove Friend')
+            child: Text(addFriendString),
+            onTap: () {
+            },
+            ),
+          PopupMenuItem(
+            child: Text(removeFriendString)
 
             ),
 
