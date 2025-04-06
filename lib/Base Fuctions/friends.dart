@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:invert/Base Fuctions/voiceconnect.dart';
+import 'package:invert/Pages/dmchat.dart';
 
 
 
@@ -36,6 +38,7 @@ class Friends extends StatefulWidget
   final String userid;
   final Widget uiWidget;
 
+
   const Friends({super.key,required this.uiWidget,required this.userid});
 
   @override
@@ -46,6 +49,7 @@ class _FriendsState extends State<Friends> {
 
   var databaseRef = FirebaseFirestore.instance;
   Offset mousePos = Offset(0, 0);
+  String senderusername = FirebaseAuth.instance.currentUser!.displayName.toString();
 
     Future<void> addFriendListMethod(String friendUserId) async
     { 
@@ -155,7 +159,10 @@ class _FriendsState extends State<Friends> {
         }
         );
     }
-    void directMsg(){
+    void directMsg(String sender, String receiver) async
+    {
+     Navigator.push(context, MaterialPageRoute(builder: (context) => DMChatScreen(senderusername: sender, receiverusername: receiver)));
+
       
     }
 
@@ -177,6 +184,9 @@ class _FriendsState extends State<Friends> {
         items: [
           PopupMenuItem(
             child: Text('Direct Message')
+            ,onTap: () {
+              directMsg(senderusername, widget.userid); // Replace 'receiverUserId' with the actual receiver's user ID
+            },
             ),
           PopupMenuItem(
             child: Text('View Profile'),

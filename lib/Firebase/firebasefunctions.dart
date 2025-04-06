@@ -406,57 +406,90 @@ class FirebaseFunctions {
 
 
 Future<void> sendDirectMessage(String sender, String receiver, String message) async {
-    try {
-       await _firestore.collection('Direct Messages').doc(sender).update({
-        'sender': sender,
-        'receiver': receiver,
-        'text': message,  
-        'Timestamp': DateTime.now().millisecondsSinceEpoch,
-      });
-       await _firestore.collection('Direct Messages').doc(receiver).update({
-        'sender': sender,
-        'receiver': receiver,
-        'text': message,  
-        'Timestamp': DateTime.now().millisecondsSinceEpoch,
-      });
-      } catch (e) {
-        print('Error sending direct message: $e');
-        throw Exception('Failed to send direct message: $e');
-    }
+  try {
+    final timestamp = FieldValue.serverTimestamp();
+
+    // Add to sender's messages
+    await _firestore
+        .collection('DirectMessages')
+        .doc(sender)
+        .collection(receiver)
+        .add({
+          'sender': sender,
+          'receiver': receiver,
+          'text': message,
+          'timestamp': timestamp,
+        });
+
+    // Add to receiver's messages
+    await _firestore
+        .collection('DirectMessages')
+        .doc(receiver)
+        .collection(sender)
+        .add({
+          'sender': sender,
+          'receiver': receiver,
+          'text': message,
+          'timestamp': timestamp,
+        });
+
+  } catch (e) {
+    print('Error sending direct message: $e');
+    throw Exception('Failed to send direct message: $e');
+  }
   }
 
 
   // Fetch direct messages from Firestore
-  Future<List<Map<String, dynamic>>> fetchDirectMessages(String sender, String receiver) async {
+  Future<List<Map<String, dynamic>>> fetchDirectMessagesForSender(String sender, String receiver) async {
   try {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+    final collection1 = FirebaseFirestore.instance
         .collection('DirectMessages')
         .doc(sender)
         .collection(receiver)
-        .orderBy('timestamp', descending: false)
-        .get();
+        .orderBy('timestamp', descending: false);
 
-    return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    final snapshot1 = await collection1.get();
+    
+
+    final messages1 = snapshot1.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+  
+
+    // Sort by timestamp
+   messages1.sort((a, b) => a['timestamp'].compareTo(b['timestamp']));
+
+    return messages1;
   } catch (e) {
     print('Error fetching direct messages: $e');
     throw Exception('Failed to fetch direct messages: $e');
   }
 }
-Future<List<Map<String, dynamic>>> fetchRecieverDirectMessages(String receiver, String sender) async {
+
+Future<List<Map<String, dynamic>>> fetchDirectMessagesForReciever(String reciever, String sender) async {
   try {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+    final collection1 = FirebaseFirestore.instance
         .collection('DirectMessages')
-        .doc(receiver)
+        .doc(reciever)
         .collection(sender)
-        .orderBy('timestamp', descending: false)
-        .get();
+        .orderBy('timestamp', descending: false);
 
-    return querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+    final snapshot1 = await collection1.get();
+    
+
+    final messages1 = snapshot1.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+
+    // Sort by timestamp
+    messages1.sort((a, b) => a['timestamp'].compareTo(b['timestamp']));
+
+    return messages1;
   } catch (e) {
     print('Error fetching direct messages: $e');
     throw Exception('Failed to fetch direct messages: $e');
   }
 }
+
 
 
   // Fetch team members from Firestore

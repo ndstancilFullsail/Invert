@@ -29,7 +29,7 @@ class _DMChatScreenState extends State<DMChatScreen> {
   }
 
   void _fetchMessages() async {
-    List<Map<String, dynamic>>? messages = await _databaseService.fetchDirectMessages(widget.senderusername, widget.receiverusername);
+    List<Map<String, dynamic>>? messages = await _databaseService.fetchDirectMessagesForSender(widget.senderusername, widget.receiverusername);
     if (mounted) {
       setState(() {
         _messages = messages;
