@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:invert/Base Fuctions/voiceconnect.dart';
 import 'package:invert/Pages/dmchat.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 
@@ -28,7 +29,7 @@ Future<String> getToken(String username) async {
   catch(e)
   {
     debugPrint('$e');
-    return '$e';
+    return tokenPLACEHOLDER;
   }
 }
 
@@ -82,7 +83,7 @@ class _FriendsState extends State<Friends> {
         }
     }
 
-    Future<void> removeFriendListMethod(String friendUserId) async
+Future<void> removeFriendListMethod(String friendUserId) async
     {
       final doclist = await databaseRef.collection('users').doc(widget.userid).get();
       List<String> temp = [];
@@ -106,21 +107,23 @@ class _FriendsState extends State<Friends> {
 
     }
 
-    void viewProfile(BuildContext context, String friendUserId)
+    void viewProfile(BuildContext context, String friendUserId) async
     {
 
-      String tempUsername = '';
+      String tempUsername = 'ERROR';
       String userTokenGen = tokenPLACEHOLDER;
 
-        getUsername(friendUserId).then((value){
+        await getUsername(friendUserId).then((value){
           tempUsername = value;
         });
         
-        getToken(tempUsername).then((value){
+        await getToken(tempUsername).then((value){
           userTokenGen = value;
         });
 
-      showDialog(
+
+    if(context.mounted)
+      {showDialog(
         context: context,
         barrierDismissible: true, 
         builder: (BuildContext context) {
@@ -131,33 +134,46 @@ class _FriendsState extends State<Friends> {
             elevation: 5,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[ 
                 Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
+                  children: <Widget>[
                     Card(
                       child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.transparent,
-                              backgroundImage: NetworkImage(userTokenGen),
+                        mainAxisSize: MainAxisSize.min,
+                              children: <Widget> [
+                                CircleAvatar(
+                                  radius: 50,
+                                  backgroundColor: Colors.transparent,
+                                  backgroundImage: NetworkImage(userTokenGen),
+                                ),
+                                Text(
+                                  tempUsername, 
+                                  style: GoogleFonts.roboto(fontSize: 24, color: Colors.black),
+                                  )
+                              ],
                             ),
-                          ),
-                          Text(tempUsername)
-                        ],
-                      ),
                     )
                   ],
                 ),
-                //Column()
+                Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Card(
+                    child: Text('Badges'),
+                  ),
+                  Card(
+                      child: Text('LeaderBoard'),
+                    )
+                    ],
+                ),
               ],
             )
           );
         }
         );
+      }
     }
     void directMsg(String sender, String receiver) async
     {
