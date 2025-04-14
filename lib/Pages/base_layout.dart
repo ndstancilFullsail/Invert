@@ -83,7 +83,7 @@ class _BaseLayoutState extends State<BaseLayout> {
                   leading: Icon(Icons.message_outlined, color: Colors.white),
                   title: Text("Chat", style: TextStyle(color: Colors.white)),
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(teamname: "Teamname")),);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage(teamname: team)),);
                   },
                 ),
                 ListTile(

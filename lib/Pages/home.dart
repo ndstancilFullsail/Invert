@@ -12,6 +12,7 @@ import 'discover.dart';
 import 'dmchat.dart';
 import 'package:toastification/toastification.dart';
 
+
 class HomeScreen extends StatefulWidget {
   final String teamname; // Required parameter
 
@@ -209,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
+                color: const Color.fromARGB(255, 20, 107, 148),
               ),
               child: Text(
                 'Menu',
@@ -333,7 +334,9 @@ class _HomeScreenState extends State<HomeScreen> {
   },
 ),
                     ],
-                  ))),
+                  )
+                  )
+                  ),
                   
                   Padding(
                     padding: const EdgeInsets.all(8.0),

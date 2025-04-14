@@ -1,12 +1,22 @@
 import 'dart:async';
-
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+import 'package:invert/Base%20Fuctions/chat.dart';
+import 'package:invert/Base%20Fuctions/friends.dart';
+import 'package:invert/Base%20Fuctions/voiceconnect.dart';
+import 'package:invert/Pages/base_layout.dart';
+import 'package:invert/Pages/discover.dart';
+import 'package:toastification/toastification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
+import 'package:invert/main.dart';
+import 'package:invert/Firebase/utils.dart';
+
 
 class DMChatScreen extends StatefulWidget {
   final String senderusername; 
-  final String receiverusername;// Required parameter
+  final String receiverusername;
+  // Required parameter
 
   const DMChatScreen({super.key, required this.senderusername, required this.receiverusername}); // Mark as required
 
@@ -20,6 +30,8 @@ class _DMChatScreenState extends State<DMChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   Timer? _timer;
   String? username = FirebaseAuth.instance.currentUser!.displayName;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String teamname = FirebaseFunctions().getTeamFromCollection(FirebaseAuth.instance.currentUser!.email.toString()).toString();
 
 @override
   void initState() {
@@ -50,72 +62,288 @@ class _DMChatScreenState extends State<DMChatScreen> {
     super.dispose();
   }
 
+  Future<void> _handleLogout() async {
+    try {
+      await _auth.signOut();
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+      toastification.show(
+          context: context,
+          type: ToastificationType.success,
+          style: ToastificationStyle.flat,
+          autoCloseDuration: const Duration(seconds: 5),
+          title: const Text('Logout Successfully'),
+          alignment: Alignment.bottomRight,
+        );
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logout failed. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar: AppBar(title: Text(widget.receiverusername)), // Use the receiver's username as the title
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                var message = _messages[index];
-                bool isMe = message["sender"] == username;
-
-                return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: isMe ? Colors.blueAccent : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isMe ? "You" : message["sender"],
-                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          message["text"],
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
+     appBar: AppBar(title: Text(widget.receiverusername)),
+     drawer: Drawer( 
+      child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Discover'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DiscoverPage(teamname: teamname), // Pass teamname
                   ),
                 );
               },
             ),
+            ListTile(
+              title: const Text('Logout'),
+              onTap: _handleLogout,
+            ),
+          ],
+        ),
+      ),
+      body: BaseLayout(
+        body: Row (
+          children: <Widget> [
+            //Team Members List
+            Expanded(
+              flex: 1,
+              child:Card(
+                elevation: 8,
+                margin: EdgeInsets.all(12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              child:Container(
+                
+                color: Color.fromARGB(255, 255, 255, 255),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text('Team Members', 
+                      style: TextStyle(
+                        fontSize: 24, 
+                        color: Colors.black,
+                        fontStyle: FontStyle.normal,
+                        fontWeight: FontWeight.bold),
+                        ),
+                    SizedBox(height: 20),
+                    FutureBuilder(
+                        future: FirebaseFunctions().fetchTeamMembersWithFields(teamname),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(child: Text('Error: ${snapshot.error}'));
+                              } else if (snapshot.hasData) {
+                              // Extract team members from the snapshot data
+                              Map<String, List<Map<String, dynamic>>> teamDetails = snapshot.data as Map<String, List<Map<String, dynamic>>>;
+                              
+                              // Extract the list of team members (for example, from the first entry in the map)
+                              List<Map<String, dynamic>> members = teamDetails.values.first;
+
+                              return Expanded(
+                                child: ListView.builder(
+                                  itemCount: members.length,
+                                  itemBuilder: (context, index) {
+                                    // Get the username of each team member
+                                    String username = members[index]['username'];
+                                    String baseUserid = members[index]['email'];
+                                    String userTokenPath = tokenPLACEHOLDER;
+                                    
+                                    getToken(username).then((value){
+                                      userTokenPath = value;
+                                    });
+
+                                    return Friends(
+                                      uiWidget: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 20,
+                                            backgroundColor: Colors.transparent,
+                                            backgroundImage: NetworkImage(userTokenPath),
+                                          ),
+                                          Text(username)
+                                        ],
+                                      ),
+                                    ), userid: baseUserid);
+            
+          },
+        ),
+      );
+    } else {
+      return Center(child: Text('No team members found.'));
+    }
+  },
+),
+                  ],
+                ),
+
+              )
+
+              )
+
+            ),
+            //Chat Messages
+            Expanded(
+  flex: 3,
+  child: Column(
+    children: <Widget>[
+      Expanded(
+        child: ListView.builder(
+          itemCount: _messages.length,
+          itemBuilder: (context, index) {
+            final message = _messages[index];
+            bool isMe = message['sender'] == widget.senderusername;
+
+            return Align(
+               alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+  child: Container(
+    constraints: BoxConstraints(
+      maxWidth: MediaQuery.of(context).size.width * 0.7, // restrict width of the bubble
+    ),
+    padding: EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: isMe ? maincolor : maingray,
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isMe ? 'You' : message['sender'] ?? '',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: "Type a message...",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
+        ),
+        SizedBox(height: 5),
+         Text(
+            message['text'] ?? '',
+            style: TextStyle(color: Colors.white),
+            softWrap: true,
+            overflow: TextOverflow.visible,
+          ),
+        
+      ],
+    ),
+  ),
+);
+          },
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: 'Type a message',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
                   ),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
-                SizedBox(width: 10),
-                IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
-                  onPressed: _sendMessage,
+              ),
+            ),
+            SizedBox(width: 10),
+            IconButton(
+              icon: Icon(Icons.send, color: maincolor),
+              onPressed: _sendMessage,
+            ),
+          ],
+        ),
+      ),
+    ],
+  ),
+),
+          //User Profile
+          Expanded(
+            flex: 1,
+            child: Card(
+              color: Color.fromARGB(255, 255, 255, 255),
+              elevation: 8,
+              margin: EdgeInsets.all(12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            child: Column(
+
+              children: <Widget>[
+                CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.transparent,
+                  backgroundImage: AssetImage('placeholder.png'), // Replace with actual image URL
                 ),
+                SizedBox(height: 10),
+                Text(
+                  widget.receiverusername,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Badges',
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'LeaderBoard',
+                  style: TextStyle(fontSize: 18),
+                ),
+               
+                
+
+
+
+
+
               ],
             ),
-          ),
-        ],
+            ),
+            )
+          ],
+        
+        ),
+      
       ),
-    );
+   );
   }
 }

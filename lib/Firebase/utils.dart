@@ -1,8 +1,6 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:invert/Firebase/firebase_options.dart';
+import 'dart:ui';
 
-Future<void> setupFirebase() async {
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-}
+const maincolor = Color.fromARGB(255, 20, 107, 148);
+const maingray = Color.fromARGB(208,217, 217, 217);
+
+
