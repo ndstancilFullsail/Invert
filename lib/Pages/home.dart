@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:invert/Base%20Fuctions/friends.dart';
 import 'package:invert/main.dart';
@@ -12,11 +13,9 @@ import 'discover.dart';
 import 'dmchat.dart';
 import 'package:toastification/toastification.dart';
 
-
 class HomeScreen extends StatefulWidget {
-  final String teamname; // Required parameter
-
-  const HomeScreen({super.key, required this.teamname}); // Mark as required
+  final String teamname;
+  const HomeScreen({super.key, required this.teamname});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -29,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late String userName;
   bool connected = false;
   bool micEnabled = true;
+
   final FirebaseFunctions _firebaseFunctions = FirebaseFunctions();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -39,35 +39,35 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchMeetingInfo();
     _fetchUserName();
     _checkTeamAndNavigate();
-    //VoiceStart().setInfo(); //Only used for settings all of videoSDK config
   }
 
-  // Fetch meeting info from Firestore
   Future<void> _fetchMeetingInfo() async {
     try {
-      final doc = await _firestore.collection('Teams').doc(widget.teamname).collection('VoiceInfo').doc('Info').get();
+      final doc = await _firestore
+          .collection('Teams')
+          .doc(widget.teamname)
+          .collection('VoiceInfo')
+          .doc('Info')
+          .get();
       if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-
-        List<String> temp = [];
-        for(int i = 0; i < 5; i++)
-        {
-          temp.add(data['meetingId$i']);
-        }
-
+        final data = doc.data()!;
+        List<String> temp = [
+          data['meetingId0'],
+          data['meetingId1'],
+          data['meetingId2'],
+          data['meetingId3'],
+          data['meetingId4'],
+        ];
         setState(() {
           token = data['token'];
-          meetingIds = List.from(temp);
+          meetingIds = temp;
         });
-      } else {
-        print('VoiceInfo document does not exist');
       }
     } catch (e) {
       print('Error fetching meeting info: $e');
     }
   }
 
-  // Fetch username from Firestore
   Future<void> _fetchUserName() async {
     try {
       final user = _auth.currentUser;
@@ -84,22 +84,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Check if the team is 'The Explorers' and navigate to DiscoverPage
   void _checkTeamAndNavigate() {
     if (widget.teamname == 'The Explorers') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => DiscoverPage(teamname: widget.teamname), // Pass teamname
+            builder: (_) => DiscoverPage(teamname: widget.teamname),
           ),
         );
       });
     }
   }
 
-  // Join a voice channel
-  void _joinVoiceChannel(String channelName,String channelId) {
+  void _joinVoiceChannel(String channelName, String channelId) {
     _channel = VideoSDK.createRoom(
       roomId: channelId,
       displayName: channelName,
@@ -109,46 +107,38 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     _setRoomEvents(channelName);
     _channel.join();
-    setState(() {
-      connected = true;
-    });
+    setState(() => connected = true);
   }
 
-  // Set up room event listeners
   void _setRoomEvents(String channelName) {
     _channel.on(Events.roomJoined, () {
       _addUserToVoiceChannel(channelName);
     });
-
     _channel.on(Events.roomLeft, () {
       _removeUserFromVoiceChannel(channelName);
     });
   }
 
-  // Add user to Firestore voice channel
   Future<void> _addUserToVoiceChannel(String channelName) async {
     try {
       final userId = _auth.currentUser!.uid;
       await _firestore
           .collection('Teams')
-          .doc(widget.teamname) // Use widget.teamname
+          .doc(widget.teamname)
           .collection(channelName)
           .doc(userId)
-          .set({
-        "Username": userName,
-      },SetOptions(merge: true));
+          .set({ "Username": userName }, SetOptions(merge: true));
     } catch (e) {
       print('Error adding user to voice channel: $e');
     }
   }
 
-  // Remove user from Firestore voice channel
   Future<void> _removeUserFromVoiceChannel(String channelName) async {
     try {
       final userId = _auth.currentUser!.uid;
       await _firestore
           .collection('Teams')
-          .doc(widget.teamname) // Use widget.teamname
+          .doc(widget.teamname)
           .collection(channelName)
           .doc(userId)
           .delete();
@@ -157,40 +147,32 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Toggle microphone state
   void _toggleMicrophone() {
-    if (micEnabled) {
-      _channel.muteMic();
-    } else {
-      _channel.unmuteMic();
-    }
-    setState(() {
-      micEnabled = !micEnabled;
-    });
+    if (micEnabled) _channel.muteMic();
+    else _channel.unmuteMic();
+    setState(() => micEnabled = !micEnabled);
   }
 
-  // Leave the voice channel
   void _leaveVoiceChannel() {
     _channel.leave();
-    setState(() {
-      connected = false;
-    });
+    setState(() => connected = false);
   }
 
-  // Handle logout
   Future<void> _handleLogout() async {
     try {
       await _auth.signOut();
-      Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
       toastification.show(
-          context: context,
-          type: ToastificationType.success,
-          style: ToastificationStyle.flat,
-          autoCloseDuration: const Duration(seconds: 5),
-          title: const Text('Logout Successfully'),
-          alignment: Alignment.bottomRight,
-        );
-
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text('Logout Successfully'),
+        alignment: Alignment.bottomRight,
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -204,179 +186,88 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 20, 107, 148),
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Discover'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DiscoverPage(teamname: widget.teamname), // Pass teamname
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: const Text('Logout'),
-              onTap: _handleLogout,
-            ),
-          ],
-        ),
-      ),
       body: BaseLayout(
         body: Row(
           children: [
             Expanded(
               child: Container(
-                color: Color.fromARGB(255,246, 241, 241),
+                color: const Color.fromARGB(255, 246, 241, 241),
                 padding: const EdgeInsets.all(16),
                 child: ChatPage(teamname: widget.teamname),
               ),
             ),
             Container(
               width: 300,
-              color: Color.fromARGB(255,246, 241, 241),
+              color: const Color.fromARGB(255, 246, 241, 241),
               padding: const EdgeInsets.all(16),
               child: Column(
-                children: <Widget> [
-                  Card(color: Color.fromARGB(255, 217, 217, 217), child: SizedBox(height:300, child: Column(
-                    
-                    children: <Widget>[
-                      Text('Team Members', 
-                      style: TextStyle(
-                        fontSize: 24, 
-                        color: Colors.black,
-                        fontStyle: FontStyle.normal,
-                        fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 20),
-
-                        FutureBuilder(
-                        future: FirebaseFunctions().fetchTeamMembersWithFields(widget.teamname),
+                children: [
+                  Card(
+                    color: const Color.fromARGB(255, 217, 217, 217),
+                    child: SizedBox(
+                      height: 300,
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Team Members',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 20),
+                          FutureBuilder(
+                            future: _firebaseFunctions.fetchTeamMembersWithFields(widget.teamname),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
-                                return Center(child: CircularProgressIndicator());
+                                return const Center(child: CircularProgressIndicator());
                               } else if (snapshot.hasError) {
                                 return Center(child: Text('Error: ${snapshot.error}'));
                               } else if (snapshot.hasData) {
-                              // Extract team members from the snapshot data
-                              Map<String, List<Map<String, dynamic>>> teamDetails = snapshot.data as Map<String, List<Map<String, dynamic>>>;
-                              
-                              // Extract the list of team members (for example, from the first entry in the map)
-                              List<Map<String, dynamic>> members = teamDetails.values.first;
-
-                              return Expanded(
-                                child: ListView.builder(
-                                  itemCount: members.length,
-                                  itemBuilder: (context, index) {
-                                    // Get the username of each team member
-                                    String username = members[index]['username'];
-                                    String baseUserid = members[index]['email'];
-                                    String userTokenPath = tokenPLACEHOLDER;
-                                    
-                                    getToken(username).then((value){
-                                      userTokenPath = value;
-                                    });
-
-                                    return Friends(
-                                      uiWidget: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 20,
-                                            backgroundColor: Colors.transparent,
-                                            backgroundImage: NetworkImage(userTokenPath),
+                                final teamDetails = snapshot.data as Map<String, List<Map<String, dynamic>>>;
+                                final members = teamDetails.values.first;
+                                return Expanded(
+                                  child: ListView.builder(
+                                    itemCount: members.length,
+                                    itemBuilder: (context, i) {
+                                      final u = members[i];
+                                      return Friends(
+                                        uiWidget: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 20,
+                                                backgroundImage: NetworkImage(u['avatarUrl'] ?? ''),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(u['username'] ?? ''),
+                                            ],
                                           ),
-                                          Text(username)
-                                        ],
-                                      ),
-                                    ), userid: baseUserid);
-            // return ListTile(
-            //   title: Text(username),
-            //   onTap: () => Navigator.push(
-            //     context,
-            //     MaterialPageRoute(
-            //       builder: (context) => DMChatScreen(
-            //         senderusername: userName,
-            //         receiverusername: username,
-            //       ),
-            //     ),
-            //   ),
-            // );
-          },
-        ),
-      );
-    } else {
-      return Center(child: Text('No team members found.'));
-    }
-  },
-),
-                    ],
-                  )
-                  )
-                  ),
-                  
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'Voice Channels',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                                        ),
+                                        userid: u['email'],
+                                      );
+                                    },
+                                  ),
+                                );
+                              } else {
+                                return const Center(child: Text('No team members found.'));
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  const Text('Voice Channels', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Expanded(
                     child: ListView(
                       children: [
-                        ListTile(
-                          title: Text('Voice Channel 1'),
-                          onTap: () => _joinVoiceChannel('Voice Channel 1',meetingIds[0]),
-                        ),
-                        ParticipantToken(team: widget.teamname,channel: 'Voice Channel 1',),
-                        ListTile(
-                          title: Text('Voice Channel 2'),
-                          onTap: () => _joinVoiceChannel('Voice Channel 2',meetingIds[1]),
-                        ),
-                        ParticipantToken(team: widget.teamname,channel: 'Voice Channel 2',),
-                        ListTile(
-                          title: Text('Voice Channel 3'),
-                          onTap: () => _joinVoiceChannel('Voice Channel 3',meetingIds[2]),
-                        ),
-                         ParticipantToken(team: widget.teamname,channel: 'Voice Channel 3',),
-                        ListTile(
-                          title: Text('Voice Channel 4'),
-                          onTap: () => _joinVoiceChannel('Voice Channel 4',meetingIds[3]),
+                        for (var i = 0; i < meetingIds.length; i++) ...[
+                          ListTile(
+                            title: Text('Voice Channel ${i + 1}'),
+                            onTap: () => _joinVoiceChannel('Voice Channel ${i + 1}', meetingIds[i]),
                           ),
-                           ParticipantToken(team: widget.teamname,channel: 'Voice Channel 4',),
-                        ListTile(
-                          title: Text('Voice Channel 5'),
-                          onTap: () => _joinVoiceChannel('Voice Channel 5',meetingIds[4]),
-                          ),
-                           ParticipantToken(team: widget.teamname,channel: 'Voice Channel 5',),
+                          ParticipantToken(team: widget.teamname, channel: 'Voice Channel ${i + 1}'),
+                        ],
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -384,24 +275,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               onPressed: _toggleMicrophone,
                               icon: Icon(micEnabled ? Icons.mic : Icons.mic_off),
                             ),
-                            LeaveButton(
-                              connect: connected,
-                              icon: Text('Leave'),
-                              onPressed: _leaveVoiceChannel,
-                            ),
+                            LeaveButton(connect: connected, icon: const Text('Leave'), onPressed: _leaveVoiceChannel),
                           ],
-                        ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _handleLogout,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            minimumSize: Size(double.infinity, 40),
-                          ),
-                          child: Text(
-                            'Logout',
-                            style: TextStyle(color: Colors.white),
-                          ),
                         ),
                       ],
                     ),
