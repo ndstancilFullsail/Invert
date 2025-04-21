@@ -132,43 +132,65 @@ Future<void> removeFriendListMethod(String friendUserId) async
               borderRadius: BorderRadius.circular(16),
             ),
             elevation: 5,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[ 
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Card(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                              children: <Widget> [
-                                CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: Colors.transparent,
-                                  backgroundImage: NetworkImage(userTokenGen),
-                                ),
-                                Text(
-                                  tempUsername, 
-                                  style: GoogleFonts.roboto(fontSize: 24, color: Colors.black),
-                                  )
-                              ],
-                            ),
-                    )
-                  ],
-                ),
-                Column(
+            child: SizedBox(
+              height: 300,
+              width: 500,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[ 
+                  Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Card(
-                    child: Text('Badges'),
-                  ),
-                  Card(
-                      child: Text('LeaderBoard'),
-                    )
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Card(
+                          child: SizedBox(
+                            height: 250,
+                            width: 150,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                                    children: <Widget> [
+                                      CircleAvatar(
+                                        radius: 50,
+                                        backgroundColor: Colors.transparent,
+                                        backgroundImage: NetworkImage(userTokenGen),
+                                      ),
+                                      Text(
+                                        tempUsername, 
+                                        style: GoogleFonts.roboto(fontSize: 24, color: Colors.black),
+                                        )
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      )
                     ],
-                ),
-              ],
+                  ),
+                  Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Card(
+                            child: SizedBox(
+                            height: 100,
+                            width: 250,
+                          child: Column(
+                            children: [
+                              Text('Badges')
+                              
+                              ])
+                          ),
+                                              ),
+                        ),
+                    Card(
+                        child: Text('LeaderBoard'),
+                      )
+                      ],
+                  ),
+                ],
+              ),
             )
           );
         }

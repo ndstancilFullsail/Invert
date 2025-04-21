@@ -238,7 +238,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
     
 
     try {
-  print("Attempting to sign in with email: $email");
+  print("Attempting to sign in with email: $email");  
   User? user = await FirebaseFunctions().signInWithEmailAndPassword(email, password);
   if (user != null) {
     print("Login successful for user: $email");
