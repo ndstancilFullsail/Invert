@@ -118,7 +118,7 @@ class _CustomNavDrawerState extends State<CustomNavDrawer> {
         duration: const Duration(milliseconds: 300),
         width: isExpanded ? 220 : 70,
         decoration: BoxDecoration(
-          color: lightBlue.withOpacity(0.9),
+          color: lightBlue.withAlpha(1),
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(20),
             bottomRight: Radius.circular(20),
@@ -178,7 +178,7 @@ class _CustomNavDrawerState extends State<CustomNavDrawer> {
               Text(
                 label,
                 style: TextStyle(
-                  color: iconColor.withOpacity(0.9),
+                  color: iconColor.withAlpha(1),
                   fontSize: 16,
                 ),
               ),
