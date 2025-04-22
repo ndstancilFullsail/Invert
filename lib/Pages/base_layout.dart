@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:invert/Firebase/utils.dart';
 import 'package:invert/Pages/home.dart';
 import 'package:invert/Base%20Fuctions/chat.dart';
 import 'package:invert/Pages/settings.dart';
@@ -28,15 +29,18 @@ class _BaseLayoutState extends State<BaseLayout> {
     _getTeamname();
   }
 
+  
+
   void _getTeamname() async {
     final result = await FirebaseFunctions().getTeamFromCollection(email);
+    if(!mounted) return;
     setState(() {
       team = result;
     });
   }
 
   void _handleNavigation(String key) {
-    if (team == null) return;
+    if (team == null || !mounted) return;
 
     switch (key) {
       case 'home':
@@ -68,8 +72,11 @@ class _BaseLayoutState extends State<BaseLayout> {
 
   void _handleLogout() async {
     await _auth.signOut();
+    if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login');
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +125,7 @@ class _CustomNavDrawerState extends State<CustomNavDrawer> {
         duration: const Duration(milliseconds: 300),
         width: isExpanded ? 220 : 70,
         decoration: BoxDecoration(
+          color: maincolor,
           color: lightBlue.withAlpha(1),
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(20),

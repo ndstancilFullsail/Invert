@@ -91,47 +91,8 @@ class _DMChatScreenState extends State<DMChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+    backgroundColor: maincolor,
      appBar: AppBar(title: Text(widget.receiverusername)),
-     drawer: Drawer( 
-      child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Discover'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DiscoverPage(teamname: teamname), // Pass teamname
-                  ),
-                );
-              },
-            ),
-            ListTile(
-              title: const Text('Logout'),
-              onTap: _handleLogout,
-            ),
-          ],
-        ),
-      ),
       body: BaseLayout(
         body: Row (
           children: <Widget> [

@@ -76,20 +76,25 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
 
 
   @override
-  void dispose() {
-    _emailcontroller.dispose();
-    _passwordcontroller.dispose();
-    super.dispose();
+void initState() {
+  super.initState();
+  _animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  );
+  _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+    CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+  );
+  _animationController.forward();
+}
 
-     _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-      _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
-    );
-    _animationController.forward();
-  }
+@override
+void dispose() {
+  _emailcontroller.dispose();
+  _passwordcontroller.dispose();
+  _animationController.dispose(); // Don't forget to dispose this!
+  super.dispose();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +273,7 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
       );
     } else {
       if (team != explorers) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),

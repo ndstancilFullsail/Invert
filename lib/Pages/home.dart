@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:invert/Base%20Fuctions/friends.dart';
+import 'package:invert/Firebase/utils.dart';
 import 'package:invert/main.dart';
 import 'package:invert/Base%20Fuctions/voiceconnect.dart';
 import 'base_layout.dart';
@@ -32,12 +33,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final FirebaseFunctions _firebaseFunctions = FirebaseFunctions();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  late Future<Map<String, List<Map<String, dynamic>>>> teammemberFuture;
 
   @override
   void initState() {
     super.initState();
     _fetchMeetingInfo();
     _fetchUserName();
+    _checkTeamAndNavigate();
+    teammemberFuture = _firebaseFunctions.fetchTeamMembersWithFields(widget.teamname);
     _checkTeamAndNavigate();
   }
 
@@ -49,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .collection('VoiceInfo')
           .doc('Info')
           .get();
-      if (doc.exists) {
+      if (doc.exists && mounted) {
         final data = doc.data()!;
         List<String> temp = [
           data['meetingId0'],
@@ -73,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final user = _auth.currentUser;
       if (user != null) {
         final doc = await _firestore.collection('users').doc(user.email).get();
-        if (doc.exists) {
+        if (doc.exists && mounted) {
           setState(() {
             userName = doc.get('Username') as String;
           });
@@ -87,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _checkTeamAndNavigate() {
     if (widget.teamname == 'The Explorers') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        if(!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -161,6 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _handleLogout() async {
     try {
       await _auth.signOut();
+      if (!mounted) return;
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => LoginPage()),
@@ -174,6 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
         alignment: Alignment.bottomRight,
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Logout failed. Please try again.'),
@@ -183,15 +190,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+ 
   @override
   Widget build(BuildContext context) {
+     print("HomeScreen build triggered — mounted: $mounted");
     return Scaffold(
+      backgroundColor: maincolor,
       body: BaseLayout(
         body: Row(
           children: [
             Expanded(
               child: Container(
-                color: const Color.fromARGB(255, 246, 241, 241),
+                color: mainwhite,
                 padding: const EdgeInsets.all(16),
                 child: ChatPage(teamname: widget.teamname),
               ),
@@ -214,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           const SizedBox(height: 20),
                           FutureBuilder(
-                            future: _firebaseFunctions.fetchTeamMembersWithFields(widget.teamname),
+                            future: teammemberFuture,
                             builder: (context, snapshot) {
                               if (snapshot.connectionState == ConnectionState.waiting) {
                                 return const Center(child: CircularProgressIndicator());
@@ -257,6 +267,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  
+                    
+
                   const Text('Voice Channels', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Expanded(
                     child: ListView(
@@ -281,6 +294,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                      
+                  
+                  
                 ],
               ),
             ),

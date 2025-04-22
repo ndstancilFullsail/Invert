@@ -164,6 +164,19 @@ class _SignUpPageState extends State<SignUpPage> {
     String username = _usernamecontroller.text.trim();
     String fullName = _fullnamecontroller.text.trim();
 
+
+    // check if password length is less than 6 characters
+if (password.length < 6 ) {
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text('Password must be at least 6 characters long'),
+        alignment: Alignment.bottomRight,
+      );
+      return;
+    }
     // Check if passwords match
     if (_passwordcontroller.text != _confirmpasswordcontroller.text) {
       toastification.show(
@@ -176,6 +189,20 @@ class _SignUpPageState extends State<SignUpPage> {
       );
       return;
     }
+    // Check if any field is empty
+    if(email.isEmpty || password.isEmpty || username.isEmpty || fullName.isEmpty) {
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.flat,
+        autoCloseDuration: const Duration(seconds: 5),
+        title: const Text('Please fill in all fields'),
+        alignment: Alignment.bottomRight,
+      );
+      return;
+    }
+
+    
 
     try {
       // Sign up with email and password
