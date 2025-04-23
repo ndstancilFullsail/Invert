@@ -34,7 +34,7 @@ class _BaseLayoutState extends State<BaseLayout> {
 
   void _getTeamname() async {
     final result = await FirebaseFunctions().getTeamFromCollection(email);
-    if(!mounted) return;
+    if (!mounted) return;
     setState(() {
       team = result;
     });
@@ -62,9 +62,7 @@ class _BaseLayoutState extends State<BaseLayout> {
         break;
       case 'settings':
         setState(() {
-          setState(() {
-            transfering = const SettingsPage();
-          });
+          transfering = const SettingsPage();
         });
         break;
       case 'profile':
@@ -78,7 +76,7 @@ class _BaseLayoutState extends State<BaseLayout> {
   void _handleLogout() async {
     FirebaseFunctions().signOut();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,7 +90,7 @@ class _BaseLayoutState extends State<BaseLayout> {
             child: Scaffold(
               backgroundColor: maincolor,
               body: transfering,
-            )
+            ),
           ),
         ],
       ),
@@ -100,70 +98,52 @@ class _BaseLayoutState extends State<BaseLayout> {
   }
 }
 
-class CustomNavDrawer extends StatefulWidget {
+class CustomNavDrawer extends StatelessWidget {
   final Function(String) onNavigate;
   final VoidCallback onLogout;
 
-  const CustomNavDrawer({
-    super.key,
-    required this.onNavigate,
-    required this.onLogout,
-  });
-
-  @override
-  State<CustomNavDrawer> createState() => _CustomNavDrawerState();
-}
-
-class _CustomNavDrawerState extends State<CustomNavDrawer> {
-  bool isExpanded = false;
-
-  final Color lightBlue = const Color(0xFFB3E5FC);
-  final Color iconColor = Colors.white;
+  const CustomNavDrawer({super.key, required this.onNavigate, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => isExpanded = true),
-      onExit: (_) => setState(() => isExpanded = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        width: isExpanded ? 220 : 70,
-        decoration: BoxDecoration(
-          color: lightBlue.withAlpha(1),
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
+    final Color lightBlue = const Color(0xFFB3E5FC);
+    final Color iconColor = Colors.white;
+
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        color: lightBlue.withOpacity(0.3),
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(20),
+          bottomRight: Radius.circular(20),
         ),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(20),
-            bottomRight: Radius.circular(20),
-          ),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: Column(
-              children: [
-                const SizedBox(height: 30),
-                Center(
-                  child: CircleAvatar(
-                    radius: isExpanded ? 35 : 25,
-                    backgroundImage: const AssetImage('assets/public_speaking.png'),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildNavItem(Icons.explore, 'Discover', 'discover'),
-                _buildNavItem(Icons.home, 'Home', 'home'),
-                _buildNavItem(Icons.message, 'Chat', 'chat'),
-                _buildNavItem(Icons.leaderboard, 'Leaderboard', 'leaderboard'),
-                _buildNavItem(Icons.settings, 'Settings', 'settings'),
-                const Spacer(),
-                _buildNavItem(Icons.person, 'Profile', 'profile'),
-                _buildNavItem(Icons.logout, 'Logout', 'logout'),
-                const SizedBox(height: 20),
-              ],
-            ),
+        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8)],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+          child: Column(
+            children: [
+              const SizedBox(height: 30),
+              const CircleAvatar(
+                radius: 35,
+                backgroundImage: AssetImage('assets/public_speaking.png'),
+              ),
+              const SizedBox(height: 20),
+              _buildNavItem(Icons.explore, 'Discover', 'discover'),
+              _buildNavItem(Icons.home, 'Home', 'home'),
+              _buildNavItem(Icons.message, 'Chat', 'chat'),
+              _buildNavItem(Icons.leaderboard, 'Leaderboard', 'leaderboard'),
+              _buildNavItem(Icons.settings, 'Settings', 'settings'),
+              const Spacer(),
+              _buildNavItem(Icons.person, 'Profile', 'profile'),
+              _buildNavItem(Icons.logout, 'Logout', 'logout'),
+              const SizedBox(height: 20),
+            ],
           ),
         ),
       ),
@@ -174,25 +154,24 @@ class _CustomNavDrawerState extends State<CustomNavDrawer> {
     return InkWell(
       onTap: () {
         if (key == 'logout') {
-          widget.onLogout();
+          onLogout();
         } else {
-          widget.onNavigate(key);
+          onNavigate(key);
         }
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
         child: Row(
           children: [
-            Icon(icon, color: iconColor, size: 24),
-            if (isExpanded) const SizedBox(width: 20),
-            if (isExpanded)
-              Text(
-                label,
-                style: TextStyle(
-                  color: iconColor.withAlpha(90),
-                  fontSize: 16,
-                ),
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(width: 20),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
               ),
+            ),
           ],
         ),
       ),
