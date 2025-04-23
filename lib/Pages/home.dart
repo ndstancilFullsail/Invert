@@ -238,14 +238,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                     itemCount: members.length,
                                     itemBuilder: (context, i) {
                                       final u = members[i];
+                                      
                                       return Friends(
                                         uiWidget: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Row(
                                             children: [
-                                              CircleAvatar(
-                                                radius: 20,
-                                                backgroundImage: NetworkImage(u['avatarUrl'] ?? ''),
+                                              FutureBuilder(
+                                                future: getToken(u['username']),
+                                                builder: (context, snapshot) {
+
+                                                  if(snapshot.connectionState == ConnectionState.waiting)
+                                                  {
+                                                    return CircularProgressIndicator();
+                                                  }
+                                                  else if(snapshot.hasData)
+                                                  {
+                                                    return CircleAvatar(
+                                                      radius: 20,
+                                                      backgroundImage: NetworkImage(snapshot.data!),
+                                                    );
+                                                  }
+                                                  else{
+                                                    return Text('Error');
+                                                  }
+                                                },
                                               ),
                                               const SizedBox(width: 8),
                                               Text(u['username'] ?? ''),

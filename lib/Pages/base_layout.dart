@@ -71,13 +71,9 @@ class _BaseLayoutState extends State<BaseLayout> {
   }
 
   void _handleLogout() async {
-    await _auth.signOut();
-    if (!mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
+    FirebaseFunctions().signOut();
   }
-
-
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,7 +121,6 @@ class _CustomNavDrawerState extends State<CustomNavDrawer> {
         duration: const Duration(milliseconds: 300),
         width: isExpanded ? 220 : 70,
         decoration: BoxDecoration(
-          color: maincolor,
           color: lightBlue.withAlpha(1),
           borderRadius: const BorderRadius.only(
             topRight: Radius.circular(20),
@@ -181,12 +176,12 @@ class _CustomNavDrawerState extends State<CustomNavDrawer> {
         child: Row(
           children: [
             Icon(icon, color: iconColor, size: 24),
-            if (isExpanded) const SizedBox(width: 10),
+            if (isExpanded) const SizedBox(width: 20),
             if (isExpanded)
               Text(
                 label,
                 style: TextStyle(
-                  color: iconColor.withAlpha(1),
+                  color: iconColor.withAlpha(90),
                   fontSize: 16,
                 ),
               ),

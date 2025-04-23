@@ -46,12 +46,63 @@ class _InVertAppState extends State<InVertApp> {
       theme: ThemeData(
         primaryColor: const Color.fromARGB(255, 20, 107, 148),
       ),
-      home: LoginPage(),
+      home: LoggedInUser(),
       
       );
   }
 }
    
+
+//Logic for keeping the user signed in and sign out
+class LoggedInUser extends StatelessWidget{
+  const LoggedInUser({super.key});
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(), 
+        builder: (context,snapshot) {
+          if(snapshot.connectionState == ConnectionState.waiting)
+          {
+            return Center(child: CircularProgressIndicator(),);
+          }
+          else if (snapshot.hasError)
+          {
+            return Center(child: Text('Error'),);
+          }
+          else{
+            if(snapshot.data == null)
+            {
+              return const LoginPage();
+            }
+            else {
+              return FutureBuilder(
+                future: FirebaseFunctions().getTeamFromCollection((snapshot.data?.email)!),
+                builder: (context, snapshot2) { 
+                  if(snapshot2.connectionState == ConnectionState.waiting)
+                  {
+                    return Center(child: CircularProgressIndicator(),);
+                  }
+                  else if(snapshot2.data! != 'Unassigned')
+                  {
+                    return HomeScreen(teamname: snapshot2.data!);
+                  }else{
+                    return const NewUserOnboarding();
+                  }
+                  
+                },);
+            }
+
+          }
+        }),);
+  }
+
+  
+}
+
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
