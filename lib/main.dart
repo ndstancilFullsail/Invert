@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:invert/Pages/base_layout.dart';
 import 'package:toastification/toastification.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
 import 'package:invert/Pages/forgotpassword.dart';
@@ -87,22 +88,16 @@ class LoggedInUser extends StatelessWidget{
                   }
                   else if(snapshot2.data! != 'Unassigned')
                   {
-                    return HomeScreen(teamname: snapshot2.data!);
+                    return BaseLayout(teamName: snapshot2.data!);
                   }else{
                     return const NewUserOnboarding();
                   }
-                  
                 },);
             }
-
           }
         }),);
-  }
-
-  
+  }  
 }
-
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -328,7 +323,7 @@ void dispose() {
           context,
           PageRouteBuilder(
             transitionDuration: const Duration(milliseconds: 500),
-            pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(teamname: team),
+            pageBuilder: (context, animation, secondaryAnimation) => BaseLayout(teamName: team,),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return FadeTransition(
                 opacity: animation,

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:invert/Firebase/utils.dart';
 import 'package:invert/Pages/home.dart';
 import 'package:invert/Base%20Fuctions/chat.dart';
@@ -9,9 +10,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
 
 class BaseLayout extends StatefulWidget {
-  final Widget body;
+  final String teamName;
 
-  const BaseLayout({super.key, required this.body});
+  const BaseLayout({super.key, required this.teamName});
 
   @override
   State<BaseLayout> createState() => _BaseLayoutState();
@@ -21,15 +22,15 @@ class _BaseLayoutState extends State<BaseLayout> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late String email;
   String? team;
+  late Widget transfering;
 
   @override
   void initState() {
     super.initState();
     email = _auth.currentUser!.email!;
+    transfering = HomeScreen(teamname: widget.teamName);
     _getTeamname();
   }
-
-  
 
   void _getTeamname() async {
     final result = await FirebaseFunctions().getTeamFromCollection(email);
@@ -44,28 +45,32 @@ class _BaseLayoutState extends State<BaseLayout> {
 
     switch (key) {
       case 'home':
-        Navigator.push(context,
-            MaterialPageRoute(builder: (_) => HomeScreen(teamname: team!)));
+        setState(() {
+          transfering = HomeScreen(teamname: widget.teamName);
+        });
         break;
       case 'discover':
         Navigator.pushNamed(context, '/discover');
         break;
       case 'chat':
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) => ChatPage(teamname: team!)));
+        setState(() {
+          transfering = ChatPage(teamname: widget.teamName);
+        });
         break;
       case 'leaderboard':
         Navigator.pushNamed(context, '/leaderboard');
         break;
       case 'settings':
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const SettingsPage()));
+        setState(() {
+          setState(() {
+            transfering = const SettingsPage();
+          });
+        });
         break;
       case 'profile':
-        Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const UserProfile()));
+        setState(() {
+          transfering = const UserProfile();
+        });
         break;
     }
   }
@@ -84,7 +89,10 @@ class _BaseLayoutState extends State<BaseLayout> {
             onLogout: _handleLogout,
           ),
           Expanded(
-            child: widget.body,
+            child: Scaffold(
+              backgroundColor: maincolor,
+              body: transfering,
+            )
           ),
         ],
       ),

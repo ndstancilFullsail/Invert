@@ -40,8 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
         page = Placeholder();
     }
 
-    return BaseLayout(body: 
-    Column(
+    return  Column(
           children: [SizedBox(height: 10,),
             SafeArea(
             child: Container(
@@ -98,8 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
           )
           )
           ]
-        ),
-    );
+        );
   }
 
 }

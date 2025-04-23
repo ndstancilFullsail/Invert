@@ -115,8 +115,7 @@ class _UserProfileState extends State<UserProfile> {
     
     @override
     Widget build(BuildContext context) {
-      return BaseLayout(
-        body: Row(
+      return Row(
           children: <Widget> [
             Expanded(
               flex: 1,
@@ -298,8 +297,7 @@ class _UserProfileState extends State<UserProfile> {
             )
         )
           ]
-        )
-      );
+        );
   }
 }
 

@@ -194,10 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
      print("HomeScreen build triggered — mounted: $mounted");
-    return Scaffold(
-      backgroundColor: maincolor,
-      body: BaseLayout(
-        body: Row(
+    return Row(
           children: [
             Expanded(
               child: Container(
@@ -284,9 +281,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
-                    
-
                   const Text('Voice Channels', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Expanded(
                     child: ListView(
@@ -318,8 +312,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
+        );
   }
 }

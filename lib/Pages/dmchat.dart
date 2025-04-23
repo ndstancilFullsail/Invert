@@ -93,8 +93,7 @@ class _DMChatScreenState extends State<DMChatScreen> {
     return Scaffold(
     backgroundColor: maincolor,
      appBar: AppBar(title: Text(widget.receiverusername)),
-      body: BaseLayout(
-        body: Row (
+      body: Row (
           children: <Widget> [
             //Team Members List
             Expanded(
@@ -304,7 +303,6 @@ class _DMChatScreenState extends State<DMChatScreen> {
         
         ),
       
-      ),
-   );
+      );
   }
 }
