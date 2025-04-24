@@ -274,7 +274,10 @@ class _UserProfileState extends State<UserProfile> {
 
                 const SizedBox(height: 100),
 
-                Text('This is where the Friends list and requests will be')
+
+                
+
+                //Text('This is where the Friends list and requests will be')
 
               ],
               

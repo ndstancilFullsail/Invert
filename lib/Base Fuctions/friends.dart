@@ -88,7 +88,6 @@ Future<void> removeFriendListMethod(String friendUserId) async
       final doclist = await databaseRef.collection('users').doc(widget.userid).get();
       List<String> temp = [];
 
-
       if(doclist.exists)
       {
         final data = doclist.data() as Map<String, dynamic>;
@@ -265,6 +264,37 @@ Future<void> removeFriendListMethod(String friendUserId) async
         child: widget.uiWidget,
       ),
     );
+  }
+}
+
+class FriendButton extends PopupMenuItem {
+
+  const FriendButton({
+    super.key, required super.child,
+  });
+
+  bool _areFriends(String friendUserID) {
+    
+    String _currentUser = FirebaseAuth.instance.currentUser!.email!;
+
+
+
+
+
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget temp = SizedBox();
+
+    if(areFriend)
+    {
+      return temp;
+    }else
+    {
+      return PopupMenuItem();
+    }
   }
 }
 
