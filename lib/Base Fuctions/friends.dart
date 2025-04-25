@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/rendering.dart';
 import 'package:invert/Base Fuctions/voiceconnect.dart';
 import 'package:invert/Pages/dmchat.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,12 +34,28 @@ Future<String> getToken(String username) async {
   }
 }
 
+Future<List<String>> getFriendsFromUserCollection(String userEmail) async{
+
+  final doclist = await FirebaseFirestore.instance.collection('users').doc(userEmail).get();
+  List<String> temp = [];
+  if(doclist.exists)
+  {
+    final data = doclist.data() as Map<String, dynamic>;
+
+    if(doclist.data()!.containsKey('friends'))
+    {
+      temp = List.from(data['friends']);
+    }
+  }
+
+  return temp;
+}
 
 class Friends extends StatefulWidget
 {
   final String userid;
   final Widget uiWidget;
-
+  
 
   const Friends({super.key,required this.uiWidget,required this.userid});
 
@@ -51,10 +68,11 @@ class _FriendsState extends State<Friends> {
   var databaseRef = FirebaseFirestore.instance;
   Offset mousePos = Offset(0, 0);
   String senderusername = FirebaseAuth.instance.currentUser!.displayName.toString();
+  final _currentUser = FirebaseAuth.instance.currentUser!.email!;
 
-    Future<void> addFriendListMethod(String friendUserId) async
+    Future<void> addFriendListMethod() async
     { 
-        final doclist = await databaseRef.collection('users').doc(widget.userid).get();
+        final doclist = await databaseRef.collection('users').doc(_currentUser).get();
         List<String> temp = [];
         
         if(doclist.exists)
@@ -66,16 +84,16 @@ class _FriendsState extends State<Friends> {
           {
             temp = List.from(data['friends']);
             
-            temp.add(friendUserId);
-            await databaseRef.collection('users').doc(widget.userid).update({
+            temp.add(widget.userid);
+            await databaseRef.collection('users').doc(_currentUser).update({
               'friends' : temp
             });  
 
           }
           else{
 
-            temp.add(friendUserId);
-            await databaseRef.collection('users').doc(widget.userid).set({
+            temp.add(widget.userid);
+            await databaseRef.collection('users').doc(_currentUser).set({
               'friends' : temp
             },SetOptions(merge: true));  
 
@@ -83,9 +101,9 @@ class _FriendsState extends State<Friends> {
         }
     }
 
-Future<void> removeFriendListMethod(String friendUserId) async
+Future<void> removeFriendListMethod() async
     {
-      final doclist = await databaseRef.collection('users').doc(widget.userid).get();
+      final doclist = await databaseRef.collection('users').doc(_currentUser).get();
       List<String> temp = [];
 
       if(doclist.exists)
@@ -96,9 +114,9 @@ Future<void> removeFriendListMethod(String friendUserId) async
         {
           temp = List.from(data['friends']);
           
-          temp.removeWhere((item) => item == friendUserId);
+          temp.removeWhere((item) => item == widget.userid);
 
-          await databaseRef.collection('users').doc(widget.userid).update({
+          await databaseRef.collection('users').doc(_currentUser).update({
               'friends' : temp
           }); 
         }
@@ -203,15 +221,48 @@ Future<void> removeFriendListMethod(String friendUserId) async
       
     }
 
+    Future<bool> _areFriends(String friendUserID) async{
+    
+    final doclist = await FirebaseFirestore.instance.collection('users').doc(_currentUser).get();
+    List temp = [];
+    bool isFriend = false;
 
-    void _showContextMenu(BuildContext context, Offset mousePos)
+    if(doclist.exists)
     {
-        String addFriendString = 'Add Friend';
-        String removeFriendString = 'Remove Friend';
+      final data = doclist.data() as Map<String, dynamic>;
 
+      if(doclist.data()!.containsKey('friends'))
+      {
+        temp = List.from(data['friends']);
+        
+        if(temp.contains(friendUserID))
+        {
+          isFriend = true;
+        }
+        else
+        {
+          isFriend = false;
+        }
+      }
+      else
+      {
+        isFriend = false;
+      }
+    }
+
+    return isFriend;
+  }
+
+
+
+    void _showContextMenu(BuildContext context, Offset mousePos) async
+    {
         //Need to add a check here for if user is already friends with another user and if the friends field exists as well
-
-      showMenu(
+        bool temp = await _areFriends(widget.userid);
+   
+        if(context.mounted)
+        {
+          showMenu(
         context: context, 
         position: RelativeRect.fromLTRB(
           mousePos.dx, 
@@ -219,29 +270,32 @@ Future<void> removeFriendListMethod(String friendUserId) async
           MediaQuery.of(context).size.width - mousePos.dx, 
           MediaQuery.of(context).size.height - mousePos.dy), 
         items: [
-          PopupMenuItem(
+            PopupMenuItem(
             child: Text('Direct Message')
             ,onTap: () {
               directMsg(senderusername, widget.userid); // Replace 'receiverUserId' with the actual receiver's user ID
             },
             ),
-          PopupMenuItem(
+            PopupMenuItem(
             child: Text('View Profile'),
             onTap: () {
               viewProfile(context,widget.userid);
             },
             ),
-          PopupMenuItem(
-            child: Text(addFriendString),
-            onTap: () {
-            },
-            ),
-          PopupMenuItem(
-            child: Text(removeFriendString)
-
-            ),
+            PopupMenuItem(
+              enabled: !temp,
+              child: Text('Add Friend'),
+              onTap: () => addFriendListMethod(),),
+            PopupMenuItem(
+              enabled: temp,
+              child: Text('Remove Friend'),
+              onTap: () => removeFriendListMethod(),
+              )
 
         ]);
+        }
+
+      
 
     }
 
@@ -264,37 +318,6 @@ Future<void> removeFriendListMethod(String friendUserId) async
         child: widget.uiWidget,
       ),
     );
-  }
-}
-
-class FriendButton extends PopupMenuItem {
-
-  const FriendButton({
-    super.key, required super.child,
-  });
-
-  bool _areFriends(String friendUserID) {
-    
-    String _currentUser = FirebaseAuth.instance.currentUser!.email!;
-
-
-
-
-
-    return false;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Widget temp = SizedBox();
-
-    if(areFriend)
-    {
-      return temp;
-    }else
-    {
-      return PopupMenuItem();
-    }
   }
 }
 

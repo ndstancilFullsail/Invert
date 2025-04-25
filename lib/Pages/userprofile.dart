@@ -6,7 +6,7 @@ import 'base_layout.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
-
+import 'package:invert/Base Fuctions/friends.dart';
 
 class UserProfile  extends StatefulWidget{
   const UserProfile({super.key});
@@ -269,23 +269,80 @@ class _UserProfileState extends State<UserProfile> {
               ),
             ),
             
-            Expanded(flex:1, child: Column(children: <Widget> [ Card( child: SizedBox(height: 300, child: Column( children: <Widget>[
+            Expanded(flex:1, child: Column(children: <Widget> [ 
+              Card( child: SizedBox(height: 300,width: 310, child: Column( children: <Widget>[
                 Text('Friends', style: GoogleFonts.roboto(),),
 
-                const SizedBox(height: 100),
-
-
+                const SizedBox(height: 15),
                 
+                FutureBuilder(
+                  future: getFriendsFromUserCollection(email), 
+                  builder: (context,snapshot) {
 
-                //Text('This is where the Friends list and requests will be')
+                    if(snapshot.connectionState == ConnectionState.waiting)
+                    {
+                      return Center(child: CircularProgressIndicator(),);
+                    }
 
+                    if(snapshot.data!.isNotEmpty)
+                    {
+                      return Expanded(
+                        child: ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context,index){
+
+                          final friends = snapshot.data![index];
+
+                          return FutureBuilder(
+                            future: getUsername(friends), 
+                            builder: (context,userSnap){
+                            if(userSnap.connectionState == ConnectionState.waiting)
+                            {
+                              return Center(child: CircularProgressIndicator(),);
+                            }
+                            return Row(children: [
+                             FutureBuilder(
+                               future: getToken(userSnap.data!),
+                                builder: (context, tokenshot) {
+
+                                 if(tokenshot.connectionState == ConnectionState.waiting)
+                                  {
+                                    return CircularProgressIndicator();
+                                  }
+                                    else if(tokenshot.hasData)
+                                  {
+                                   return Padding(
+                                     padding: const EdgeInsets.all(8.0),
+                                     child: CircleAvatar(
+                                             radius: 20,
+                                      backgroundImage: NetworkImage(tokenshot.data!),
+                                      ),
+                                   );
+                                  }
+                                  else{
+                                    return Text('Error');
+                                     }
+                                      },
+                                  ),
+                                  Text(userSnap.data!)
+                              ],
+                            );
+                          });
+                        })
+                      );
+                    }
+                    else{
+                      return Center(child: Text("No Friends Available"),);
+                    }
+                  }
+                  )
               ],
               
               ),
             ),
           ),
-          Card(child: SizedBox(height: 300, child: Column( children: <Widget>[
-                Text('Friends', style: GoogleFonts.roboto(),),
+          Card(child: SizedBox(height: 300,width: 310, child: Column( children: <Widget>[
+                Text('Friends Requests', style: GoogleFonts.roboto(),),
 
                 const SizedBox(height: 100),
 
