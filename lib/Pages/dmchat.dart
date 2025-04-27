@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
 import 'package:invert/Base%20Fuctions/chat.dart';
 import 'package:invert/Base%20Fuctions/friends.dart';
@@ -15,10 +16,10 @@ import 'package:invert/Firebase/utils.dart';
 
 class DMChatScreen extends StatefulWidget {
   final String senderusername; 
-  final String receiverusername;
+  final String receiveremail;
   // Required parameter
 
-  const DMChatScreen({super.key, required this.senderusername, required this.receiverusername}); // Mark as required
+  const DMChatScreen({super.key, required this.senderusername, required this.receiveremail}); // Mark as required
 
   @override
   State<DMChatScreen> createState() => _DMChatScreenState();
@@ -32,16 +33,32 @@ class _DMChatScreenState extends State<DMChatScreen> {
   String? username = FirebaseAuth.instance.currentUser!.displayName;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final String teamname = FirebaseFunctions().getTeamFromCollection(FirebaseAuth.instance.currentUser!.email.toString()).toString();
+  String? recievername;
 
 @override
   void initState() {
     super.initState();
     _fetchMessages();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) => _fetchMessages()); // Poll messages every 2 seconds
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) => _fetchMessages());
+    _fetchrecieverusername();
+
+     // Poll messages every 2 seconds
   }
 
+  Future<void> _fetchrecieverusername() async {
+    String? recievername = await FirebaseFunctions().getusernamefromemail(widget.receiveremail);
+    if (mounted) {
+      setState(() {
+        this.recievername = recievername;
+      });
+    }
+  }
+
+  
+
   void _fetchMessages() async {
-    List<Map<String, dynamic>>? messages = await _databaseService.fetchDirectMessagesForSender(widget.senderusername, widget.receiverusername);
+    if (recievername == null) return; // Ensure recievername is not null before fetching messages
+    List<Map<String, dynamic>>? messages = await _databaseService.fetchDirectMessagesForSender(widget.senderusername, recievername!);
     if (mounted) {
       setState(() {
         _messages = messages;
@@ -51,7 +68,7 @@ class _DMChatScreenState extends State<DMChatScreen> {
 
   Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
-    await _databaseService.sendDirectMessage(widget.senderusername, widget.receiverusername, _messageController.text.trim());
+    await _databaseService.sendDirectMessage(widget.senderusername, recievername!, _messageController.text.trim());
     _messageController.clear();
     _fetchMessages(); // Manually refresh messages
   }
@@ -91,8 +108,8 @@ class _DMChatScreenState extends State<DMChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: maincolor,
-     appBar: AppBar(title: Text(widget.receiverusername)),
+    backgroundColor: mainwhite,
+     appBar: AppBar(title: Text(recievername == null ? 'Loading...' : recievername!),),
       body: Row (
           children: <Widget> [
             //Team Members List
@@ -275,7 +292,7 @@ class _DMChatScreenState extends State<DMChatScreen> {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  widget.receiverusername,
+                  recievername ?? widget.receiveremail,
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),

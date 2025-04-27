@@ -214,6 +214,19 @@ class FirebaseFunctions {
     }
   }
 
+  Future<String> getusernamefromemail(String email) async {
+    try {
+      DocumentSnapshot doc = await _firestore.collection('users').doc(email).get();
+      if (doc.exists) {
+        return doc.get('Username') as String;
+      } else {
+        throw Exception('No Username exists!');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
 
 
   // Get username from Firestore

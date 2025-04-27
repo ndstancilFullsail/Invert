@@ -216,7 +216,7 @@ Future<void> removeFriendListMethod() async
     }
     void directMsg(String sender, String receiver) async
     {
-     Navigator.push(context, MaterialPageRoute(builder: (context) => DMChatScreen(senderusername: sender, receiverusername: receiver)));
+     Navigator.push(context, MaterialPageRoute(builder: (context) => DMChatScreen(senderusername: sender, receiveremail: receiver)));
 
       
     }
