@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:invert/Firebase/firebasefunctions.dart';
+import 'package:invert/Pages/base_layout.dart';
 import 'home.dart';
 import 'package:invert/Firebase/user_count_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -206,7 +207,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeScreen(teamname: team['name']),
+            builder: (context) => BaseLayout(teamName: team['name']),
           ),
         );
       } catch (e) {

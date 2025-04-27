@@ -58,7 +58,7 @@ class _BaseLayoutState extends State<BaseLayout> {
         });
         break;
       case 'leaderboard':
-        Navigator.pushNamed(context, '/leaderboard');
+        Navigator.pushNamed(context, '/leaderboard'); 
         break;
       case 'settings':
         setState(() {
